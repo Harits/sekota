@@ -1,0 +1,20 @@
+@startuml
+entity "WorkPackage" {
+  * localId : String
+  --
+  opId : Integer
+  subject : String
+  status : String
+  lockVersion : Integer
+  assignee : String
+}
+
+entity "Sprint" {
+  * sprintName : String
+  --
+  startDate : Date
+  endDate : Date
+}
+
+Sprint ||--|{ WorkPackage : contains
+@enduml

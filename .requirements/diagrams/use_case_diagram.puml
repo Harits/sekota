@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+actor "Developer/Agent" as Agent
+actor "OpenProject API" as OP
+actor "Figma API" as Figma
+
+package "Sekota Web System" {
+  usecase "Sync Backlog" as UC1
+  usecase "Fetch Design" as UC2
+  usecase "Generate Code" as UC3
+  usecase "Manage Sprint" as UC4
+}
+
+Agent --> UC1
+Agent --> UC2
+Agent --> UC3
+Agent --> UC4
+
+UC1 -- OP
+UC2 -- Figma
+@enduml

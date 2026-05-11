@@ -14,6 +14,10 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
   - `work_packages_api.md`: Reference for syncing tasks and status updates.
   - `.env.example`: Template for OpenProject API credentials.
   - `backlogs/`: Local storage for `product_backlog.md` and `sprint_*.json` files.
+- **`.requirements/`**:
+  - `development_requirements.md`: Technical stack and quality standards.
+  - `use_case_specification.md`: Functional flow details.
+  - `diagrams/`: PlantUML source files for architecture and data models.
 
 ## 🛠️ Your Core Workflow
 

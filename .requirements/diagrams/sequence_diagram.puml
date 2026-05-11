@@ -1,0 +1,13 @@
+@startuml
+actor Agent
+participant "Local Backlog (JSON)" as Local
+participant "OpenProject API" as OP
+
+Agent -> Local : Read sprint_1.json
+Local --> Agent : Task List (WP-001, etc.)
+Agent -> OP : GET /work_packages/{id} (Check lockVersion)
+OP --> Agent : 200 OK (Current lockVersion)
+Agent -> OP : PATCH /work_packages/{id} (Update status)
+OP --> Agent : 200 OK (Success)
+Agent -> Local : Update lockVersion
+@enduml
