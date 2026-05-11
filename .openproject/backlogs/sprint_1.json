@@ -1,0 +1,25 @@
+{
+  "sprintName": "Sprint 1: Foundation",
+  "startDate": "2024-05-13",
+  "endDate": "2024-05-24",
+  "workPackages": [
+    {
+      "localId": "WP-001",
+      "opId": null,
+      "subject": "Implement Web Navbar",
+      "status": "In Progress",
+      "lockVersion": 0,
+      "description": "Responsive navbar based on Figma 'Web/Header' design.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-002",
+      "opId": null,
+      "subject": "Setup Ktor Web Client",
+      "status": "New",
+      "lockVersion": 0,
+      "description": "Initialize Ktor for JS target in shared module.",
+      "assignee": "AS Agent"
+    }
+  ]
+}

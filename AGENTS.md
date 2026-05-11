@@ -13,11 +13,16 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 - **`.openproject/`**:
   - `work_packages_api.md`: Reference for syncing tasks and status updates.
   - `.env.example`: Template for OpenProject API credentials.
+  - `backlogs/`: Local storage for `product_backlog.md` and `sprint_*.json` files.
 
 ## 🛠️ Your Core Workflow
 
 ### 1. Planning with OpenProject
-- **Sync Tasks**: Fetch Work Packages from OpenProject to understand the current sprint or task list.
+- **Sync Tasks**: Fetch Work Packages from OpenProject to understand the current sprint.
+- **Backlog Management**: 
+  - Update `product_backlog.md` with new user stories.
+  - Manage the current sprint in `sprint_*.json`.
+- **Sync Logic**: Use the local backlog files as the source to update OpenProject via the API.
 - **Update Status**: Post comments or update `lockVersion` after completing sub-tasks.
 - Refer to `.openproject/work_packages_api.md` for payloads.
 
