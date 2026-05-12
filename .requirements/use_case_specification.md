@@ -18,3 +18,13 @@
   1. System calls `get_design_context` MCP tool.
   2. System retrieves CSS, screenshot, and metadata.
   3. System applies styling and layout to Kotlin Compose Web components.
+
+## UC-3: Implement Landing Page Hero Section
+- **Actor**: AS Agent
+- **Precondition**: Design context for `15:1509` (Header - HERO SECTION) is fetched.
+- **Main Flow**:
+  1. System creates `HeroSection.kt` in `composeApp`.
+  2. System implements the background with overlay and blur as per Figma specs.
+  3. System renders the "Trusted Intelligence." heading with gradient text.
+  4. System adds the subtext and "Konsultasi Strategis" CTA button.
+- **Postcondition**: Hero section matches Figma design and is responsive.

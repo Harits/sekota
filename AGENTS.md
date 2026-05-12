@@ -16,6 +16,7 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
   - `backlogs/`: Local storage for `product_backlog.md` and `sprint_*.json` files.
 - **`.requirements/`**:
   - `development_requirements.md`: Technical stack and quality standards.
+  - `landing_page_requirements.md`: Component-level specs for the main landing page.
   - `use_case_specification.md`: Functional flow details.
   - `diagrams/`: PlantUML source files for architecture and data models.
 
@@ -32,6 +33,9 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 
 ### 2. Design Reference with Figma
 - **Fetch UI/UX**: Use Figma MCP tools (e.g., `get_design_context`) to get screenshots and CSS/Metadata for the target UI components.
+- **Main Design File**: `Sekota-Landing-Page`
+  - **File Key**: `oZqXuSsN7u7S73vfjWXQIN`
+  - **Landing Page Frame**: `15:1465`
 - **Maintain Consistency**: Refer to `.figma/usage_guide.md` to ensure design tokens (colors, fonts) match the Figma file.
 
 ### 3. Development with Jules
