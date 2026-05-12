@@ -1,24 +1,42 @@
 {
   "sprintName": "Sprint 1: Foundation",
-  "startDate": "2024-05-13",
-  "endDate": "2024-05-24",
+  "startDate": "2026-05-12",
+  "endDate": "2026-05-19",
   "workPackages": [
     {
       "localId": "WP-001",
-      "opId": null,
+      "opId": 21685,
       "subject": "Implement Web Navbar",
       "status": "In Progress",
       "lockVersion": 0,
-      "description": "Responsive navbar based on Figma 'Web/Header' design.",
+      "description": "Responsive navbar based on Figma 'Web/Header' design (Node: 25:191).",
       "assignee": "AS Agent"
     },
     {
       "localId": "WP-002",
-      "opId": null,
+      "opId": 21686,
       "subject": "Setup Ktor Web Client",
       "status": "New",
       "lockVersion": 0,
       "description": "Initialize Ktor for JS target in shared module.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-003",
+      "opId": 21687,
+      "subject": "Implement Landing Page Hero Section",
+      "status": "New",
+      "lockVersion": 0,
+      "description": "Engaging entrance for new users with 'Trusted Intelligence' heading (Node: 15:1509).",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-004",
+      "opId": 21688,
+      "subject": "Implement Sidebar Filter",
+      "status": "New",
+      "lockVersion": 0,
+      "description": "Search and category filtering for the product list (Node: 25:196).",
       "assignee": "AS Agent"
     }
   ]
