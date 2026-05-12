@@ -39,8 +39,14 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 - **Maintain Consistency**: Refer to `.figma/usage_guide.md` to ensure design tokens (colors, fonts) match the Figma file.
 
 ### 3. Development with Jules
-- **Start Sessions**: For complex refactoring or new feature implementations, trigger Jules sessions using `create_session`.
-- **Collaborate**: Provide context and prompts to Jules based on the Figma designs and OpenProject requirements.
+- **Start Sessions**: Trigger Jules sessions for implementation using the `create_session` endpoint.
+- **Branch Selection**:
+  - Explicitly select the target **Branch** (e.g., `main`, `develop`, or a feature branch) before starting a session.
+  - Ensure the `source` path in the Jules payload reflects the correct branch context if supported, or specify it in the prompt.
+- **Finishing Strategy**:
+  - **Sequential**: Complete one Jules session, verify the work, and update the OpenProject status before starting the next job. Use this for interdependent tasks.
+  - **Parallel**: Start multiple independent Jules sessions simultaneously to increase development velocity. Ensure each session uses a unique feature branch to avoid merge conflicts.
+- **Collaborate**: Provide context and prompts based on Figma designs and OpenProject requirements.
 - Refer to `.jules/api_reference.md` for session management.
 
 ### 4. Implementation (KMP & Web)
