@@ -26,25 +26,40 @@ fun Navbar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.8f))
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .height(80.dp)
+            .background(Color.White.copy(alpha = 0.85f)) // Glassmorphism-ish background
+            .padding(horizontal = 48.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(Res.drawable.logo_sekota),
-            contentDescription = "Sekota Logo",
-            modifier = Modifier.height(32.dp)
-        )
-
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Text("Solusi", fontFamily = getDmSansFontFamily())
-            Text("Produk", fontFamily = getDmSansFontFamily())
-            Text("E-Book", fontFamily = getDmSansFontFamily())
-            Text("Mengapa Sekota", fontFamily = getDmSansFontFamily())
-            Text("Kontak", fontFamily = getDmSansFontFamily())
+        // Logo Section
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(Res.drawable.logo_sekota),
+                contentDescription = "Sekota Logo",
+                modifier = Modifier.height(40.dp)
+            )
         }
 
+        // Navigation Links
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val navItems = listOf("Produk", "Solusi", "Tentang Kami", "Kontak")
+            navItems.forEach { item ->
+                Text(
+                    text = item,
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+        }
+
+        // Action Button
         Button(
             onClick = { /* TODO */ },
             shape = RoundedCornerShape(50),
@@ -59,7 +74,7 @@ fun Navbar() {
                         ),
                         shape = RoundedCornerShape(50)
                     )
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

@@ -21,34 +21,39 @@ import androidx.compose.ui.draw.blur
 
 @Composable
 fun HeroSection() {
-    Box(modifier = Modifier.fillMaxWidth()) {
-        // Decorative Blurs
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp)
+    ) {
+        // Decorative Blurs (Background Layer)
         Box(
             modifier = Modifier
-                .size(300.dp)
-                .offset(x = (-100).dp, y = (-50).dp)
-                .background(Color(0xFF60BD65).copy(alpha = 0.1f), shape = RoundedCornerShape(150.dp))
+                .size(600.dp)
+                .offset(x = (-200).dp, y = (-100).dp)
+                .background(Color(0xFF60BD65).copy(alpha = 0.15f), shape = RoundedCornerShape(300.dp))
                 .blur(140.dp)
         )
         Box(
             modifier = Modifier
-                .size(300.dp)
+                .size(600.dp)
                 .align(Alignment.BottomEnd)
-                .offset(x = 100.dp, y = 50.dp)
-                .background(Color(0xFF02B6CF).copy(alpha = 0.1f), shape = RoundedCornerShape(150.dp))
+                .offset(x = 200.dp, y = 100.dp)
+                .background(Color(0xFF02B6CF).copy(alpha = 0.15f), shape = RoundedCornerShape(300.dp))
                 .blur(140.dp)
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 80.dp, horizontal = 24.dp),
+                .padding(vertical = 120.dp, horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             Text(
                 text = "Trusted Intelligence.",
                 fontSize = 88.sp,
+                lineHeight = 96.sp,
                 fontWeight = FontWeight.ExtraBold,
                 fontFamily = getMontserratFontFamily(),
                 textAlign = TextAlign.Center,
@@ -60,21 +65,24 @@ fun HeroSection() {
             )
 
             Text(
-                text = "Memberdayakan organisasi melalui intelligence berbasis data terbuka dan AI...",
+                text = "Memberdayakan organisasi melalui intelligence berbasis data terbuka dan AI untuk pengambilan keputusan yang lebih cepat, tepat, dan strategis.",
                 fontSize = 20.sp,
+                lineHeight = 30.sp,
                 fontWeight = FontWeight.Light,
                 fontFamily = getDmSansFontFamily(),
                 color = Color.Black.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
+                modifier = Modifier.widthIn(max = 800.dp)
             )
 
             Button(
-                onClick = { /* TODO */ },
+                onClick = { /* TODO: Scroll to Contact or open modal */ },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues(),
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier
+                    .padding(top = 24.dp)
+                    .height(56.dp)
             ) {
                 Box(
                     modifier = Modifier
@@ -84,7 +92,7 @@ fun HeroSection() {
                             ),
                             shape = RoundedCornerShape(50)
                         )
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                        .padding(horizontal = 40.dp, vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -92,7 +100,7 @@ fun HeroSection() {
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontFamily = getDmSansFontFamily(),
-                        fontSize = 16.sp
+                        fontSize = 18.sp
                     )
                 }
             }
