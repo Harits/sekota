@@ -38,9 +38,10 @@ fun Navbar() {
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Text("Produk", fontFamily = getDmSansFontFamily())
             Text("Solusi", fontFamily = getDmSansFontFamily())
-            Text("Tentang Kami", fontFamily = getDmSansFontFamily())
+            Text("Produk", fontFamily = getDmSansFontFamily())
+            Text("E-Book", fontFamily = getDmSansFontFamily())
+            Text("Mengapa Sekota", fontFamily = getDmSansFontFamily())
             Text("Kontak", fontFamily = getDmSansFontFamily())
         }
 

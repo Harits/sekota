@@ -12,10 +12,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+
 @Composable
 fun SidebarFilter() {
     var searchQuery by remember { mutableStateOf("") }
     val categories = listOf("T-Shirt", "Pin", "Sticker", "Others")
+    val selectedCategories = remember { mutableStateListOf<String>() }
 
     Column(
         modifier = Modifier
@@ -34,8 +39,26 @@ fun SidebarFilter() {
         )
 
         Text("Categories", fontWeight = FontWeight.Bold, fontFamily = getDmSansFontFamily(), fontSize = 18.sp, modifier = Modifier.padding(top = 16.dp))
+        
         categories.forEach { category ->
-            Text(category, fontFamily = getDmSansFontFamily(), modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Checkbox(
+                    checked = selectedCategories.contains(category),
+                    onCheckedChange = { checked ->
+                        if (checked) selectedCategories.add(category)
+                        else selectedCategories.remove(category)
+                    },
+                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFF60BD65))
+                )
+                Text(
+                    text = category,
+                    fontFamily = getDmSansFontFamily(),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
     }
 }
