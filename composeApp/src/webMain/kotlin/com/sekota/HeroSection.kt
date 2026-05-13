@@ -17,64 +17,84 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.blur
 
 @Composable
 fun HeroSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 80.dp, horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        Text(
-            text = "Trusted Intelligence.",
-            fontSize = 88.sp,
-            fontWeight = FontWeight.ExtraBold,
-            fontFamily = getMontserratFontFamily(),
-            textAlign = TextAlign.Center,
-            style = TextStyle(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF60BD65), Color(0xFF02B6CF))
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Decorative Blurs
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .offset(x = (-100).dp, y = (-50).dp)
+                .background(Color(0xFF60BD65).copy(alpha = 0.1f), shape = RoundedCornerShape(150.dp))
+                .blur(140.dp)
+        )
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 100.dp, y = 50.dp)
+                .background(Color(0xFF02B6CF).copy(alpha = 0.1f), shape = RoundedCornerShape(150.dp))
+                .blur(140.dp)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 80.dp, horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = "Trusted Intelligence.",
+                fontSize = 88.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = getMontserratFontFamily(),
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFF60BD65), Color(0xFF02B6CF))
+                    )
                 )
             )
-        )
 
-        Text(
-            text = "Memberdayakan organisasi melalui intelligence berbasis data terbuka dan AI...",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Light,
-            fontFamily = getDmSansFontFamily(),
-            color = Color.Black.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
-        )
+            Text(
+                text = "Memberdayakan organisasi melalui intelligence berbasis data terbuka dan AI...",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Light,
+                fontFamily = getDmSansFontFamily(),
+                color = Color.Black.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
 
-        Button(
-            onClick = { /* TODO */ },
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            contentPadding = PaddingValues(),
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color(0xFF60BD65), Color(0xFF02B6CF))
-                        ),
-                        shape = RoundedCornerShape(50)
-                    )
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                contentAlignment = Alignment.Center
+            Button(
+                onClick = { /* TODO */ },
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues(),
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                Text(
-                    text = "Konsultasi Strategis",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = getDmSansFontFamily(),
-                    fontSize = 16.sp
-                )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(Color(0xFF60BD65), Color(0xFF02B6CF))
+                            ),
+                            shape = RoundedCornerShape(50)
+                        )
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Konsultasi Strategis",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

@@ -26,6 +26,7 @@ fun App() {
                         .fillMaxHeight()
                 ) {
                     HeroSection()
+                    PartnerSection()
                     // Add more content here later
                 }
 

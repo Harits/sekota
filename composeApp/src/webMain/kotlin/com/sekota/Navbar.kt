@@ -16,6 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.foundation.Image
+import org.jetbrains.compose.resources.painterResource
+import sekota.composeapp.generated.resources.Res
+import sekota.composeapp.generated.resources.logo_sekota
+
 @Composable
 fun Navbar() {
     Row(
@@ -26,12 +31,10 @@ fun Navbar() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "Sekota Logo",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = getMontserratFontFamily(),
-            color = Color.Black
+        Image(
+            painter = painterResource(Res.drawable.logo_sekota),
+            contentDescription = "Sekota Logo",
+            modifier = Modifier.height(32.dp)
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
