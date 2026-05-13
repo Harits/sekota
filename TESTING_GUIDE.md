@@ -49,5 +49,13 @@ The app will be available at `http://localhost:8080`.
 - (If implemented) Check the "Network" tab for any initial fetch requests to the base URL defined in `Constants.kt`.
 
 ## 🛠️ Troubleshooting
+- **Yarn Lock Error**: If the build fails with `Lock file was changed`, run:
+  ```bash
+  ./gradlew :kotlinWasmUpgradeYarnLock
+  ```
+- **Ambiguous Task**: Ensure you use the full task name for running the app:
+  ```bash
+  ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+  ```
 - If the build fails, ensure you have the correct Kotlin and Compose versions installed.
 - For Docker issues, ensure the Docker daemon is running and you have necessary permissions.
