@@ -21,8 +21,10 @@ import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.logo_sekota
 
+import androidx.compose.foundation.clickable
+
 @Composable
-fun Navbar() {
+fun Navbar(onNavigate: (Screen) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +35,10 @@ fun Navbar() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Logo Section
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onNavigate(Screen.Landing) }
+        ) {
             Image(
                 painter = painterResource(Res.drawable.logo_sekota),
                 contentDescription = "Sekota Logo",
@@ -46,15 +51,23 @@ fun Navbar() {
             horizontalArrangement = Arrangement.spacedBy(32.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val navItems = listOf("Produk", "Solusi", "Tentang Kami", "Kontak")
-            navItems.forEach { item ->
+            val navItems = listOf(
+                "Produk" to Screen.Landing,
+                "Solusi" to Screen.Landing,
+                "E-Book" to Screen.Catalog,
+                "Merchandise" to Screen.Merchandise,
+                "Kontak" to Screen.Landing
+            )
+            navItems.forEach { (name, screen) ->
                 Text(
-                    text = item,
+                    text = name,
                     fontFamily = getDmSansFontFamily(),
                     fontWeight = FontWeight.Normal,
                     fontSize = 16.sp,
                     color = Color.Black,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .clickable { onNavigate(screen) }
                 )
             }
         }

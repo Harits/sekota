@@ -8,8 +8,8 @@
       "opId": 21685,
       "subject": "Implement Web Navbar",
       "status": "Closed",
-      "lockVersion": 0,
-      "description": "Responsive navbar based on Figma 'Web/Header' design (Node: 25:191).",
+      "lockVersion": 1,
+      "description": "Responsive navbar based on Figma 'Web/Header' design.",
       "assignee": "AS Agent"
     },
     {
@@ -17,7 +17,7 @@
       "opId": 21686,
       "subject": "Setup Ktor Web Client",
       "status": "Closed",
-      "lockVersion": 0,
+      "lockVersion": 1,
       "description": "Initialize Ktor for JS target in shared module.",
       "assignee": "AS Agent"
     },
@@ -26,8 +26,8 @@
       "opId": 21687,
       "subject": "Implement Landing Page Hero Section",
       "status": "Closed",
-      "lockVersion": 0,
-      "description": "Engaging entrance for new users with 'Trusted Intelligence' heading (Node: 15:1509).",
+      "lockVersion": 1,
+      "description": "Engaging entrance for new users.",
       "assignee": "AS Agent"
     },
     {
@@ -35,8 +35,44 @@
       "opId": 21688,
       "subject": "Implement Sidebar Filter",
       "status": "Closed",
-      "lockVersion": 0,
-      "description": "Search and category filtering for the product list (Node: 25:196).",
+      "lockVersion": 1,
+      "description": "Search and category filtering for the catalogs.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-005",
+      "opId": 21689,
+      "subject": "Complete Landing Page Implementation",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Implement all remaining sections of the landing page as per designs.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-006",
+      "opId": 21690,
+      "subject": "Implement eBook Catalog",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Grid view of eBooks with filtering.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-007",
+      "opId": 21691,
+      "subject": "Implement eBook Details",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Detailed view for eBook items.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-008",
+      "opId": 21692,
+      "subject": "Implement Merchandise Catalog",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Grid view of merchandise with filtering.",
       "assignee": "AS Agent"
     }
   ]

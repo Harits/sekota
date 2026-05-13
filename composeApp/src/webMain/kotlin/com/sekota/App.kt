@@ -11,56 +11,52 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.runtime.*
+import com.sekota.screens.*
+
+enum class Screen {
+    Landing, Catalog, Details, Merchandise
+}
+
 @Composable
 fun App() {
+    var currentScreen by remember { mutableStateOf(Screen.Landing) }
+    
     MaterialTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFAFAFA)) // Clean off-white background
+                .background(Color(0xFFFAFAFA))
         ) {
             val scrollState = rememberScrollState()
             
+            // Re-sync scroll on screen change
+            LaunchedEffect(currentScreen) {
+                scrollState.scrollTo(0)
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
             ) {
-                // Spacer for Sticky Navbar height
                 Spacer(modifier = Modifier.height(80.dp))
                 
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val isMobile = maxWidth < 768.dp
-                    
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        // Main Content Area
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                        ) {
-                            HeroSection()
-                            PartnerSection()
-                            // Add more content here later
-                            
-                            // Adding extra space to demonstrate scrolling
-                            Spacer(modifier = Modifier.height(1000.dp))
-                        }
-
-                        // Sidebar - Hidden on mobile
-                        if (!isMobile) {
-                            SidebarFilter()
-                        }
-                    }
+                when (currentScreen) {
+                    Screen.Landing -> LandingScreen()
+                    Screen.Catalog -> CatalogScreen(onBookClick = { currentScreen = Screen.Details })
+                    Screen.Details -> BookDetailsScreen()
+                    Screen.Merchandise -> MerchandiseScreen()
                 }
             }
 
-            // Sticky Navbar at the top
+            // Sticky Navbar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
             ) {
-                Navbar()
+                Navbar(onNavigate = { screen -> currentScreen = screen })
             }
         }
     }
