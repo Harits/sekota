@@ -1,13 +1,15 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.androidApplication)
 }
 
 kotlin {
+    androidTarget()
+    
     js {
         browser()
         binaries.executable()
@@ -27,6 +29,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.compose.cmp.preview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.shared)
@@ -40,10 +43,26 @@ kotlin {
         val wasmJsMain by getting {
             dependsOn(webMain)
         }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+            }
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
     }
 }
 
+android {
+    namespace = "com.sekota"
+    compileSdk = 35
 
+    defaultConfig {
+        minSdk = 24
+    }
+}
+
+dependencies {
+    debugImplementation(libs.compose.ui.tooling)
+}

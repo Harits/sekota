@@ -7,6 +7,7 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 - **`.figma/`**:
   - `usage_guide.md`: Instructions for fetching design specs via Figma MCP.
   - `.env.example`: Template for Figma API credentials.
+  - `designs/`: Local exports of Figma frames (JPG, SVG) for offline reference.
 - **`.jules/`**:
   - `api_reference.md`: Documentation for triggering AI coding sessions.
   - `.env.example`: Template for Jules API credentials.
@@ -33,6 +34,9 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 
 ### 2. Design Reference with Figma
 - **Fetch UI/UX**: Use Figma MCP tools (e.g., `get_design_context`) to get screenshots and CSS/Metadata for the target UI components.
+- **Local Reference**: Check `.figma/designs/` for static exports.
+  - **Screenshots**: `Landing Page.jpg`, `Catalog.jpg`, `Merchandise.jpg`, `Book - Details.jpg`.
+  - **Assets**: `Logo_Sekota 1.svg`, `Icon_Sekota.svg`, and partner logos (`Ecoflow`, `Sociara`, `Veridia`, `Ascendio`).
 - **Main Design File**: `Sekota-Landing-Page`
   - **File Key**: `oZqXuSsN7u7S73vfjWXQIN`
   - **Landing Page Frame**: `15:1465`

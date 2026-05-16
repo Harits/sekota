@@ -1,0 +1,13 @@
+{
+  "name": "sessions/13199060593743376986",
+  "title": "Refine Landing Page (Take 2)",
+  "sourceContext": {
+    "source": "sources/github/Harits/sekota",
+    "githubRepoContext": {
+      "startingBranch": "sprint-1"
+    }
+  },
+  "prompt": "Reiterate and refine the Landing Page implementation to match the pixel-perfect design in \".figma/designs/Landing Page.jpg\". \n\nThe core UI components are located in: `composeApp/src/webMain/kotlin/com/sekota/` and its subdirectories.\nSpecifically:\n- Main Screen: `screens/LandingScreen.kt`\n- Main Layout: `App.kt` and `Navbar.kt`, `Footer.kt`\n- Sections: `HeroSection.kt`, `PartnerSection.kt`, and the `sections/` directory containing `FeatureGrid.kt`, `ValueLoopSection.kt`, `IntelligenceSuite.kt`, `EBookPromo.kt`, `ValuePropDark.kt`, and `ContactFormSection.kt`.\n\nEnsure consistency in spacing, typography (Montserrat and DM Sans as per earlier implementation), and visual effects like layer blur and glassmorphism. Use the design file at \".figma/designs/Landing Page.jpg\" as the absolute source of truth.",
+  "url": "https://jules.google.com/session/13199060593743376986",
+  "id": "13199060593743376986"
+}
