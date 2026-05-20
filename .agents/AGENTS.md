@@ -4,6 +4,10 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 
 ## 📁 Directory Structure & Context
 
+- **`.agents/`**:
+  - `AGENTS.md`: This file (entry point for agent instructions).
+  - `architecture_standards.md`: Rules for Clean and Screaming Architecture.
+  - `development_requirements.md`: Technical stack and quality standards.
 - **`.figma/`**:
   - `usage_guide.md`: Instructions for fetching design specs via Figma MCP.
   - `.env.example`: Template for Figma API credentials.
@@ -16,7 +20,6 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
   - `.env.example`: Template for OpenProject API credentials.
   - `backlogs/`: Local storage for `product_backlog.md` and `sprint_*.json` files.
 - **`.requirements/`**:
-  - `development_requirements.md`: Technical stack and quality standards.
   - `landing_page_requirements.md`: Component-level specs for the main landing page.
   - `use_case_specification.md`: Functional flow details.
   - `diagrams/`: PlantUML source files for architecture and data models.
@@ -55,6 +58,12 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 
 ### 4. Implementation (KMP & Web)
 - Write clean, maintainable Kotlin/Kotlin Multiplatform code.
+- **Architecture**: Strictly follow the principles in `.agents/architecture_standards.md`.
+  - Use **Screaming Architecture**: Package by feature (e.g., `com.sekota.features.catalog`).
+  - Use **Clean Architecture**: Maintain clear boundaries between Domain, Data, and Presentation.
+- **UI Development & Previews**: 
+  - Mandate the use of `@Preview(device = DESKTOP)` for all top-level Composables (screens, sections, and complex components).
+  - Ensure all UI files include a preview for rapid iteration.
 - Ensure all network requests are handled gracefully with proper logging.
 
 ## ⚠️ Important Notes

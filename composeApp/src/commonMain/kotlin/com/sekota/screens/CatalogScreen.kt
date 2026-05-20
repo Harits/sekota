@@ -154,7 +154,7 @@ fun CatalogScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun PaginationPreview() {
     MaterialTheme {
