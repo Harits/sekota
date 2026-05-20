@@ -50,6 +50,14 @@ fun App() {
                     Screen.Merchandise -> MerchandiseScreen(
                         onNavigate = { currentScreen = it }
                     )
+                    Screen.Login -> LoginScreen(
+                        onLoginSuccess = { currentScreen = Screen.Catalog },
+                        onNavigateToSignup = { currentScreen = Screen.Signup }
+                    )
+                    Screen.Signup -> SignupScreen(
+                        onSignupSuccess = { currentScreen = Screen.Catalog },
+                        onNavigateToLogin = { currentScreen = Screen.Login }
+                    )
                 }
             }
 

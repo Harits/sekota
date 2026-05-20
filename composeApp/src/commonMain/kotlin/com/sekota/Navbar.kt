@@ -58,7 +58,8 @@ fun Navbar(onNavigate: (Screen) -> Unit) {
                 "Produk" to Screen.Landing,
                 "E-Book" to Screen.Catalog,
                 "Mengapa Sekota" to Screen.Landing,
-                "Kontak" to Screen.Landing
+                "Kontak" to Screen.Landing,
+                "Login" to Screen.Login
             )
             navItems.forEach { (name, screen) ->
                 Text(
