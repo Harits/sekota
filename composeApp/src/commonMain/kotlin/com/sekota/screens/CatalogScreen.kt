@@ -19,11 +19,11 @@ import com.sekota.*
 import com.sekota.components.ProductCard
 
 @Composable
-fun CatalogScreen(onBookClick: () -> Unit) {
+fun CatalogScreen(onBookClick: () -> Unit, onNavigate: (Screen) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Row(modifier = Modifier.fillMaxWidth().heightIn(min = 1000.dp)) {
             Box(modifier = Modifier.width(280.dp).fillMaxHeight().background(Color.White)) {
-                SidebarFilter()
+                SidebarFilter(onNavigate = onNavigate, isMerchandise = false)
             }
             
             Column(
@@ -150,7 +150,7 @@ fun PaginationArrow(text: String) {
 @Composable
 fun CatalogScreenPreview() {
     MaterialTheme {
-        CatalogScreen(onBookClick = {})
+        CatalogScreen(onBookClick = {}, onNavigate = {})
     }
 }
 

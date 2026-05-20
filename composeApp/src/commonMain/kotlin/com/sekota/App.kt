@@ -42,9 +42,14 @@ fun App() {
                 
                 when (currentScreen) {
                     Screen.Landing -> LandingScreen()
-                    Screen.Catalog -> CatalogScreen(onBookClick = { currentScreen = Screen.Details })
+                    Screen.Catalog -> CatalogScreen(
+                        onBookClick = { currentScreen = Screen.Details },
+                        onNavigate = { currentScreen = it }
+                    )
                     Screen.Details -> BookDetailsScreen()
-                    Screen.Merchandise -> MerchandiseScreen()
+                    Screen.Merchandise -> MerchandiseScreen(
+                        onNavigate = { currentScreen = it }
+                    )
                 }
             }
 

@@ -25,10 +25,17 @@ import sekota.composeapp.generated.resources.check
 import sekota.composeapp.generated.resources.magnifying_glass
 
 @Composable
-fun SidebarFilter() {
+fun SidebarFilter(onNavigate: (Screen) -> Unit, isMerchandise: Boolean = false) {
     var searchQuery by remember { mutableStateOf("") }
-    val genres = listOf("All", "Self-Improvement", "Social-Improvement", "Sustainablity", "Other")
-    val selectedGenres = remember { mutableStateListOf("All") }
+    
+    val filterTitle = if (isMerchandise) "Category" else "Genre"
+    val options = if (isMerchandise) {
+        listOf("All", "T-Shirt", "Pin", "Sticker", "Others")
+    } else {
+        listOf("All", "Self-Improvement", "Social-Improvement", "Sustainablity", "Other")
+    }
+    
+    val selectedOptions = remember { mutableStateListOf("All") }
     val years = listOf("2025", "2024", "2023")
     val selectedYears = remember { mutableStateListOf("2025") }
 
@@ -46,11 +53,13 @@ fun SidebarFilter() {
         // Sort By
         SortSection()
 
-        // Genre
-        FilterSection(title = "Genre", options = genres, selectedOptions = selectedGenres)
+        // Filter Section (Genre or Category)
+        FilterSection(title = filterTitle, options = options, selectedOptions = selectedOptions)
 
-        // Year
-        FilterSection(title = "Year", options = years, selectedOptions = selectedYears)
+        if (!isMerchandise) {
+            // Year (only for E-Books)
+            FilterSection(title = "Year", options = years, selectedOptions = selectedYears)
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -59,17 +68,21 @@ fun SidebarFilter() {
             title = "Customize Solution",
             description = "Hubungi kami untuk proposal khusus",
             buttonText = "Contact Us",
-            buttonColor = Color(0xFF4DB6AC)
+            buttonColor = Color(0xFF4DB6AC),
+            onClick = { /* TODO */ }
         )
 
-        // Promo 2: Executive Presence
-        PromoBox(
-            title = "Executive Presence",
-            description = "Lebih dari Sekadar Merchandise, Ini Adalah Pesan Strategis.",
-            buttonText = "Get Merchandise",
-            buttonColor = Color(0xFF00ACC1),
-            showIcon = true
-        )
+        if (!isMerchandise) {
+            // Promo 2: Executive Presence (only for E-Books to lead to Merchandise)
+            PromoBox(
+                title = "Executive Presence",
+                description = "Lebih dari Sekadar Merchandise, Ini Adalah Pesan Strategis.",
+                buttonText = "Get Merchandise",
+                buttonColor = Color(0xFF00ACC1),
+                showIcon = true,
+                onClick = { onNavigate(Screen.Merchandise) }
+            )
+        }
     }
 }
 
@@ -236,7 +249,8 @@ fun PromoBox(
     description: String,
     buttonText: String,
     buttonColor: Color,
-    showIcon: Boolean = false
+    showIcon: Boolean = false,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -271,7 +285,7 @@ fun PromoBox(
                 lineHeight = 18.sp
             )
             Button(
-                onClick = {},
+                onClick = onClick,
                 modifier = Modifier.fillMaxWidth().height(40.dp),
                 contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
@@ -325,7 +339,11 @@ fun SortSectionPreview() {
 @Composable
 fun SidebarFilterPreview() {
     MaterialTheme {
-        SidebarFilter()
+        Row {
+            SidebarFilter(onNavigate = {}, isMerchandise = false)
+            Spacer(modifier = Modifier.width(16.dp))
+            SidebarFilter(onNavigate = {}, isMerchandise = true)
+        }
     }
 }
 
@@ -338,7 +356,8 @@ fun PromoBoxPreview() {
                 title = "Customize Solution",
                 description = "Hubungi kami untuk proposal khusus",
                 buttonText = "Contact Us",
-                buttonColor = Color(0xFF4DB6AC)
+                buttonColor = Color(0xFF4DB6AC),
+                onClick = {}
             )
 
             PromoBox(
@@ -346,7 +365,8 @@ fun PromoBoxPreview() {
                 description = "Lebih dari Sekadar Merchandise, Ini Adalah Pesan Strategis.",
                 buttonText = "Get Merchandise",
                 buttonColor = Color(0xFF00ACC1),
-                showIcon = true
+                showIcon = true,
+                onClick = {}
             )
         }
     }
