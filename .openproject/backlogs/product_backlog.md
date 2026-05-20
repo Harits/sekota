@@ -5,7 +5,7 @@ This file contains the high-level roadmap and user stories for the Sekota Web pl
 ## 🚀 Epic: Core User Experience (OpenProject ID: 21677)
 - [x] **US-1: Responsive Navigation Bar** (OpenProject ID: 21679)
   - *Description*: Users should be able to navigate the platform on any device.
-- [/] **US-2: User Authentication Flow** (OpenProject ID: 21680)
+- [x] **US-2: User Authentication Flow** (OpenProject ID: 21680)
   - *Description*: Secure login/signup using KMP shared logic. (Sprint 2)
 - [x] **US-3: Landing Page Implementation** (OpenProject ID: 21681)
   - *Description*: Full implementation of the landing page with all sections (Hero, Features, Loop, Products, E-books, Contact).
@@ -23,5 +23,5 @@ This file contains the high-level roadmap and user stories for the Sekota Web pl
 ## ⚙️ Epic: Backend Integration (OpenProject ID: 21678)
 - [x] **US-4: API Client Implementation** (OpenProject ID: 21683)
   - *Description*: Setup Ktor client in `shared` module for web.
-- [/] **US-5: Real-time Data Sync** (OpenProject ID: 21684)
+- [x] **US-5: Real-time Data Sync** (OpenProject ID: 21684)
   - *Description*: Sync local state with server via WebSockets. (Sprint 2)
