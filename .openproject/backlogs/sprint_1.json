@@ -8,7 +8,7 @@
       "opId": 21685,
       "subject": "Implement Web Navbar",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 6,
       "description": "Responsive navbar based on Figma 'Web/Header' design.",
       "assignee": "AS Agent"
     },
@@ -17,7 +17,7 @@
       "opId": 21686,
       "subject": "Setup Ktor Web Client",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 2,
       "description": "Initialize Ktor for JS target in shared module.",
       "assignee": "AS Agent"
     },
@@ -26,7 +26,7 @@
       "opId": 21687,
       "subject": "Implement Landing Page Hero Section",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 6,
       "description": "Engaging entrance for new users.",
       "assignee": "AS Agent"
     },
@@ -35,7 +35,7 @@
       "opId": 21688,
       "subject": "Implement Sidebar Filter",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 6,
       "description": "Search and category filtering for the catalogs.",
       "assignee": "AS Agent"
     },
@@ -44,7 +44,7 @@
       "opId": 21689,
       "subject": "Complete Landing Page Implementation",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 6,
       "description": "Implement all remaining sections of the landing page as per designs.",
       "assignee": "AS Agent"
     },
@@ -53,7 +53,7 @@
       "opId": 21690,
       "subject": "Implement eBook Catalog",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 3,
       "description": "Grid view of eBooks with filtering.",
       "assignee": "AS Agent"
     },
@@ -62,7 +62,7 @@
       "opId": 21691,
       "subject": "Implement eBook Details",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 2,
       "description": "Detailed view for eBook items.",
       "assignee": "AS Agent"
     },
@@ -71,7 +71,7 @@
       "opId": 21692,
       "subject": "Implement Merchandise Catalog",
       "status": "Closed",
-      "lockVersion": 1,
+      "lockVersion": 2,
       "description": "Grid view of merchandise with filtering.",
       "assignee": "AS Agent"
     }
