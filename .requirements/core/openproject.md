@@ -7,7 +7,7 @@ This guide provides instructions and examples for interacting with the OpenProje
 OpenProject uses Basic Authentication. You typically use `apikey` as the username and your actual API key as the password.
 
 **Example Authorization Header:**
-Authorization: Basic base64("apikey:YOUR_API_KEY")
+`Authorization: Basic base64("apikey:YOUR_API_KEY")`
 
 
 ## Endpoints
@@ -35,17 +35,19 @@ Before creating a Work Package, you may need to know the Project ID.
     ]
   }
 }
-2. Create a Work Package
+```
+
+### 2. Create a Work Package
 To create a new Work Package, send a POST request.
 
-Request: POST /api/v3/work_packages
+**Request**: `POST /api/v3/work_packages`
 
-Headers:
+**Headers**:
+- `Content-Type`: `application/json`
+- `Authorization`: `Basic ...`
 
-Content-Type: application/json
-Authorization: Basic ...
-Body Example:
-
+**Body Example**:
+```json
 {
   "subject": "Implement Web Navbar",
   "description": {
@@ -61,19 +63,20 @@ Body Example:
     }
   }
 }
+```
 Note: Type IDs typically map to 1=Task, 2=Feature, 3=Bug, but this can vary per OpenProject instance.
 
-3. Update a Work Package
+### 3. Update a Work Package
 To update an existing Work Package, send a PATCH request.
 
-Request: PATCH /api/v3/work_packages/{id}
+**Request**: `PATCH /api/v3/work_packages/{id}`
 
-Headers:
+**Headers**:
+- `Content-Type`: `application/json`
+- `Authorization`: `Basic ...`
 
-Content-Type: application/json
-Authorization: Basic ...
-Body Example (changing subject and adding a comment):
-
+**Body Example** (changing subject and adding a comment):
+```json
 {
   "lockVersion": 1, 
   "subject": "Updated Task Subject",
@@ -82,17 +85,14 @@ Body Example (changing subject and adding a comment):
     "raw": "Updated from sync script."
   }
 }
+```
 Note: OpenProject uses optimistic locking. You often need to provide the lockVersion of the work package when updating it. You can retrieve this by fetching the work package first.
 
-KMP (Kotlin Multiplatform) Ktor Example
+### KMP (Kotlin Multiplatform) Ktor Example
 If you are implementing this in Kotlin using Ktor, here is a snippet for creating a Work Package:
 
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import java.util.Base64
-
+```kotlin
+// Example implementation snippet
 suspend fun createWorkPackage(
     host: String, 
     apiKey: String, 
@@ -124,6 +124,6 @@ suspend fun createWorkPackage(
     }
     
     println("Response status: ${response.status}")
-    println("Response body: ${response.bodyAsText()}")
     client.close()
 }
+```
