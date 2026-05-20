@@ -1,0 +1,70 @@
+{
+  "sprintName": "Sprint 2: Interaction & Sync",
+  "startDate": "2026-05-20",
+  "endDate": "2026-05-27",
+  "workPackages": [
+    {
+      "localId": "WP-009",
+      "opId": 21693,
+      "subject": "Setup JWT Authentication on Server",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Configure Ktor Auth plugin with JWT on the server module.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-010",
+      "opId": 21694,
+      "subject": "Implement Login and Signup API",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Create endpoints for user registration and authentication.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-011",
+      "opId": 21695,
+      "subject": "Implement Shared AuthService",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Create AuthService in shared module to handle token storage and API calls.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-012",
+      "opId": 21696,
+      "subject": "Implement Login Screen UI",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Responsive Login screen based on project design tokens.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-013",
+      "opId": 21697,
+      "subject": "Implement Signup Screen UI",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Responsive Signup screen based on project design tokens.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-014",
+      "opId": 21698,
+      "subject": "Setup WebSocket Server for Sync",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Configure Ktor WebSockets on the server for real-time data push.",
+      "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-015",
+      "opId": 21699,
+      "subject": "Implement Client-side Real-time Sync",
+      "status": "Scheduled",
+      "lockVersion": 1,
+      "description": "Connect to WebSocket server from shared module and update UI state.",
+      "assignee": "AS Agent"
+    }
+  ]
+}
