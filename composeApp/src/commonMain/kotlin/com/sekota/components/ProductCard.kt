@@ -16,6 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sekota.*
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ColorFilter
+import org.jetbrains.compose.resources.painterResource
+import sekota.composeapp.generated.resources.Res
+import sekota.composeapp.generated.resources.filled_star
+import sekota.composeapp.generated.resources.stroke_star
+
 @Composable
 fun ProductCard(
     title: String,
@@ -51,10 +58,11 @@ fun ProductCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
                         val isFilled = index < rating.toInt()
-                        Text(
-                            text = if (isFilled) "★" else "☆",
-                            color = if (isFilled) Color(0xFF00BFA5) else Color(0xFF00BFA5).copy(alpha = 0.5f),
-                            fontSize = 18.sp
+                        Image(
+                            painter = painterResource(if (isFilled) Res.drawable.filled_star else Res.drawable.stroke_star),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            colorFilter = ColorFilter.tint(Color(0xFF00BFA5))
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                     }
