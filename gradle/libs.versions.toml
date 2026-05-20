@@ -29,6 +29,8 @@ ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "kt
 ktor-serverContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
 ktor-serverAuth = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor" }
 ktor-serverAuthJwt = { module = "io.ktor:ktor-server-auth-jwt-jvm", version.ref = "ktor" }
+ktor-serverWebsockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+ktor-clientWebsockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
 
 ktor-clientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

@@ -9,6 +9,10 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlin.time.Duration.Companion.seconds
+import java.util.Collections
 import kotlinx.serialization.json.Json
 
 fun main() {
@@ -25,12 +29,41 @@ fun Application.module() {
         })
     }
     
+    install(WebSockets) {
+        pingPeriod = 15.seconds
+        timeout = 15.seconds
+        maxFrameSize = Long.MAX_VALUE
+        masking = false
+    }
+    
     configureAuth()
     configureAuthRouting()
     
     routing {
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")
+        }
+        
+        val connections = Collections.synchronizedSet<WebSocketSession>(LinkedHashSet())
+        
+        webSocket("/ws/sync") {
+            connections += this
+            try {
+                send("Connected to Sekota Sync Server")
+                for (frame in incoming) {
+                    if (frame is Frame.Text) {
+                        val text = frame.readText()
+                        // Broadcast received sync message to all other connected clients
+                        connections.forEach {
+                            if (it != this) {
+                                it.send(Frame.Text("Sync update: $text"))
+                            }
+                        }
+                    }
+                }
+            } finally {
+                connections -= this
+            }
         }
     }
 }
