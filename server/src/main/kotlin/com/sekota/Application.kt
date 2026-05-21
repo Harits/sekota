@@ -8,6 +8,8 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.openapi.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -33,6 +35,7 @@ fun Application.module() {
     install(CORS) {
         anyHost()
         allowHeader(io.ktor.http.HttpHeaders.ContentType)
+        allowHeader(io.ktor.http.HttpHeaders.Authorization)
     }
     
     install(WebSockets) {
@@ -46,6 +49,11 @@ fun Application.module() {
     configureAuthRouting()
     
     routing {
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml") {
+            version = "4.15.5"
+        }
+        openAPI(path = "openapi", swaggerFile = "openapi/documentation.yaml")
+        
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")
         }

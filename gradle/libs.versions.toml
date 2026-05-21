@@ -31,6 +31,8 @@ ktor-serverCors = { module = "io.ktor:ktor-server-cors-jvm", version.ref = "ktor
 ktor-serverAuth = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor" }
 ktor-serverAuthJwt = { module = "io.ktor:ktor-server-auth-jwt-jvm", version.ref = "ktor" }
 ktor-serverWebsockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+ktor-serverOpenapi = { module = "io.ktor:ktor-server-openapi", version.ref = "ktor" }
+ktor-serverSwagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
 ktor-clientWebsockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
 

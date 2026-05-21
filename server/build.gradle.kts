@@ -23,6 +23,8 @@ dependencies {
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serverCors)
     implementation(libs.ktor.serverWebsockets)
+    implementation(libs.ktor.serverOpenapi)
+    implementation(libs.ktor.serverSwagger)
     implementation(libs.ktor.serializationKotlinxJson)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
