@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.ktor.serverAuth)
     implementation(libs.ktor.serverAuthJwt)
     implementation(libs.ktor.serverContentNegotiation)
+    implementation(libs.ktor.serverCors)
     implementation(libs.ktor.serverWebsockets)
     implementation(libs.ktor.serializationKotlinxJson)
     testImplementation(libs.ktor.serverTestHost)
