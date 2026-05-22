@@ -26,6 +26,14 @@ dependencies {
     implementation(libs.ktor.serverOpenapi)
     implementation(libs.ktor.serverSwagger)
     implementation(libs.ktor.serializationKotlinxJson)
+    
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation("org.jetbrains.exposed:exposed-java-time:0.47.0")
+    implementation(libs.postgresql)
+    implementation(libs.hikaricp)
+    
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }

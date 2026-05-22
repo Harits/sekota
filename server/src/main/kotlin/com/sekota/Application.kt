@@ -13,6 +13,8 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import com.sekota.plugins.configureDatabases
+
 import io.ktor.websocket.*
 import kotlin.time.Duration.Companion.seconds
 import java.util.Collections
@@ -47,6 +49,8 @@ fun Application.module() {
     
     configureAuth()
     configureAuthRouting()
+    
+    configureDatabases()
     
     routing {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml") {
