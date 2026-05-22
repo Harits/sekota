@@ -26,7 +26,10 @@ import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun Navbar(onNavigate: (Screen) -> Unit) {
+fun Navbar(
+    isLoggedIn: Boolean = false,
+    onNavigate: (Screen) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,14 +56,19 @@ fun Navbar(onNavigate: (Screen) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val navItems = listOf(
+            val navItems = mutableListOf(
                 "Solusi" to Screen.Landing,
                 "Produk" to Screen.Landing,
                 "E-Book" to Screen.Catalog,
                 "Mengapa Sekota" to Screen.Landing,
-                "Kontak" to Screen.Landing,
-                "Login" to Screen.Login
+                "Kontak" to Screen.Landing
             )
+            if (isLoggedIn) {
+                navItems.add("Profile" to Screen.Profile)
+            } else {
+                navItems.add("Login" to Screen.Login)
+            }
+            
             navItems.forEach { (name, screen) ->
                 Text(
                     text = name,

@@ -12,16 +12,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sekota.features.auth.domain.model.AuthRequest
+import com.sekota.features.auth.domain.usecase.LoginUseCase
 import com.sekota.getDmSansFontFamily
 import com.sekota.getMontserratFontFamily
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    loginUseCase: LoginUseCase,
     onLoginSuccess: () -> Unit,
     onNavigateToSignup: () -> Unit
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -59,20 +67,42 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                // TODO: Call login use case
-                onLoginSuccess()
+                scope.launch {
+                    isLoading = true
+                    errorMessage = null
+                    val result = loginUseCase(AuthRequest(username, password))
+                    isLoading = false
+                    if (result.isSuccess) {
+                        onLoginSuccess()
+                    } else {
+                        errorMessage = result.exceptionOrNull()?.message ?: "Login failed"
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+            enabled = !isLoading
         ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+            } else {
+                Text(
+                    "Login",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+        
+        if (errorMessage != null) {
             Text(
-                "Login",
-                fontFamily = getDmSansFontFamily(),
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = errorMessage!!,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
 

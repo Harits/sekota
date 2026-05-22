@@ -12,17 +12,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sekota.features.auth.domain.model.AuthRequest
+import com.sekota.features.auth.domain.usecase.SignupUseCase
 import com.sekota.getDmSansFontFamily
 import com.sekota.getMontserratFontFamily
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignupScreen(
+    signupUseCase: SignupUseCase,
     onSignupSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -54,37 +61,48 @@ fun SignupScreen(
             onValueChange = { password = it },
             label = { Text("Password", fontFamily = getDmSansFontFamily()) },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            singleLine = true
-        )
-        
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password", fontFamily = getDmSansFontFamily()) },
-            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
             singleLine = true
         )
 
         Button(
             onClick = {
-                // TODO: Call signup use case
-                if (password == confirmPassword) {
-                    onSignupSuccess()
+                scope.launch {
+                    isLoading = true
+                    errorMessage = null
+                    val result = signupUseCase(AuthRequest(username, password))
+                    isLoading = false
+                    if (result.isSuccess) {
+                        onSignupSuccess()
+                    } else {
+                        errorMessage = result.exceptionOrNull()?.message ?: "Signup failed"
+                    }
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+            enabled = !isLoading
         ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+            } else {
+                Text(
+                    "Sign Up",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+        
+        if (errorMessage != null) {
             Text(
-                "Sign Up",
-                fontFamily = getDmSansFontFamily(),
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                text = errorMessage!!,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
 

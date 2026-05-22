@@ -12,21 +12,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.screens.*
 import com.sekota.features.sync.data.repository.SyncService
+import com.sekota.core.storage.TokenStorage
+import com.sekota.features.auth.data.repository.AuthRepositoryImpl
+import com.sekota.features.auth.domain.usecase.LoginUseCase
+import com.sekota.features.auth.domain.usecase.SignupUseCase
+import com.sekota.features.auth.domain.usecase.GetTokenUseCase
+import com.sekota.features.auth.domain.usecase.ClearTokenUseCase
+import com.sekota.features.profile.data.repository.ProfileRepositoryImpl
+import com.sekota.features.profile.domain.usecase.GetProfileUseCase
+import com.sekota.features.profile.domain.usecase.UpdateProfileUseCase
 
 // Global or DI injected instance for simplicity in this example
 val syncService = SyncService()
+val tokenStorage = TokenStorage()
+val authRepository = AuthRepositoryImpl(tokenStorage)
+val profileRepository = ProfileRepositoryImpl(tokenStorage)
+val loginUseCase = LoginUseCase(authRepository)
+val signupUseCase = SignupUseCase(authRepository)
+val getTokenUseCase = GetTokenUseCase(authRepository)
+val clearTokenUseCase = ClearTokenUseCase(authRepository)
+val getProfileUseCase = GetProfileUseCase(profileRepository)
+val updateProfileUseCase = UpdateProfileUseCase(profileRepository)
 
 @Composable
 fun App() {
     var currentScreen by remember { mutableStateOf(Screen.Landing) }
     val coroutineScope = rememberCoroutineScope()
     val syncState by syncService.syncState.collectAsState()
+    
+    var isLoggedIn by remember { mutableStateOf(getTokenUseCase() != null) }
 
     LaunchedEffect(Unit) {
         syncService.connect(coroutineScope)
@@ -63,12 +82,29 @@ fun App() {
                         onNavigate = { currentScreen = it }
                     )
                     Screen.Login -> LoginScreen(
-                        onLoginSuccess = { currentScreen = Screen.Catalog },
+                        loginUseCase = loginUseCase,
+                        onLoginSuccess = { 
+                            isLoggedIn = true
+                            currentScreen = Screen.Catalog 
+                        },
                         onNavigateToSignup = { currentScreen = Screen.Signup }
                     )
                     Screen.Signup -> SignupScreen(
-                        onSignupSuccess = { currentScreen = Screen.Catalog },
+                        signupUseCase = signupUseCase,
+                        onSignupSuccess = { 
+                            isLoggedIn = true
+                            currentScreen = Screen.Catalog 
+                        },
                         onNavigateToLogin = { currentScreen = Screen.Login }
+                    )
+                    Screen.Profile -> ProfileScreen(
+                        getProfileUseCase = getProfileUseCase,
+                        updateProfileUseCase = updateProfileUseCase,
+                        onLogout = {
+                            clearTokenUseCase()
+                            isLoggedIn = false
+                            currentScreen = Screen.Landing
+                        }
                     )
                 }
             }
@@ -79,7 +115,10 @@ fun App() {
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
             ) {
-                Navbar(onNavigate = { screen -> currentScreen = screen })
+                Navbar(
+                    isLoggedIn = isLoggedIn,
+                    onNavigate = { screen -> currentScreen = screen }
+                )
                 // Simple sync status overlay
                 Text(
                     text = "Sync: $syncState",

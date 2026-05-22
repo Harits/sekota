@@ -2,6 +2,8 @@ package com.sekota
 
 import com.sekota.auth.configureAuth
 import com.sekota.auth.configureAuthRouting
+import com.sekota.profile.configureProfileRouting
+import com.sekota.plugins.configureDatabases
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -13,8 +15,6 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import com.sekota.plugins.configureDatabases
-
 import io.ktor.websocket.*
 import kotlin.time.Duration.Companion.seconds
 import java.util.Collections
@@ -49,7 +49,7 @@ fun Application.module() {
     
     configureAuth()
     configureAuthRouting()
-    
+    configureProfileRouting()
     configureDatabases()
     
     routing {
