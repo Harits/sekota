@@ -7,8 +7,8 @@
       "localId": "WP-016",
       "opId": 21708,
       "subject": "Implement SQLDelight for Local Persistence",
-      "status": "Scheduled",
-      "lockVersion": 1,
+      "status": "Completed",
+      "lockVersion": 2,
       "description": "Setup SQLDelight in shared module to persist auth tokens and user profile locally.",
       "assignee": "AS Agent"
     },
@@ -16,8 +16,8 @@
       "localId": "WP-017",
       "opId": 21709,
       "subject": "Setup PostgreSQL Database for Server",
-      "status": "Scheduled",
-      "lockVersion": 1,
+      "status": "Completed",
+      "lockVersion": 2,
       "description": "Integrate Exposed ORM and PostgreSQL on the server for user data persistence.",
       "assignee": "AS Agent"
     },
@@ -25,8 +25,8 @@
       "localId": "WP-018",
       "opId": 21710,
       "subject": "Implement User Profile API",
-      "status": "Scheduled",
-      "lockVersion": 1,
+      "status": "Completed",
+      "lockVersion": 2,
       "description": "Create endpoints to fetch and update user profile information.",
       "assignee": "AS Agent"
     },
@@ -34,8 +34,8 @@
       "localId": "WP-019",
       "opId": 21711,
       "subject": "Implement User Profile Screen UI",
-      "status": "Scheduled",
-      "lockVersion": 1,
+      "status": "Completed",
+      "lockVersion": 2,
       "description": "Develop a responsive profile management screen with editing capabilities.",
       "assignee": "AS Agent"
     },
@@ -43,8 +43,8 @@
       "localId": "WP-020",
       "opId": 21712,
       "subject": "Implement Persistent Login Session",
-      "status": "Scheduled",
-      "lockVersion": 1,
+      "status": "Completed",
+      "lockVersion": 2,
       "description": "Auto-login users on app restart by reading tokens from local persistence.",
       "assignee": "AS Agent"
     }

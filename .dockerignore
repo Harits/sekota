@@ -1,0 +1,13 @@
+.git
+.gradle
+.idea
+build
+**/build
+.kotlin
+*.iml
+run-local-podman.sh
+test-in-podman.sh
+container-management.skill
+*.skill
+.kotlin-skills
+node_modules

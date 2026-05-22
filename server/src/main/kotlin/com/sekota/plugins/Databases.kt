@@ -4,5 +4,9 @@ import com.sekota.data.database.DatabaseFactory
 import io.ktor.server.application.*
 
 fun Application.configureDatabases() {
-    DatabaseFactory.init()
+    try {
+        DatabaseFactory.init()
+    } catch (e: Exception) {
+        log.error("Failed to initialize database: ${e.message}")
+    }
 }

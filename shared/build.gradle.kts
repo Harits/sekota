@@ -26,11 +26,16 @@ kotlin {
             implementation(libs.ktor.serializationKotlinxJson)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.sqldelight.runtime)
-            implementation(libs.sqldelight.coroutines)
         }
         jvmMain.dependencies {
             implementation(libs.sqldelight.sqlite.driver)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
+        }
+        jsMain.dependencies {
+            implementation(libs.sqldelight.web.worker.driver)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
         }
         val commonMain by getting
         val commonTest by getting {
@@ -48,3 +53,4 @@ sqldelight {
         }
     }
 }
+

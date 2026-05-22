@@ -12,6 +12,7 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
     - [figma.md](.requirements/core/figma.md): Instructions for fetching design specs via Figma MCP.
     - [jules.md](.requirements/core/jules.md): Documentation for triggering AI coding sessions.
     - [openproject.md](.requirements/core/openproject.md): Reference for syncing tasks and status updates.
+    - [GEMINI.md](GEMINI.md): Guidelines for containerization (Docker/Podman).
   - **`features/`**: Functional requirements and intent (Screaming Architecture Intent).
     - [landing_page.md](.requirements/features/landing_page.md)
     - [catalog.md](.requirements/features/catalog.md)
