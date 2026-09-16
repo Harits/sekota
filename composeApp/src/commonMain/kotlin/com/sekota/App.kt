@@ -46,6 +46,8 @@ fun App() {
     val syncState by syncService.syncState.collectAsState()
     
     var isLoggedIn by remember { mutableStateOf(getTokenUseCase() != null) }
+    var showAuthGateDialog by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
     LaunchedEffect(Unit) {
         syncService.connect(coroutineScope)
@@ -94,7 +96,13 @@ fun App() {
                                 .fillMaxSize()
                                 .verticalScroll(detailsScroll)
                         ) {
-                            BookDetailsScreen()
+                            BookDetailsScreen(
+                                isLoggedIn = isLoggedIn,
+                                onRequestAuth = { onSuccess ->
+                                    pendingAction = onSuccess
+                                    showAuthGateDialog = true
+                                }
+                            )
                         }
                     }
                     Screen.Merchandise -> {
@@ -105,7 +113,12 @@ fun App() {
                                 .verticalScroll(merchScroll)
                         ) {
                             MerchandiseScreen(
-                                onNavigate = { currentScreen = it }
+                                onNavigate = { currentScreen = it },
+                                isLoggedIn = isLoggedIn,
+                                onRequestAuth = { onSuccess ->
+                                    pendingAction = onSuccess
+                                    showAuthGateDialog = true
+                                }
                             )
                         }
                     }
@@ -135,6 +148,9 @@ fun App() {
                             currentScreen = Screen.Landing
                         }
                     )
+                    Screen.Admin -> {
+                        AdminDashboardScreen()
+                    }
                 }
             }
 
@@ -154,6 +170,24 @@ fun App() {
                     fontSize = 10.sp,
                     color = if (syncState == "Connected" || syncState.startsWith("Sync update:")) Color(0xFF4CAF50) else Color(0xFFF44336),
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 4.dp)
+                )
+            }
+
+            // UC-GATE-01: Inline Auth-Gating Modal Dialog
+            if (showAuthGateDialog) {
+                com.sekota.components.AuthGateDialog(
+                    loginUseCase = loginUseCase,
+                    signupUseCase = signupUseCase,
+                    onDismissRequest = {
+                        showAuthGateDialog = false
+                        pendingAction = null
+                    },
+                    onAuthSuccess = {
+                        isLoggedIn = true
+                        showAuthGateDialog = false
+                        pendingAction?.invoke()
+                        pendingAction = null
+                    }
                 )
             }
         }

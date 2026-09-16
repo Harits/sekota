@@ -54,6 +54,18 @@ rectangle "Sekota Web Platform" {
         usecase "UC-MERCH-01: Eksplorasi Merchandise &\nPengajuan Solusi Kustom (Customize Solution)" as UC_MERCH_01
     }
 
+    package "Auth-Gating & Perlindungan Aksi (Phase 1 Refinement)" {
+        usecase "UC-GATE-01: Validasi Autentikasi Modal Inline\n(Auth-Gated Read, Download & Order)" as UC_GATE_01
+        usecase "Inline Auth Modal Dialog\n(Sign In / Create Identity Switcher)" as UC_AUTH_MODAL
+    }
+
+    package "CMS Pengelola Tri-Platform (Desktop, Android & CLI)" {
+        usecase "UC-CMS-01: Tata Kelola Produk, Manuskrip\nBuku, dan Merchandise" as UC_CMS_01
+        usecase "Katalog Manuskrip & Sync RAG\n(GET /admin/books, POST /admin/books)" as UC_CMS_BOOKS
+        usecase "Pengelolaan Ekosistem Produk\n(Veridia, Ascendio, Sociara, Ecoflow)" as UC_CMS_PRODUCTS
+        usecase "Pengelolaan Inventaris Merchandise\n(T-Shirt, Pin, Sticker, Pricing)" as UC_CMS_MERCH
+    }
+
     package "Lokalisasi & Pengalaman Global" {
         usecase "UC-I18N-01: Pengalihan Bahasa Antarmuka\n(English / Bahasa Indonesia)" as UC_I18N_01
     }
@@ -73,6 +85,7 @@ Reader --> UC_BOOK_02
 Reader --> UC_CAT_01
 Reader --> UC_MERCH_01
 Reader --> UC_I18N_01
+Reader --> UC_GATE_01
 
 ' Corporate Client Associations
 CorporateClient --> UC_AUTH_02
@@ -83,10 +96,12 @@ CorporateClient --> UC_BOOK_02
 CorporateClient --> UC_CAT_01
 CorporateClient --> UC_MERCH_01
 CorporateClient --> UC_I18N_01
+CorporateClient --> UC_GATE_01
 
 ' Admin System Associations
 SysAdmin --> UC_AUTH_02
 SysAdmin --> UC_ADM_01
+SysAdmin --> UC_CMS_01
 
 ' Sync Engine Associations
 SyncEngine --> UC_SYNC_01
@@ -99,8 +114,14 @@ UC_AUTH_02 ..> UC_VERIFY : <<include>>
 UC_AUTH_03 ..> UC_STORAGE : <<include>>
 UC_AUTH_03 ..> UC_VERIFY : <<include>>
 
-UC_BOOK_01 ..> UC_AUTH_02 : <<extend>>\n(Add to Library Sync)
+UC_GATE_01 ..> UC_AUTH_MODAL : <<include>>
+UC_BOOK_01 ..> UC_GATE_01 : <<extend>>\n(Guest Read/Download)
+UC_MERCH_01 ..> UC_GATE_01 : <<extend>>\n(Guest Order Action)
 UC_MERCH_01 ..> UC_LEAD_01 : <<extend>>\n(Customize Solution CTA)
 UC_SYNC_01 ..> UC_AUTH_03 : <<include>>
+
+UC_CMS_01 ..> UC_CMS_BOOKS : <<include>>
+UC_CMS_01 ..> UC_CMS_PRODUCTS : <<include>>
+UC_CMS_01 ..> UC_CMS_MERCH : <<include>>
 
 @enduml

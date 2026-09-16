@@ -31,6 +31,7 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.sqldelight.sqlite.driver)
+            implementation(libs.ktor.clientCio)
         }
         jsMain.dependencies {
             implementation(libs.sqldelight.web.worker.driver)

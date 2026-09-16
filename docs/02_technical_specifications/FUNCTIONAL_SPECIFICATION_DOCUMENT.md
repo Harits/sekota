@@ -229,7 +229,60 @@ Sistem Sekota mendefinisikan 4 aktor formal dengan profil kewenangan dan ruang l
 
 ---
 
-### 3.5 Modul Pengalaman Global & Lokalisasi
+### 3.5 Modul Auth-Gating & Perlindungan Aksi Unduh/Pesan (Phase 1 Refinement)
+
+#### UC-GATE-01: Validasi Autentikasi Modal Inline (Auth-Gated Read, Download & Order)
+- **Aktor**: Pembaca Publik (Guest / Authenticated), Klien Korporat B2B/B2G
+- **Referensi Visual**: Inline Dialog `AuthGateDialog` (Card Radius 24dp, Surface `#FFFFFF`, Brand Teal `#00B5C8`, Ink Navy `#0D1F2D`).
+- **Deskripsi Fungsional**: Memastikan pengguna login sebelum melakukan tindakan transaksi baca penuh, unduh e-book, atau memesan produk/merchandise, dengan modal dialog inline tanpa me-refresh halaman atau kehilangan posisi konteks pengguna.
+- **Pemicu (Triggers)**:
+  - Tombol *"Read Now"* atau *"Add to Library"* pada `BookDetailsScreen`.
+  - Tombol *"Order Now"* atau *"View Details"* pada `MerchandiseScreen`.
+- **Prekondisi**: Halaman buku atau merchandise aktif di browser web.
+- **Alur Utama**:
+  1. Pengguna mengklik tombol aksi (*Read Now* / *Order Now*).
+  2. Sistem memeriksa ketersediaan token JWT aktif di penyimpanan lokal `TokenStorage`.
+  3. **Jika Terautentikasi**: Aksi langsung dieksekusi seketika (membuka pembaca naskah atau memproses keranjang pesanan).
+  4. **Jika Belum Login (Guest)**:
+     - Sistem memunculkan **Inline Auth Modal Dialog** (`AuthGateDialog`) di atas layar.
+     - Modal menyediakan dua tab instan: **Masuk Akun (Sign In)** dan **Buat Identitas (Create Identity)**.
+     - Pengguna memasukkan kredensial email/username dan password.
+     - Pengguna menekan tombol "Sign In & Lanjutkan" atau "Register & Lanjutkan".
+     - Sistem memanggil API `/auth/login` atau `/auth/register`.
+     - Setelah respons `200 OK`, token JWT disimpan secara otomatis ke `TokenStorage`.
+     - Modal dialog tertutup dengan transisi halus.
+     - Sistem secara otomatis mengeksekusi aksi tertunda yang sebelumnya diklik pengguna (*Seamless Intent Continuation*).
+- **Pascasyarat**: Sesi pembaca terautentikasi dan aksi yang diinginkan berhasil diselesaikan tanpa navigasi keluar halaman.
+
+---
+
+### 3.6 Modul CMS Pengelola Tri-Platform (Desktop, Android & Kotlin CLI)
+
+#### UC-CMS-01: Tata Kelola Produk, Manuskrip Buku, dan Merchandise
+- **Aktor**: Admin Sistem (Akun Role `ADMIN`)
+- **Antarmuka CMS**:
+  - **Compose Desktop JVM (`:desktopApp`)**: Dashboard visual admin multi-kolom.
+  - **Compose Android Native (`:androidApp`)**: Portal mobile monitoring & manajemen.
+  - **Kotlin CLI (`:cli` / `sekota-cli`)**: Shell command-line administrasi.
+- **Ruang Lingkup Manajemen**:
+  1. **Katalog Buku & Manuskrip**:
+     - Membaca daftar buku dari `GET /admin/books`.
+     - Mendaftarkan buku baru (`POST /admin/books`) dengan judul, penulis, ISBN, cover image, dan status index RAG.
+     - Memperbarui data buku (`PUT /admin/books/{id}`).
+     - Menghapus buku dari katalog (`DELETE /admin/books/{id}`).
+  2. **Ekosistem Produk (Intelligence Suite)**:
+     - Mengelola 4 produk unggulan: **Veridia**, **Ascendio**, **Sociara**, **Ecoflow**.
+     - Mengubah copy editorial, eyebrow kategori, daftar 3 fitur kunci, tautan demo, dan status tayang.
+  3. **Inventaris Merchandise**:
+     - Mengelola item merchandise (T-Shirt, Pin, Sticker, Custom Packaging).
+     - Mengatur harga, gambar produk, deskripsi seri (*The Urban Collaborator*), dan ketersediaan stok.
+  4. **Live Metrics & Permintaan Konsultasi Masuk**:
+     - Mengubah metrik langsung landing page (Akurasi Data %, Jumlah Klien 100+, Tahun Berdiri 2021).
+     - Memeriksa daftar formulir konsultasi strategis masuk dari prospek Budi Santoso (`budi@instansi.go.id`).
+
+---
+
+### 3.7 Modul Pengalaman Global & Lokalisasi
 
 #### UC-I18N-01: Pengalihan Bahasa Antarmuka (English / Bahasa Indonesia)
 - **Aktor**: Pembaca Publik (Reader), Klien Korporat B2B/B2G
@@ -291,6 +344,8 @@ Matriks berikut memetakan keterkaitan antara 4 Aktor Sistem dengan seluruh Use C
 | **UC-BOOK-02** | Eksplorasi Bento Grid (Bab Kunci & Profil Putu Aan J.) | **[Primary]** | **[Primary]** | — | — |
 | **UC-CAT-01** | Pencarian & Filter Multikategori E-Book | **[Primary]** | **[Primary]** | — | — |
 | **UC-MERCH-01**| Eksplorasi Merchandise & Customize Solution | **[Primary]** | **[Primary]** | — | — |
+| **UC-GATE-01** | Validasi Autentikasi Modal Inline (Read, Download, Order)| **[Primary]** | **[Primary]** | [Monitors] | — |
+| **UC-CMS-01**  | Tata Kelola Produk, Manuskrip Buku, dan Merchandise | — | — | **[Primary]** | [Assists] |
 | **UC-I18N-01** | Pengalihan Bahasa Antarmuka (EN / ID) | **[Primary]** | **[Primary]** | — | — |
 | **UC-SYNC-01** | Sinkronisasi Status Sesi Real-Time (WebSocket) | [Client] | [Client] | [Monitor] | **[Primary]** |
 | **UC-ADM-01**  | Pemantauan Sesi, Audit Keamanan & Tata Kelola | — | — | **[Primary]** | [Assists] |
@@ -301,10 +356,15 @@ Matriks berikut memetakan keterkaitan antara 4 Aktor Sistem dengan seluruh Use C
 
 | Method | Endpoint | Use Case Terkait | Deskripsi Payload & Respons |
 |---|---|---|---|
-| `POST` | `/auth/register` (alias `/auth/signup`) | UC-AUTH-01 | **Req**: `{ "username": "...", "password": "..." }`<br>**Res**: `200 OK` `{ "token": "...", "user": { "username": "...", "id": "..." } }`<br>**Err**: `409 Conflict` ("User already exists") |
-| `POST` | `/auth/login` | UC-AUTH-02 | **Req**: `{ "username": "...", "password": "..." }`<br>**Res**: `200 OK` `{ "token": "...", "user": { "username": "..." } }`<br>**Err**: `401 Unauthorized` ("Invalid credentials") |
-| `GET` | `/profile` | UC-AUTH-03 | **Header**: `Authorization: Bearer <jwt>`<br>**Res**: `200 OK` `{ "id": "...", "username": "...", "fullName": "...", "email": "..." }` |
+| `POST` | `/auth/register` (alias `/auth/signup`) | UC-AUTH-01 / UC-GATE-01 | **Req**: `{ "username": "...", "password": "..." }`<br>**Res**: `200 OK` `{ "token": "...", "user": { "username": "...", "id": "..." } }`<br>**Err**: `409 Conflict` ("User already exists") |
+| `POST` | `/auth/login` | UC-AUTH-02 / UC-GATE-01 | **Req**: `{ "username": "...", "password": "..." }`<br>**Res**: `200 OK` `{ "token": "...", "user": { "username": "..." } }`<br>**Err**: `401 Unauthorized` ("Invalid credentials") |
+| `GET` | `/profile` | UC-AUTH-03 | **Header**: `Authorization: Bearer <jwt>`<br>**Res**: `200 OK` `{ "id": "...", "username": "...", "fullName": "...", "email": "...", "role": "..." }` |
 | `POST` | `/profile` | UC-AUTH-03 | **Header**: `Authorization: Bearer <jwt>`<br>**Req**: `{ "id": "...", "username": "...", "fullName": "...", "email": "..." }`<br>**Res**: `200 OK` updated profile object |
+| `GET` | `/admin/books` | UC-CMS-01 | **Header**: `Authorization: Bearer <admin_jwt>`<br>**Res**: `200 OK` `List<BookResponse>` (id, title, author, isbn, coverImage) |
+| `POST` | `/admin/books` | UC-CMS-01 | **Header**: `Authorization: Bearer <admin_jwt>`<br>**Req**: `{ "title": "...", "author": "...", "isbn": "..." }`<br>**Res**: `200 OK` created book |
+| `PUT` | `/admin/books/{id}` | UC-CMS-01 | **Header**: `Authorization: Bearer <admin_jwt>`<br>**Req**: updated book payload<br>**Res**: `200 OK` |
+| `DELETE` | `/admin/books/{id}` | UC-CMS-01 | **Header**: `Authorization: Bearer <admin_jwt>`<br>**Res**: `200 OK` |
+| `GET` | `/admin/tools` | UC-CMS-01 | **Header**: `Authorization: Bearer <admin_jwt>`<br>**Res**: `200 OK` dynamic tools list |
 | `GET` | `/protected` | UC-AUTH-02/03 | **Header**: `Authorization: Bearer <jwt>`<br>**Res**: `200 OK` ("Hello, <username>!") |
 | `WS` | `/ws/sync` | UC-SYNC-01 | **Protocol**: Ktor WebSockets bidirectional session sync & notification frame |
 | `GET` | `/swagger` | UC-ADM-01 | Swagger UI interactive documentation viewer |

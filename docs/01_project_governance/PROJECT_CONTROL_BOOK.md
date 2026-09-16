@@ -13,8 +13,9 @@ Tier: **Tier M (Standar)** | Branch: **`sprint-3`** | Lead PM: **Antigravity AI*
 | **G0** | Kualifikasi Peluang (Pitching) | 2026-05-02 | **PASSED (WON)** | Solution Brief & Arsitektur Wasm disahkan. |
 | **G1** | Otorisasi Piagam & Handover BD $\rightarrow$ Ops | 2026-05-12 | **PASSED** | `PROJECT_CHARTER.md` & `DEFINITION_OF_DONE.md` disahkan. |
 | **G2** | Baseline Lingkup & FSD | 2026-05-15 | **PASSED** | `FUNCTIONAL_SPECIFICATION_DOCUMENT.md` & Use Case PUML disahkan. |
-| **G3** | Kesiapan Terima (Sprint 1-3 Review) | 2026-09-15 | **CONDITIONALLY ACCEPTED** | 88.4% story points selesai. Menunggu finalisasi WP-021. |
-| **G4** | Serah Terima & BAST | TBD (Sprint 3 End) | **PENDING** | Dijadwalkan pasca penyelesaian WP-021 & verifikasi UAT. |
+| **G3** | Kesiapan Terima (Sprint 1-3 Review) | 2026-09-16 | **ACCEPTED** | 100% story points selesai (43/43 SP). Sprint 3 Closed & merged ke master. |
+| **G3.1** | Phase 1 Refinement (Sprint 4 Planning) | 2026-09-16 | **IN-PROGRESS (RUNNING)** | Perluasan Phase 1: CMS Tri-Platform (Desktop, Android, CLI) & Auth-Gating. Version ID 848 aktif. |
+| **G4** | Serah Terima & BAST | TBD (Sprint 4 End) | **PLANNED** | Dijadwalkan pasca penyelesaian CMS Tri-Platform & Auth Gating. |
 | **G5** | Tinjauan Realisasi Manfaat | TBD (Post Go-Live) | **PLANNED** | Evaluasi adopsi portal klien & konversi konsultasi. |
 
 ---

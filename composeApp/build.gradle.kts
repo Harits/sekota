@@ -9,6 +9,7 @@ plugins {
 
 kotlin {
     androidTarget()
+    jvm("desktop")
     
     js {
         browser()
@@ -43,6 +44,11 @@ kotlin {
         val wasmJsMain by getting {
             dependsOn(webMain)
         }
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidx.activity.compose)
@@ -50,6 +56,17 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+}
+
+compose.desktop {
+    application {
+        mainClass = "com.sekota.desktop.MainKt"
+        nativeDistributions {
+            targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Pkg)
+            packageName = "SekotaCMS"
+            packageVersion = "1.0.0"
         }
     }
 }

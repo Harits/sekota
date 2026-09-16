@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +23,13 @@ import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
 
 @Composable
-fun BookDetailsScreen() {
+fun BookDetailsScreen(
+    isLoggedIn: Boolean = false,
+    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
+) {
+    var readSuccessMessage by remember { mutableStateOf<String?>(null) }
+    var librarySuccessMessage by remember { mutableStateOf<String?>(null) }
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +56,30 @@ fun BookDetailsScreen() {
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    BookInfoContent(isMobile = true)
+                    BookInfoContent(
+                        isMobile = true,
+                        isLoggedIn = isLoggedIn,
+                        onReadNowClick = {
+                            if (isLoggedIn) {
+                                readSuccessMessage = "Opening manuscript reader..."
+                            } else {
+                                onRequestAuth {
+                                    readSuccessMessage = "Authentication verified. Opening manuscript reader..."
+                                }
+                            }
+                        },
+                        onAddToLibraryClick = {
+                            if (isLoggedIn) {
+                                librarySuccessMessage = "Book added to your personal library!"
+                            } else {
+                                onRequestAuth {
+                                    librarySuccessMessage = "Authentication verified. Book added to your library!"
+                                }
+                            }
+                        },
+                        readSuccessMessage = readSuccessMessage,
+                        librarySuccessMessage = librarySuccessMessage
+                    )
                 }
             } else {
                 Row(
@@ -59,16 +88,37 @@ fun BookDetailsScreen() {
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                     horizontalArrangement = Arrangement.spacedBy(64.dp)
                 ) {
-                    // Left: Book Cover
                     BookCover(
                         modifier = Modifier
                             .width(340.dp)
                             .height(480.dp)
                     )
 
-                    // Right: Info
                     Column(modifier = Modifier.weight(1f)) {
-                        BookInfoContent(isMobile = false)
+                        BookInfoContent(
+                            isMobile = false,
+                            isLoggedIn = isLoggedIn,
+                            onReadNowClick = {
+                                if (isLoggedIn) {
+                                    readSuccessMessage = "Opening manuscript reader..."
+                                } else {
+                                    onRequestAuth {
+                                        readSuccessMessage = "Authentication verified. Opening manuscript reader..."
+                                    }
+                                }
+                            },
+                            onAddToLibraryClick = {
+                                if (isLoggedIn) {
+                                    librarySuccessMessage = "Book added to your personal library!"
+                                } else {
+                                    onRequestAuth {
+                                        librarySuccessMessage = "Authentication verified. Book added to your library!"
+                                    }
+                                }
+                            },
+                            readSuccessMessage = readSuccessMessage,
+                            librarySuccessMessage = librarySuccessMessage
+                        )
                     }
                 }
             }
@@ -103,7 +153,14 @@ fun BookDetailsScreen() {
 }
 
 @Composable
-private fun BookInfoContent(isMobile: Boolean) {
+private fun BookInfoContent(
+    isMobile: Boolean,
+    isLoggedIn: Boolean = false,
+    onReadNowClick: () -> Unit = {},
+    onAddToLibraryClick: () -> Unit = {},
+    readSuccessMessage: String? = null,
+    librarySuccessMessage: String? = null
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Self-Improvement / Mindfulness",
@@ -157,7 +214,39 @@ private fun BookInfoContent(isMobile: Boolean) {
             fontFamily = getDmSansFontFamily()
         )
         
-        Spacer(modifier = Modifier.height(36.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (readSuccessMessage != null) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFE8F5E9),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            ) {
+                Text(
+                    text = readSuccessMessage,
+                    color = Color(0xFF2E7D32),
+                    fontSize = 13.sp,
+                    fontFamily = getDmSansFontFamily(),
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
+        if (librarySuccessMessage != null) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFE0F7FA),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            ) {
+                Text(
+                    text = librarySuccessMessage,
+                    color = Color(0xFF00838F),
+                    fontSize = 13.sp,
+                    fontFamily = getDmSansFontFamily(),
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
         
         // Responsive action buttons (stack on small screens or wrap cleanly)
         if (isMobile) {
@@ -166,7 +255,7 @@ private fun BookInfoContent(isMobile: Boolean) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = onReadNowClick,
                     shape = RoundedCornerShape(9999.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)),
                     modifier = Modifier.fillMaxWidth().height(52.dp)
@@ -175,7 +264,7 @@ private fun BookInfoContent(isMobile: Boolean) {
                 }
                 
                 OutlinedButton(
-                    onClick = { /* TODO */ },
+                    onClick = onAddToLibraryClick,
                     shape = RoundedCornerShape(9999.dp),
                     border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF00B5C8)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00B5C8)),
@@ -187,7 +276,7 @@ private fun BookInfoContent(isMobile: Boolean) {
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = onReadNowClick,
                     shape = RoundedCornerShape(9999.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)),
                     modifier = Modifier.height(52.dp).width(160.dp)
@@ -196,7 +285,7 @@ private fun BookInfoContent(isMobile: Boolean) {
                 }
                 
                 OutlinedButton(
-                    onClick = { /* TODO */ },
+                    onClick = onAddToLibraryClick,
                     shape = RoundedCornerShape(9999.dp),
                     border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF00B5C8)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00B5C8)),

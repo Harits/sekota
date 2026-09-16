@@ -2,10 +2,9 @@ package com.sekota.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +20,13 @@ import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.caret_down
 
 @Composable
-fun MerchandiseScreen(onNavigate: (Screen) -> Unit) {
+fun MerchandiseScreen(
+    onNavigate: (Screen) -> Unit,
+    isLoggedIn: Boolean = false,
+    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
+) {
+    var orderMessage by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
             Box(modifier = Modifier.width(280.dp)) {
@@ -58,7 +63,7 @@ fun MerchandiseScreen(onNavigate: (Screen) -> Unit) {
                         Text(
                             text = "Sort:",
                             fontSize = 14.sp,
-                            color = Color.Gray,
+                            color = Color.Black.copy(alpha = 0.5f),
                             fontFamily = getDmSansFontFamily()
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -66,15 +71,32 @@ fun MerchandiseScreen(onNavigate: (Screen) -> Unit) {
                             text = "Newest",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF00B7D1),
+                            color = Color.Black,
                             fontFamily = getDmSansFontFamily()
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             painter = painterResource(Res.drawable.caret_down),
-                            contentDescription = null,
+                            contentDescription = "Dropdown",
                             modifier = Modifier.size(16.dp),
-                            tint = Color(0xFF00B7D1)
+                            tint = Color.Black
+                        )
+                    }
+                }
+
+                if (orderMessage != null) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color(0xFFE0F7FA),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = orderMessage ?: "",
+                            color = Color(0xFF00838F),
+                            fontSize = 14.sp,
+                            fontFamily = getDmSansFontFamily(),
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
                 }
@@ -98,9 +120,17 @@ fun MerchandiseScreen(onNavigate: (Screen) -> Unit) {
                                     title = title,
                                     authorOrSubtitle = subtitle,
                                     rating = rating,
-                                    buttonText = "View Details",
+                                    buttonText = "Order Now",
                                     modifier = Modifier.weight(1f),
-                                    onClick = { /* TODO */ }
+                                    onClick = { 
+                                        if (isLoggedIn) {
+                                            orderMessage = "Order initiated for $title. Our merchandising team will contact you."
+                                        } else {
+                                            onRequestAuth {
+                                                orderMessage = "Authentication verified. Order initiated for $title!"
+                                            }
+                                        }
+                                    }
                                 )
                             }
                             // Fill empty spaces if row is not full

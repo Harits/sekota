@@ -38,7 +38,25 @@ When building or deploying container images:
    ./run-local-podman.sh
    ```
 
-## 3. SMT PM Framework & Repo-Native Lifecycle Governance
+## 3. Multiplatform CMS Runbook (Desktop, Android & CLI)
+To launch and test the Sekota CMS prototype across supported non-web targets:
+1. **Desktop macOS (JVM CMP)**:
+   ```bash
+   ./gradlew :composeApp:run
+   ```
+2. **Android Emulator / Device (AdminActivity)**:
+   ```bash
+   ./gradlew :androidApp:installDebug
+   adb shell am start -n com.sekota/com.sekota.AdminActivity
+   ```
+3. **Kotlin CLI Engine (`:cli`)**:
+   ```bash
+   ./gradlew :cli:run --args="books list"
+   ./gradlew :cli:run --args="products list"
+   ./gradlew :cli:run --args="merch list"
+   ```
+
+## 4. SMT PM Framework & Repo-Native Lifecycle Governance
 When delivering features across SMT Gate cycles (G0 through G5) or maintaining project health:
 
 ### Repo-Native Directory Conventions:

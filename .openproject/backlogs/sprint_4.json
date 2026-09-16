@@ -1,0 +1,86 @@
+{
+  "sprintName": "Sprint 4: CMS Tri-Platform & Auth-Gating",
+  "versionId": 848,
+  "startDate": "2026-06-05",
+  "endDate": "2026-06-19",
+  "workPackages": [
+    {
+      "localId": "WP-022",
+      "opId": 22398,
+      "subject": "Phase 1 Refinement: CMS Tri-Platform & Auth-Gating",
+      "type": "Feature",
+      "status": "Closed",
+      "lockVersion": 11,
+      "description": "Ekspansi Phase 1 untuk Web Sekota: Implementasi CMS Pengelola (Desktop, Android, CLI) dan Inline Auth-Gating Modal Dialog.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-05",
+      "dueDate": "2026-06-19"
+    },
+    {
+      "localId": "WP-023",
+      "opId": 22399,
+      "subject": "UC-GATE-01: Implement Inline Auth Modal Dialog in Web Sekota",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 2,
+      "description": "Mengimplementasikan AuthGateDialog pada BookDetailsScreen dan MerchandiseScreen untuk memvalidasi login sebelum Read/Download atau Order.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-05",
+      "dueDate": "2026-06-08"
+    },
+    {
+      "localId": "WP-024",
+      "opId": 22400,
+      "subject": "UC-CMS-01: Implement Shared Domain & Repository for Admin Books & Tools",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 2,
+      "description": "Menyambungkan shared KMP ke endpoint /admin/books dan /admin/tools dari Swagger sekota.id dengan pure Kotlin domain UseCases & Unit Tests.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-08",
+      "dueDate": "2026-06-11"
+    },
+    {
+      "localId": "WP-025",
+      "opId": 22401,
+      "subject": "UC-CMS-02: Implement Kotlin Admin CLI (sekota-cli)",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 2,
+      "description": "Menyediakan command line interface berbasis Kotlin untuk administrasi katalog buku (list, add, delete), produk, dan merchandise.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-11",
+      "dueDate": "2026-06-14"
+    },
+    {
+      "localId": "WP-026",
+      "opId": 22402,
+      "subject": "UC-CMS-03: Implement Compose Desktop JVM & Android Admin Window",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 2,
+      "description": "Membangun antarmuka visual admin di Compose Desktop & Android untuk memantau Intelligence Suite, Books, dan Merchandise.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-14",
+      "dueDate": "2026-06-17"
+    },
+    {
+      "localId": "WP-027",
+      "opId": 22403,
+      "subject": "UC-CMS-04: Implement Products & Merchandise Management Integration",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 3,
+      "description": "Integrasi CRUD produk Intelligence Suite (Veridia, Ascendio, Sociara, Ecoflow) dan Merchandise store.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-17",
+      "dueDate": "2026-06-19"
+    }
+  ]
+}
