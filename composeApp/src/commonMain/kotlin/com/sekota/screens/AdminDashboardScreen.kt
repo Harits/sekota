@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
@@ -41,6 +40,8 @@ fun AdminDashboardScreen(
     val saveBookUseCase = remember { SaveAdminBookUseCase(repository) }
     val deleteBookUseCase = remember { DeleteAdminBookUseCase(repository) }
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
+    val saveProductUseCase = remember { SaveAdminProductUseCase(repository) }
+    val deleteProductUseCase = remember { DeleteAdminProductUseCase(repository) }
     val getMerchUseCase = remember { GetAdminMerchUseCase(repository) }
     val saveMerchUseCase = remember { SaveAdminMerchUseCase(repository) }
     val deleteMerchUseCase = remember { DeleteAdminMerchUseCase(repository) }
@@ -88,7 +89,7 @@ fun AdminDashboardScreen(
                 ) {
                     when (selectedTab) {
                         0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, deleteBookUseCase)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase)
+                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase)
                         3 -> LiveMetricsTab()
                     }
@@ -183,7 +184,7 @@ fun AdminDashboardScreen(
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp)) {
                     when (selectedTab) {
                         0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, deleteBookUseCase)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase)
+                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase)
                         3 -> LiveMetricsTab()
                     }
@@ -200,10 +201,11 @@ fun BooksRegistryTab(
     deleteBookUseCase: DeleteAdminBookUseCase
 ) {
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var newTitle by remember { mutableStateOf("") }
-    var newAuthor by remember { mutableStateOf("") }
-    var newIsbn by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var editingBookId by remember { mutableStateOf<String?>(null) }
+    var bookTitle by remember { mutableStateOf("") }
+    var bookAuthor by remember { mutableStateOf("") }
+    var bookIsbn by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -211,12 +213,12 @@ fun BooksRegistryTab(
         books = getBooksUseCase()
     }
 
-    if (showAddDialog) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showAddDialog = false },
+            onDismissRequest = { showDialog = false },
             title = {
                 Text(
-                    text = "Tambah Buku Baru",
+                    text = if (editingBookId == null) "Tambah Naskah Buku Baru" else "Edit Data Buku",
                     fontFamily = getMontserratFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -229,22 +231,22 @@ fun BooksRegistryTab(
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp)
                     }
                     OutlinedTextField(
-                        value = newTitle,
-                        onValueChange = { newTitle = it },
+                        value = bookTitle,
+                        onValueChange = { bookTitle = it },
                         label = { Text("Judul Buku", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = newAuthor,
-                        onValueChange = { newAuthor = it },
+                        value = bookAuthor,
+                        onValueChange = { bookAuthor = it },
                         label = { Text("Penulis", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = newIsbn,
-                        onValueChange = { newIsbn = it },
+                        value = bookIsbn,
+                        onValueChange = { bookIsbn = it },
                         label = { Text("ISBN", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -255,14 +257,15 @@ fun BooksRegistryTab(
                 Button(
                     onClick = {
                         scope.launch {
-                            val id = "b-${kotlin.random.Random.nextInt(1000, 9999)}"
-                            val result = saveBookUseCase(AdminBook(id, newTitle, newAuthor, newIsbn))
+                            val id = editingBookId ?: bookTitle.lowercase().replace(" ", "-").replace(Regex("[^a-z0-9-]"), "").ifBlank { "b-${kotlin.random.Random.nextInt(1000, 9999)}" }
+                            val result = saveBookUseCase(AdminBook(id, bookTitle, bookAuthor, bookIsbn))
                             if (result.isSuccess) {
                                 books = getBooksUseCase()
-                                showAddDialog = false
-                                newTitle = ""
-                                newAuthor = ""
-                                newIsbn = ""
+                                showDialog = false
+                                editingBookId = null
+                                bookTitle = ""
+                                bookAuthor = ""
+                                bookIsbn = ""
                                 errorMessage = null
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
@@ -272,11 +275,11 @@ fun BooksRegistryTab(
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
-                    Text("Simpan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                    Text(if (editingBookId == null) "Simpan" else "Perbarui", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) {
+                TextButton(onClick = { showDialog = false; editingBookId = null }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
@@ -289,15 +292,30 @@ fun BooksRegistryTab(
             horizontalArrangement = Arrangement.SpaceBetween, 
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Books Registry", 
-                fontFamily = getMontserratFontFamily(), 
-                fontWeight = FontWeight.Bold, 
-                fontSize = 32.sp,
-                color = InkNavy
-            )
+            Column {
+                Text(
+                    text = "Books Registry", 
+                    fontFamily = getMontserratFontFamily(), 
+                    fontWeight = FontWeight.Bold, 
+                    fontSize = 32.sp,
+                    color = InkNavy
+                )
+                Text(
+                    text = "Kurasi naskah e-book dan publikasi resmi Sekota (${books.size} terdaftar)",
+                    fontFamily = getDmSansFontFamily(),
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+            }
             Button(
-                onClick = { showAddDialog = true },
+                onClick = { 
+                    editingBookId = null
+                    bookTitle = ""
+                    bookAuthor = ""
+                    bookIsbn = ""
+                    errorMessage = null
+                    showDialog = true 
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                 shape = RoundedCornerShape(50)
             ) {
@@ -313,42 +331,71 @@ fun BooksRegistryTab(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp).fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(60.dp, 80.dp).background(Color(0xFFE2E8F0)))
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Surface(
+                                modifier = Modifier.size(60.dp, 80.dp),
+                                color = InkNavy.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("📖", fontSize = 24.sp)
+                                }
+                            }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(
                                     book.title, 
                                     fontFamily = getMontserratFontFamily(), 
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Bold, 
+                                    fontSize = 16.sp,
                                     color = InkNavy
                                 )
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    "Author: ${book.author} | ISBN: ${book.isbn}", 
+                                    "Penulis: ${book.author}  •  ISBN: ${book.isbn}", 
                                     fontFamily = getDmSansFontFamily(), 
                                     color = Color.Gray,
                                     fontSize = 13.sp
                                 )
+                                Text(
+                                    "ID: ${book.id}", 
+                                    fontFamily = getDmSansFontFamily(), 
+                                    color = BrandTeal,
+                                    fontSize = 11.sp
+                                )
                             }
                         }
                         Row {
-                            TextButton(onClick = {}) { Text("Edit", color = BrandTeal) }
                             TextButton(
                                 onClick = {
-                                    // Optimistic delete
+                                    editingBookId = book.id
+                                    bookTitle = book.title
+                                    bookAuthor = book.author
+                                    bookIsbn = book.isbn
+                                    errorMessage = null
+                                    showDialog = true
+                                }
+                            ) { 
+                                Text("✏️ Edit", color = BrandTeal, fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold) 
+                            }
+                            TextButton(
+                                onClick = {
                                     books = books.filter { it.id != book.id }
                                     scope.launch {
                                         deleteBookUseCase(book.id)
                                     }
                                 }
-                            ) { Text("Delete", color = Color.Red) }
+                            ) { 
+                                Text("🗑 Delete", color = Color(0xFFE53E3E), fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold) 
+                            }
                         }
                     }
                 }
@@ -358,11 +405,70 @@ fun BooksRegistryTab(
 }
 
 @Composable
-fun IntelligenceSuiteTab(getProductsUseCase: GetAdminProductsUseCase) {
+fun IntelligenceSuiteTab(
+    getProductsUseCase: GetAdminProductsUseCase,
+    saveProductUseCase: SaveAdminProductUseCase
+) {
     var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
+    var editingProduct by remember { mutableStateOf<AdminProduct?>(null) }
+    var prodName by remember { mutableStateOf("") }
+    var prodDesc by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         products = getProductsUseCase()
+    }
+
+    if (editingProduct != null) {
+        AlertDialog(
+            onDismissRequest = { editingProduct = null },
+            title = {
+                Text(
+                    text = "Edit Modul: ${editingProduct?.name}",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = InkNavy
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = prodName,
+                        onValueChange = { prodName = it },
+                        label = { Text("Nama Produk") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = prodDesc,
+                        onValueChange = { prodDesc = it },
+                        label = { Text("Deskripsi Editorial") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val current = editingProduct ?: return@Button
+                        scope.launch {
+                            val updated = current.copy(name = prodName, description = prodDesc)
+                            saveProductUseCase(updated)
+                            products = getProductsUseCase()
+                            editingProduct = null
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)
+                ) {
+                    Text("Perbarui", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingProduct = null }) {
+                    Text("Batal", color = Color.Gray)
+                }
+            }
+        )
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -372,6 +478,12 @@ fun IntelligenceSuiteTab(getProductsUseCase: GetAdminProductsUseCase) {
             fontWeight = FontWeight.Bold, 
             fontSize = 32.sp,
             color = InkNavy
+        )
+        Text(
+            text = "Kelola 4 pilar solusi utama Sekota (Veridia, Ascendio, Sociara, Ecoflow)",
+            fontFamily = getDmSansFontFamily(),
+            color = Color.Gray,
+            fontSize = 14.sp
         )
         Spacer(modifier = Modifier.height(24.dp))
         
@@ -383,7 +495,8 @@ fun IntelligenceSuiteTab(getProductsUseCase: GetAdminProductsUseCase) {
             items(products, key = { it.id }) { prod ->
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -391,28 +504,39 @@ fun IntelligenceSuiteTab(getProductsUseCase: GetAdminProductsUseCase) {
                                 text = prod.name, 
                                 fontFamily = getMontserratFontFamily(), 
                                 fontWeight = FontWeight.Bold, 
-                                fontSize = 24.sp,
-                                color = BrandTeal
+                                fontSize = 22.sp,
+                                color = InkNavy
                             )
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFE6FFFA)
+                                color = BrandTeal.copy(alpha = 0.12f)
                             ) {
                                 Text(
                                     text = prod.code,
-                                    color = Color(0xFF00A3C4),
+                                    color = BrandTeal,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                 )
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(prod.description, fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 14.sp)
+                        Text(prod.description, fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 13.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Core Modules:", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                        Text("Core Modules:", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         prod.features.forEach { feat ->
-                            Text("• $feat", fontFamily = getDmSansFontFamily(), color = Color.DarkGray, fontSize = 13.sp)
+                            Text("• $feat", fontFamily = getDmSansFontFamily(), color = Color.DarkGray, fontSize = 12.sp)
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedButton(
+                            onClick = {
+                                editingProduct = prod
+                                prodName = prod.name
+                                prodDesc = prod.description
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Edit Config", color = BrandTeal, fontSize = 12.sp)
                         }
                     }
                 }
@@ -428,10 +552,11 @@ fun MerchandiseTab(
     deleteMerchUseCase: DeleteAdminMerchUseCase
 ) {
     var merchList by remember { mutableStateOf<List<AdminMerch>>(emptyList()) }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var newTitle by remember { mutableStateOf("") }
-    var newCategory by remember { mutableStateOf("Apparel") }
-    var newPrice by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var editingMerchId by remember { mutableStateOf<String?>(null) }
+    var itemTitle by remember { mutableStateOf("") }
+    var itemCategory by remember { mutableStateOf("Apparel") }
+    var itemPrice by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -439,12 +564,12 @@ fun MerchandiseTab(
         merchList = getMerchUseCase()
     }
 
-    if (showAddDialog) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showAddDialog = false },
+            onDismissRequest = { showDialog = false },
             title = {
                 Text(
-                    text = "Tambah Merchandise Baru",
+                    text = if (editingMerchId == null) "Tambah Merchandise Baru" else "Edit Merchandise",
                     fontFamily = getMontserratFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
@@ -457,22 +582,22 @@ fun MerchandiseTab(
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp)
                     }
                     OutlinedTextField(
-                        value = newTitle,
-                        onValueChange = { newTitle = it },
+                        value = itemTitle,
+                        onValueChange = { itemTitle = it },
                         label = { Text("Nama Item", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = newCategory,
-                        onValueChange = { newCategory = it },
+                        value = itemCategory,
+                        onValueChange = { itemCategory = it },
                         label = { Text("Kategori (e.g. Apparel, Accessories)", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = newPrice,
-                        onValueChange = { newPrice = it },
+                        value = itemPrice,
+                        onValueChange = { itemPrice = it },
                         label = { Text("Harga (USD / $)", fontFamily = getDmSansFontFamily()) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -483,14 +608,15 @@ fun MerchandiseTab(
                 Button(
                     onClick = {
                         scope.launch {
-                            val priceVal = newPrice.toDoubleOrNull() ?: 0.0
-                            val id = "m-${kotlin.random.Random.nextInt(1000, 9999)}"
-                            val result = saveMerchUseCase(AdminMerch(id, newTitle, newCategory, "Core", priceVal, 5.0))
+                            val priceVal = itemPrice.toDoubleOrNull() ?: 0.0
+                            val id = editingMerchId ?: "m-${kotlin.random.Random.nextInt(1000, 9999)}"
+                            val result = saveMerchUseCase(AdminMerch(id, itemTitle, itemCategory, "The Urban Collaborator", priceVal, 5.0))
                             if (result.isSuccess) {
                                 merchList = getMerchUseCase()
-                                showAddDialog = false
-                                newTitle = ""
-                                newPrice = ""
+                                showDialog = false
+                                editingMerchId = null
+                                itemTitle = ""
+                                itemPrice = ""
                                 errorMessage = null
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
@@ -500,11 +626,11 @@ fun MerchandiseTab(
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
-                    Text("Simpan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                    Text(if (editingMerchId == null) "Simpan" else "Perbarui", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) {
+                TextButton(onClick = { showDialog = false; editingMerchId = null }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
@@ -517,15 +643,30 @@ fun MerchandiseTab(
             horizontalArrangement = Arrangement.SpaceBetween, 
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Merchandise Store", 
-                fontFamily = getMontserratFontFamily(), 
-                fontWeight = FontWeight.Bold, 
-                fontSize = 32.sp,
-                color = InkNavy
-            )
+            Column {
+                Text(
+                    text = "Merchandise Store", 
+                    fontFamily = getMontserratFontFamily(), 
+                    fontWeight = FontWeight.Bold, 
+                    fontSize = 32.sp,
+                    color = InkNavy
+                )
+                Text(
+                    text = "Kelola inventaris suvenir dan pernak-pernik resmi (${merchList.size} item)",
+                    fontFamily = getDmSansFontFamily(),
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+            }
             Button(
-                onClick = { showAddDialog = true },
+                onClick = { 
+                    editingMerchId = null
+                    itemTitle = ""
+                    itemCategory = "Apparel"
+                    itemPrice = ""
+                    errorMessage = null
+                    showDialog = true 
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                 shape = RoundedCornerShape(50)
             ) {
@@ -544,20 +685,40 @@ fun MerchandiseTab(
             items(merchList, key = { it.id }) { item ->
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Box(modifier = Modifier.fillMaxWidth().height(140.dp).background(Color(0xFFE2E8F0)))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(item.title, fontFamily = getMontserratFontFamily(), fontWeight = FontWeight.Bold, color = InkNavy)
-                        Text("$${item.price}", fontFamily = getDmSansFontFamily(), color = BrandTeal, fontWeight = FontWeight.Bold)
-                        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Category: ${item.category}", fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 12.sp)
-                            Text("Rating: ★ ${item.rating}", fontFamily = getDmSansFontFamily(), color = Color(0xFF60BD65), fontSize = 12.sp)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().height(120.dp),
+                            color = InkNavy.copy(alpha = 0.05f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("👕", fontSize = 36.sp)
+                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        Row {
-                            TextButton(onClick = {}) { Text("Edit", color = BrandTeal) }
+                        Text(item.title, fontFamily = getMontserratFontFamily(), fontWeight = FontWeight.Bold, color = InkNavy, fontSize = 16.sp)
+                        Text("$${item.price}", fontFamily = getDmSansFontFamily(), color = BrandTeal, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(item.category, fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 12.sp)
+                            Text("★ ${item.rating}", fontFamily = getDmSansFontFamily(), color = Color(0xFF60BD65), fontSize = 12.sp)
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(
+                                onClick = {
+                                    editingMerchId = item.id
+                                    itemTitle = item.title
+                                    itemCategory = item.category
+                                    itemPrice = item.price.toString()
+                                    errorMessage = null
+                                    showDialog = true
+                                }
+                            ) { 
+                                Text("✏️ Edit", color = BrandTeal, fontSize = 13.sp) 
+                            }
                             TextButton(
                                 onClick = {
                                     merchList = merchList.filter { it.id != item.id }
@@ -565,7 +726,9 @@ fun MerchandiseTab(
                                         deleteMerchUseCase(item.id)
                                     }
                                 }
-                            ) { Text("Delete", color = Color.Red) }
+                            ) { 
+                                Text("🗑 Delete", color = Color(0xFFE53E3E), fontSize = 13.sp) 
+                            }
                         }
                     }
                 }
@@ -584,6 +747,12 @@ fun LiveMetricsTab() {
             fontSize = 32.sp,
             color = InkNavy
         )
+        Text(
+            text = "Konfigurasi angka metrik yang tampil langsung pada Hero & Trust section Landing Page",
+            fontFamily = getDmSansFontFamily(),
+            color = Color.Gray,
+            fontSize = 14.sp
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -597,16 +766,16 @@ fun LiveMetricsTab() {
 @Composable
 fun MetricCardEditor(label: String, initialValue: String) {
     Card(
-        modifier = Modifier.width(200.dp),
+        modifier = Modifier.width(220.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(label, fontFamily = getDmSansFontFamily(), color = Color.Gray)
+            Text(label, fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 13.sp)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = initialValue,
@@ -618,15 +787,17 @@ fun MetricCardEditor(label: String, initialValue: String) {
                     color = BrandTeal,
                     textAlign = TextAlign.Center
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(containerColor = InkNavy),
+                shape = RoundedCornerShape(100.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Update", fontFamily = getDmSansFontFamily())
+                Text("Update Metrik", fontFamily = getDmSansFontFamily(), fontSize = 13.sp)
             }
         }
     }
