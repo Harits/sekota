@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sekota.*
 import com.sekota.components.ProductCard
+import com.sekota.features.admin.data.repository.AdminRepositoryImpl
+import com.sekota.features.admin.domain.model.AdminMerch
+import com.sekota.features.admin.domain.usecase.GetAdminMerchUseCase
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.caret_down
@@ -25,7 +28,14 @@ fun MerchandiseScreen(
     isLoggedIn: Boolean = false,
     onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
 ) {
+    val repository = remember { AdminRepositoryImpl() }
+    val getMerchUseCase = remember { GetAdminMerchUseCase(repository) }
+    var merchList by remember { mutableStateOf<List<AdminMerch>>(emptyList()) }
     var orderMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        merchList = getMerchUseCase()
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
@@ -103,31 +113,23 @@ fun MerchandiseScreen(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                val products = listOf(
-                    Triple("Black Totebag", "THE URBAN COLLABORATOR", 5.0),
-                    Triple("Matte Black Tumbler", "THE SINERGI EXECUTIVE", 4.5),
-                    Triple("Black T Shirt", "SINERGI EVERYDAY", 4.8),
-                    Triple("Note Book A5", "STRATEGIC FORESIGHT", 4.0),
-                    Triple("Keychain", "CONNECTIVITY", 3.0)
-                )
-
-                // 3-column Grid
+                // 3-column Grid bound to real Merch list from repository
                 Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-                    products.chunked(3).forEach { rowProducts ->
+                    merchList.chunked(3).forEach { rowProducts ->
                         Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                            rowProducts.forEach { (title, subtitle, rating) ->
+                            rowProducts.forEach { item ->
                                 ProductCard(
-                                    title = title,
-                                    authorOrSubtitle = subtitle,
-                                    rating = rating,
+                                    title = item.title,
+                                    authorOrSubtitle = "${item.seriesName.uppercase()}  •  $${item.price}",
+                                    rating = item.rating,
                                     buttonText = "Order Now",
                                     modifier = Modifier.weight(1f),
                                     onClick = { 
                                         if (isLoggedIn) {
-                                            orderMessage = "Order initiated for $title. Our merchandising team will contact you."
+                                            orderMessage = "Order initiated for ${item.title}. Our merchandising team will contact you."
                                         } else {
                                             onRequestAuth {
-                                                orderMessage = "Authentication verified. Order initiated for $title!"
+                                                orderMessage = "Authentication verified. Order initiated for ${item.title} ($${item.price})!"
                                             }
                                         }
                                     }
@@ -143,8 +145,6 @@ fun MerchandiseScreen(
 
                 Spacer(modifier = Modifier.height(64.dp))
                 Pagination()
-                Spacer(modifier = Modifier.height(64.dp))
-
             }
         }
         Footer()

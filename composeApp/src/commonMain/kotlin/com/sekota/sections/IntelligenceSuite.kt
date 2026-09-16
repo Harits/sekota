@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.*
+import com.sekota.features.admin.data.repository.AdminRepositoryImpl
+import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.usecase.GetAdminProductsUseCase
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
@@ -25,6 +28,14 @@ import sekota.composeapp.generated.resources.*
 
 @Composable
 fun IntelligenceSuite() {
+    val repository = remember { AdminRepositoryImpl() }
+    val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
+    var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        products = getProductsUseCase()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,61 +74,38 @@ fun IntelligenceSuite() {
         Spacer(modifier = Modifier.height(64.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                SuiteCard(
-                    category = "BI DASHBOARD",
-                    title = "VERIDIA",
-                    description = "Platform Intelligence Dashboard (BI) tingkat lanjut yang mengagregasi data dari berbagai sumber untuk memberikan visualisasi strategis bagi pengambil keputusan.",
-                    features = listOf(
-                        "Custom Strategic Dashboards",
-                        "Predictive Trend Analytics",
-                        "Cross-Department Data Integration"
-                    ),
-                    logo = Res.drawable.icon_veridia,
-                    accentColor = Color(0xFF00BFA5),
-                    modifier = Modifier.weight(1f)
-                )
-                SuiteCard(
-                    category = "COMMUNITY",
-                    title = "ASCENDIO",
-                    description = "Platform manajemen komunitas dan pengembangan kapasitas yang fokus pada penilaian kompetensi dan pemantauan aktivitas lapangan secara digital.",
-                    features = listOf(
-                        "Capacity & Competency Assessment",
-                        "Community Engagement Tracking",
-                        "Field Activity Reporting"
-                    ),
-                    logo = Res.drawable.icon_acscendio,
-                    accentColor = Color(0xFF1976D2),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                SuiteCard(
-                    category = "SOCIAL",
-                    title = "SOCIARA",
-                    description = "Platform manajemen dampak sosial untuk mengelola program CSR dan memantau status 'Social License to Operate' (SLO) perusahaan.",
-                    features = listOf(
-                        "Social License to Operate (SLO) Monitoring",
-                        "CSR Impact Measurement & Attribution",
-                        "Stakeholder Perception Mapping"
-                    ),
-                    logo = Res.drawable.icon_sociara,
-                    accentColor = Color(0xFF8BC34A),
-                    modifier = Modifier.weight(1f)
-                )
-                SuiteCard(
-                    category = "SUSTAINABILITY",
-                    title = "ECOFLOW",
-                    description = "Solusi Intelligence untuk ESG (Environmental, Social, and Governance) yang mengotomatisasi pengukuran jejak karbon dan kesiapan audit kepatuhan.",
-                    features = listOf(
-                        "Automated ESG Audit Readiness",
-                        "Carbon Footprint Calculator (MRV)",
-                        "Compliance Status Monitoring"
-                    ),
-                    logo = Res.drawable.icon_ecoflow,
-                    accentColor = Color(0xFF4CAF50),
-                    modifier = Modifier.weight(1f)
-                )
+            products.chunked(2).forEach { rowProducts ->
+                Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                    rowProducts.forEach { product ->
+                        val logo = when (product.code.uppercase()) {
+                            "VRD" -> Res.drawable.icon_veridia
+                            "ASC" -> Res.drawable.icon_acscendio
+                            "SOC" -> Res.drawable.icon_sociara
+                            "ECO" -> Res.drawable.icon_ecoflow
+                            else -> Res.drawable.icon_veridia
+                        }
+                        val accentColor = when (product.code.uppercase()) {
+                            "VRD" -> Color(0xFF00BFA5)
+                            "ASC" -> Color(0xFF1976D2)
+                            "SOC" -> Color(0xFF8BC34A)
+                            "ECO" -> Color(0xFF4CAF50)
+                            else -> Color(0xFF00B5C8)
+                        }
+
+                        SuiteCard(
+                            category = product.categoryEyebrow.uppercase(),
+                            title = product.name.uppercase(),
+                            description = product.description,
+                            features = product.features,
+                            logo = logo,
+                            accentColor = accentColor,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    repeat(2 - rowProducts.size) {
+                        Box(modifier = Modifier.weight(1f))
+                    }
+                }
             }
         }
     }

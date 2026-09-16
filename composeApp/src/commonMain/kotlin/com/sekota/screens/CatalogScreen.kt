@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,9 +17,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sekota.*
 import com.sekota.components.ProductCard
+import com.sekota.features.admin.data.repository.AdminRepositoryImpl
+import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.usecase.GetAdminBooksUseCase
 
 @Composable
 fun CatalogScreen(onBookClick: () -> Unit, onNavigate: (Screen) -> Unit) {
+    val repository = remember { AdminRepositoryImpl() }
+    val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
+    var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        books = getBooksUseCase()
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Row(modifier = Modifier.fillMaxWidth().heightIn(min = 1000.dp)) {
             Box(modifier = Modifier.width(280.dp).fillMaxHeight().background(Color.White)) {
@@ -49,22 +60,23 @@ fun CatalogScreen(onBookClick: () -> Unit, onNavigate: (Screen) -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(48.dp))
 
-                val books = listOf(
-                    Triple("Blind Spot Radar", "PUTU AAN J.", Color(0xFF1A1A1A)),
-                    Triple("The Book", "ALF LOWANS", Color(0xFF2D2D2D)),
-                    Triple("The Midnight Library", "MATT HAIG", Color(0xFFE2E8F0)),
-                    Triple("Dune: Part One", "FRANK HERBERT", Color(0xFFFDFCFB)),
-                    Triple("Klara and the Sun", "KAZUO ISHIGURO", Color(0xFFCBD5E1)),
-                    Triple("The 7 Habits", "STEPHEN COVEY", Color(0xFF0F172A))
+                val palette = listOf(
+                    Color(0xFF1A1A1A),
+                    Color(0xFF2D2D2D),
+                    Color(0xFF0F172A),
+                    Color(0xFF003840),
+                    Color(0xFF1E293B),
+                    Color(0xFF334155)
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-                    books.chunked(3).forEach { rowBooks ->
+                    books.chunked(3).forEachIndexed { rowIndex, rowBooks ->
                         Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
-                            rowBooks.forEach { (title, author, color) ->
+                            rowBooks.forEachIndexed { colIndex, book ->
+                                val color = palette[(rowIndex * 3 + colIndex) % palette.size]
                                 ProductCard(
-                                    title = title,
-                                    authorOrSubtitle = author,
+                                    title = book.title,
+                                    authorOrSubtitle = book.author,
                                     rating = 4.8,
                                     imageColor = color,
                                     modifier = Modifier.weight(1f),
