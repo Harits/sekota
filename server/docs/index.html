@@ -690,33 +690,58 @@
     // Script section to load models into a JS Var
     var defs = {}
             defs["AuthRequest"] = {
-  "required" : [ "password", "username" ],
+  "required" : [ "email", "password" ],
   "type" : "object",
   "properties" : {
-    "username" : {
+    "email" : {
       "type" : "string"
     },
     "password" : {
+      "type" : "string"
+    },
+    "role" : {
+      "type" : "string",
+      "default" : "READER"
+    },
+    "profile" : {
+      "type" : "string"
+    },
+    "phoneNumber" : {
+      "type" : "string"
+    },
+    "socialMedia" : {
+      "type" : "string"
+    },
+    "telegram" : {
+      "type" : "string"
+    },
+    "instagram" : {
+      "type" : "string"
+    },
+    "linkedin" : {
+      "type" : "string"
+    },
+    "xTwitter" : {
+      "type" : "string"
+    },
+    "facebook" : {
       "type" : "string"
     }
   }
 };
             defs["AuthResponse"] = {
+  "required" : [ "role", "token", "userId" ],
   "type" : "object",
   "properties" : {
     "token" : {
       "type" : "string"
     },
-    "user" : {
-      "$ref" : "#/components/schemas/User"
-    }
-  }
-};
-            defs["User"] = {
-  "type" : "object",
-  "properties" : {
-    "username" : {
+    "userId" : {
       "type" : "string"
+    },
+    "role" : {
+      "type" : "string",
+      "default" : "READER"
     }
   }
 };
@@ -739,6 +764,9 @@
                   <li class="nav-header" data-group="Authentication"><a href="#api-Authentication">API Methods - Authentication</a></li>
                     <li data-group="Authentication" data-name="authLoginPost" class="">
                       <a href="#api-Authentication-authLoginPost">authLoginPost</a>
+                    </li>
+                    <li data-group="Authentication" data-name="authRegisterPost" class="">
+                      <a href="#api-Authentication-authRegisterPost">authRegisterPost</a>
                     </li>
                     <li data-group="Authentication" data-name="authSignupPost" class="">
                       <a href="#api-Authentication-authSignupPost">authSignupPost</a>
@@ -1087,11 +1115,330 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Authentication-authRegisterPost">
+                      <article id="api-Authentication-authRegisterPost-0" data-group="User" data-name="authRegisterPost" data-version="0">
+                        <div class="pull-left">
+                          <h1>authRegisterPost</h1>
+                          <p>Register a new user</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked"></p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/auth/register</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Authentication-authRegisterPost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Authentication-authRegisterPost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Authentication-authRegisterPost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Authentication-authRegisterPost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Authentication-authRegisterPost-0-curl">
+                           <pre class="prettyprint"><code class="language-bsh">curl -X POST\
+-H "Accept: application/json"\
+-H "Content-Type: application/json"\
+"http://localhost:8080/auth/register"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.AuthenticationApi;
+
+import java.io.File;
+import java.util.*;
+
+public class AuthenticationApiExample {
+
+    public static void main(String[] args) {
+        
+        AuthenticationApi apiInstance = new AuthenticationApi();
+        AuthRequest body = ; // AuthRequest | 
+        try {
+            AuthResponse result = apiInstance.authRegisterPost(body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthenticationApi#authRegisterPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AuthenticationApi;
+
+public class AuthenticationApiExample {
+
+    public static void main(String[] args) {
+        AuthenticationApi apiInstance = new AuthenticationApi();
+        AuthRequest body = ; // AuthRequest | 
+        try {
+            AuthResponse result = apiInstance.authRegisterPost(body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AuthenticationApi#authRegisterPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">AuthRequest *body = ; // 
+
+AuthenticationApi *apiInstance = [[AuthenticationApi alloc] init];
+
+// Register a new user
+[apiInstance authRegisterPostWith:body
+              completionHandler: ^(AuthResponse output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var SekotaApi = require('sekota_api');
+
+var api = new SekotaApi.AuthenticationApi()
+var body = ; // {{AuthRequest}} 
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.authRegisterPost(body, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Authentication-authRegisterPost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class authRegisterPostExample
+    {
+        public void main()
+        {
+
+            var apiInstance = new AuthenticationApi();
+            var body = new AuthRequest(); // AuthRequest | 
+
+            try
+            {
+                // Register a new user
+                AuthResponse result = apiInstance.authRegisterPost(body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AuthenticationApi.authRegisterPost: " + e.Message );
+            }
+        }
+    }
+}
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\ApiAuthenticationApi();
+$body = ; // AuthRequest | 
+
+try {
+    $result = $api_instance->authRegisterPost($body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling AuthenticationApi->authRegisterPost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::AuthenticationApi;
+
+my $api_instance = WWW::SwaggerClient::AuthenticationApi->new();
+my $body = WWW::SwaggerClient::Object::AuthRequest->new(); # AuthRequest | 
+
+eval { 
+    my $result = $api_instance->authRegisterPost(body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling AuthenticationApi->authRegisterPost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Authentication-authRegisterPost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.AuthenticationApi()
+body =  # AuthRequest | 
+
+try: 
+    # Register a new user
+    api_response = api_instance.auth_register_post(body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling AuthenticationApi->authRegisterPost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body <span style="color:red;">*</span></td>
+                                <td>
+                                
+                                
+                                <script>
+                                $(document).ready(function() {
+                                  var schemaWrapper = {
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/AuthRequest"
+      }
+    }
+  },
+  "required" : true
+};
+                                  var schema = schemaWrapper.content["application/json"].schema;
+                                  if (schema.$ref != null) {
+                                    schema = defsParser.$refs.get(schema.$ref);
+                                  } else {
+                                    schemaWrapper.components = {};
+                                    schemaWrapper.components.schemas = Object.assign({}, defs);
+                                    $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                      console.log(err);
+                                    });
+                                  }
+                                
+                                  var view = new JSONSchemaView(schema,2,{isBodyParam: true});
+                                  var result = $('#d2e199_authRegisterPost_body');
+                                  result.empty();
+                                  result.append(view.render());
+                                });
+                                </script>
+                                <div id="d2e199_authRegisterPost_body"></div>
+                                </td>
+                                </tr>
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - User registered successfully </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-authRegisterPost-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-authRegisterPost-200-schema">
+                                  <div id='responses-authRegisterPost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "User registered successfully",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/AuthResponse"
+      }
+    }
+  }
+};
+                                        var schema = schemaWrapper.content["application/json"].schema;
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                        } else {
+                                          schemaWrapper.components = {};
+                                          schemaWrapper.components.schemas = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        //console.log(JSON.stringify(schema));
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-authRegisterPost-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-authRegisterPost-200-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-authRegisterPost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 409 - User already exists </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Authentication-authSignupPost">
                       <article id="api-Authentication-authSignupPost-0" data-group="User" data-name="authSignupPost" data-version="0">
                         <div class="pull-left">
                           <h1>authSignupPost</h1>
-                          <p>Register a new user</p>
+                          <p>Register a new user (legacy alias)</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -1177,7 +1524,7 @@ public class AuthenticationApiExample {
 
 AuthenticationApi *apiInstance = [[AuthenticationApi alloc] init];
 
-// Register a new user
+// Register a new user (legacy alias)
 [apiInstance authSignupPostWith:body
               completionHandler: ^(AuthResponse output, NSError* error) {
                             if (output) {
@@ -1229,7 +1576,7 @@ namespace Example
 
             try
             {
-                // Register a new user
+                // Register a new user (legacy alias)
                 AuthResponse result = apiInstance.authSignupPost(body);
                 Debug.WriteLine(result);
             }
@@ -1288,7 +1635,7 @@ api_instance = swagger_client.AuthenticationApi()
 body =  # AuthRequest | 
 
 try: 
-    # Register a new user
+    # Register a new user (legacy alias)
     api_response = api_instance.auth_signup_post(body)
     pprint(api_response)
 except ApiException as e:

@@ -2,7 +2,6 @@
 .gradle
 .idea
 build
-**/build
 .kotlin
 *.iml
 run-local-podman.sh
@@ -11,3 +10,7 @@ container-management.skill
 *.skill
 .kotlin-skills
 node_modules
+
+# Ignore all builds except the final web output we need
+**/build
+!composeApp/build/dist/wasmJs/productionExecutable/

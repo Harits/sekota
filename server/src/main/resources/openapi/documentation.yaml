@@ -7,9 +7,29 @@ servers:
   - url: http://localhost:8080
     description: Local development server
 paths:
-  /auth/signup:
+  /auth/register:
     post:
       summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: User already exists
+  /auth/signup:
+    post:
+      summary: Register a new user (legacy alias)
       tags:
         - Authentication
       requestBody:
@@ -73,22 +93,43 @@ components:
     AuthRequest:
       type: object
       properties:
-        username:
+        email:
           type: string
         password:
           type: string
+        role:
+          type: string
+          default: READER
+        profile:
+          type: string
+        phoneNumber:
+          type: string
+        socialMedia:
+          type: string
+        telegram:
+          type: string
+        instagram:
+          type: string
+        linkedin:
+          type: string
+        xTwitter:
+          type: string
+        facebook:
+          type: string
       required:
-        - username
+        - email
         - password
     AuthResponse:
       type: object
       properties:
         token:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
-    User:
-      type: object
-      properties:
-        username:
+        userId:
           type: string
+        role:
+          type: string
+          default: READER
+      required:
+        - token
+        - userId
+        - role

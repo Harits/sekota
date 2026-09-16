@@ -3,8 +3,6 @@ package com.sekota.features.auth.domain.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthResponse(
-    val token: String,
-    val userId: String,
-    val role: String = "READER"
+data class ErrorResponse(
+    val error: String
 )

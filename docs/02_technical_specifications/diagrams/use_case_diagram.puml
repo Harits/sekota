@@ -1,0 +1,106 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam roundcorner 12
+skinparam shadowing false
+skinparam defaultFontName "DM Sans"
+
+skinparam actor {
+    BackgroundColor #F7FAFB
+    BorderColor #0D1F2D
+    FontColor #0D1F2D
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #00B5C8
+    BorderThickness 1.5
+    ArrowColor #0D1F2D
+    FontColor #0D1F2D
+}
+
+skinparam package {
+    BackgroundColor #F7FAFB
+    BorderColor #0D1F2D
+    FontColor #0D1F2D
+    FontStyle bold
+}
+
+actor "Pembaca Publik\n(Reader)" as Reader
+actor "Klien Korporat\nB2B/B2G" as CorporateClient
+actor "Admin Sistem" as SysAdmin
+actor "Sync Engine\n(WebSocket)" as SyncEngine
+
+rectangle "Sekota Web Platform" {
+
+    package "Autentikasi & Akun Pengguna (Auth & Identity)" {
+        usecase "UC-AUTH-01: Registrasi Pembaca Baru\n(Default READER Identity via /auth/register)" as UC_AUTH_01
+        usecase "UC-AUTH-02: Masuk Akun Pengguna & Penerbitan JWT\n(/auth/login)" as UC_AUTH_02
+        usecase "UC-AUTH-03: Manajemen Profil & Sesi Persisten" as UC_AUTH_03
+        usecase "Penyimpanan Token & Cache Persisten (SQLDelight)" as UC_STORAGE
+        usecase "Verifikasi Kredensial & Validasi JWT (Ktor Server)" as UC_VERIFY
+    }
+
+    package "Thought Leadership, E-Book & Keterlibatan Pembaca" {
+        usecase "UC-BOOK-01: Interaksi Pembaca:\nAksi 'Read' dan 'Add to Library'" as UC_BOOK_01
+        usecase "UC-BOOK-02: Eksplorasi Bento Grid\n(Bab Kunci & Profil Penulis Putu Aan J.)" as UC_BOOK_02
+        usecase "UC-CAT-01: Pencarian & Filter Multikategori E-Book\n(Genre, Tahun, Sortir)" as UC_CAT_01
+    }
+
+    package "B2B/B2G Leads, Konsultasi & Merchandise" {
+        usecase "UC-LEAD-01: Pengajuan Permintaan Konsultasi Strategis\n(Formulir Kontak Landing Page Budi Santoso)" as UC_LEAD_01
+        usecase "UC-MERCH-01: Eksplorasi Merchandise &\nPengajuan Solusi Kustom (Customize Solution)" as UC_MERCH_01
+    }
+
+    package "Lokalisasi & Pengalaman Global" {
+        usecase "UC-I18N-01: Pengalihan Bahasa Antarmuka\n(English / Bahasa Indonesia)" as UC_I18N_01
+    }
+
+    package "Real-Time Synchronization & Backend Services" {
+        usecase "UC-SYNC-01: Sinkronisasi Status Sesi Real-Time\n(WebSocket /ws/sync)" as UC_SYNC_01
+        usecase "UC-ADM-01: Pemantauan Sesi, Audit Keamanan\n& Tata Kelola Platform" as UC_ADM_01
+    }
+}
+
+' Reader Associations
+Reader --> UC_AUTH_01
+Reader --> UC_AUTH_02
+Reader --> UC_AUTH_03
+Reader --> UC_BOOK_01
+Reader --> UC_BOOK_02
+Reader --> UC_CAT_01
+Reader --> UC_MERCH_01
+Reader --> UC_I18N_01
+
+' Corporate Client Associations
+CorporateClient --> UC_AUTH_02
+CorporateClient --> UC_AUTH_03
+CorporateClient --> UC_LEAD_01
+CorporateClient --> UC_BOOK_01
+CorporateClient --> UC_BOOK_02
+CorporateClient --> UC_CAT_01
+CorporateClient --> UC_MERCH_01
+CorporateClient --> UC_I18N_01
+
+' Admin System Associations
+SysAdmin --> UC_AUTH_02
+SysAdmin --> UC_ADM_01
+
+' Sync Engine Associations
+SyncEngine --> UC_SYNC_01
+
+' Includes & Extends
+UC_AUTH_01 ..> UC_STORAGE : <<include>>
+UC_AUTH_01 ..> UC_VERIFY : <<include>>
+UC_AUTH_02 ..> UC_STORAGE : <<include>>
+UC_AUTH_02 ..> UC_VERIFY : <<include>>
+UC_AUTH_03 ..> UC_STORAGE : <<include>>
+UC_AUTH_03 ..> UC_VERIFY : <<include>>
+
+UC_BOOK_01 ..> UC_AUTH_02 : <<extend>>\n(Add to Library Sync)
+UC_MERCH_01 ..> UC_LEAD_01 : <<extend>>\n(Customize Solution CTA)
+UC_SYNC_01 ..> UC_AUTH_03 : <<include>>
+
+@enduml

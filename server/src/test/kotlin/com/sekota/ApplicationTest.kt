@@ -13,7 +13,7 @@ class ApplicationTest {
         application {
             module()
         }
-        val response = client.get("/")
+        val response = client.get("/hello")
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("Ktor: ${Greeting().greet()}", response.bodyAsText())
     }

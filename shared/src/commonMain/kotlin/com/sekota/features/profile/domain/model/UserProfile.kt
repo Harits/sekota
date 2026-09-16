@@ -7,5 +7,6 @@ data class UserProfile(
     val id: String,
     val username: String,
     val email: String = "",
-    val fullName: String = ""
+    val fullName: String = "",
+    val role: String = "READER"
 )

@@ -15,6 +15,8 @@ import io.ktor.server.plugins.swagger.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.server.http.content.*
+import java.io.File
 import io.ktor.websocket.*
 import kotlin.time.Duration.Companion.seconds
 import java.util.Collections
@@ -58,7 +60,11 @@ fun Application.module() {
         }
         openAPI(path = "openapi", swaggerFile = "openapi/documentation.yaml")
         
-        get("/") {
+        staticFiles("/", File("web")) {
+            default("index.html")
+        }
+        
+        get("/hello") {
             call.respondText("Ktor: ${Greeting().greet()}")
         }
         

@@ -19,6 +19,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 fi
 
+echo "📦 Building Web App locally..."
+./gradlew :composeApp:wasmJsBrowserDistribution --no-daemon
+rm -rf web-dist
+cp -r composeApp/build/dist/wasmJs/productionExecutable web-dist
+
 echo "🚀 Building and starting Sekota Web via Podman..."
 
 # Use 'podman compose' if available, otherwise fallback to podman build/run

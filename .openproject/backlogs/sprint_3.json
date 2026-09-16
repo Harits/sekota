@@ -47,6 +47,15 @@
       "lockVersion": 2,
       "description": "Auto-login users on app restart by reading tokens from local persistence.",
       "assignee": "AS Agent"
+    },
+    {
+      "localId": "WP-021",
+      "opId": 21716,
+      "subject": "Design UI/UX for login, register, sign out, and profile",
+      "status": "Completed",
+      "lockVersion": 2,
+      "description": "Follow new designs from Figma: https://www.figma.com/design/oZqXuSsN7u7S73vfjWXQIN/Sekota-Landing-Page?node-id=0-1",
+      "assignee": "Agy Ahmad"
     }
   ]
 }

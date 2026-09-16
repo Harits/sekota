@@ -24,112 +24,188 @@ import sekota.composeapp.generated.resources.*
 
 @Composable
 fun BookDetailsScreen() {
-    Column(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF9FAFB))
     ) {
-        // Hero Section
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(64.dp),
-            horizontalArrangement = Arrangement.spacedBy(80.dp)
-        ) {
-            // Left: Book Cover
-            BookCover(modifier = Modifier.width(360.dp).height(500.dp))
+        val isMobile = maxWidth < 840.dp
+        val horizontalPadding = if (isMobile) 20.dp else 64.dp
+        val verticalPadding = if (isMobile) 24.dp else 48.dp
 
-            // Right: Info
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Self-Improvement / Mindfulness",
-                    fontSize = 14.sp,
-                    color = Color(0xFF71717A),
-                    fontFamily = getDmSansFontFamily()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Blind Spot Radar",
-                    fontSize = 56.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = getMontserratFontFamily(),
-                    color = Color.Black
-                )
-                Text(
-                    text = "by Putu Aan J.",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = getDmSansFontFamily(),
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RatingStars(rating = 5, color = Color(0xFF46B778))
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "(4.8/5 from 1,240 readers)",
-                        fontSize = 14.sp,
-                        color = Color(0xFF71717A),
-                        fontFamily = getDmSansFontFamily()
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Hero Section
+            if (isMobile) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BookCover(
+                        modifier = Modifier
+                            .width(260.dp)
+                            .height(370.dp)
                     )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    BookInfoContent(isMobile = true)
                 }
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    text = "Buku \"Blind Spot Radar: Mengapa Pemimpin Cerdas Melewatkan Sinyal Besar\" merupakan karya thought leadership yang menyoroti fenomena di mana para pengambil keputusan tingkat atas sering kali gagal mendeteksi ancaman nyata atau peluang strategis, meskipun mereka memiliki kecerdasan dan data yang memadai.",
-                    fontSize = 16.sp,
-                    lineHeight = 26.sp,
-                    color = Color.Black,
-                    fontFamily = getDmSansFontFamily()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Buku ini ditujukan bagi para pengambil keputusan di berbagai level (CEO, Manajemen Senior, hingga Menengah) yang ingin meningkatkan kualitas keputusan dan menghindari \"biaya\" tak terlihat dari blind spot.",
-                    fontSize = 16.sp,
-                    lineHeight = 26.sp,
-                    color = Color.Black,
-                    fontFamily = getDmSansFontFamily()
-                )
-                
-                Spacer(modifier = Modifier.height(48.dp))
-                
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Button(
-                        onClick = { /* TODO */ },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF46B778)),
-                        modifier = Modifier.height(56.dp).width(160.dp)
-                    ) {
-                        Text("Read", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    }
-                    
-                    Button(
-                        onClick = { /* TODO */ },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF1F4F7),
-                            contentColor = Color(0xFF00B7D1)
-                        ),
-                        modifier = Modifier.height(56.dp).width(200.dp)
-                    ) {
-                        Text("Add to Library", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                    horizontalArrangement = Arrangement.spacedBy(64.dp)
+                ) {
+                    // Left: Book Cover
+                    BookCover(
+                        modifier = Modifier
+                            .width(340.dp)
+                            .height(480.dp)
+                    )
+
+                    // Right: Info
+                    Column(modifier = Modifier.weight(1f)) {
+                        BookInfoContent(isMobile = false)
                     }
                 }
             }
-        }
 
-        // Details Section
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 64.dp, vertical = 32.dp),
-            horizontalArrangement = Arrangement.spacedBy(32.dp)
-        ) {
-            WhatsInsideSection(modifier = Modifier.weight(2f))
-            MetadataSection(modifier = Modifier.weight(1f))
+            // Details Section
+            if (isMobile) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalPadding, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    WhatsInsideSection(modifier = Modifier.fillMaxWidth())
+                    MetadataSection(modifier = Modifier.fillMaxWidth())
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = horizontalPadding, vertical = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    WhatsInsideSection(modifier = Modifier.weight(2f))
+                    MetadataSection(modifier = Modifier.weight(1f))
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(64.dp))
+            Footer()
         }
+    }
+}
+
+@Composable
+private fun BookInfoContent(isMobile: Boolean) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Self-Improvement / Mindfulness",
+            fontSize = 14.sp,
+            color = Color(0xFF71717A),
+            fontFamily = getDmSansFontFamily()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Blind Spot Radar",
+            fontSize = if (isMobile) 36.sp else 52.sp,
+            fontWeight = FontWeight.ExtraBold,
+            fontFamily = getMontserratFontFamily(),
+            color = Color(0xFF0D1F2D),
+            letterSpacing = (-1).sp,
+            lineHeight = if (isMobile) 42.sp else 58.sp
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "by Putu Aan J.",
+            fontSize = if (isMobile) 18.sp else 20.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = getDmSansFontFamily(),
+            color = Color(0x99143244)
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RatingStars(rating = 5, color = Color(0xFF60BD65))
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = "(4.8/5 from 1,240 readers)",
+                fontSize = 14.sp,
+                color = Color(0xFF71717A),
+                fontFamily = getDmSansFontFamily()
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Buku \"Blind Spot Radar: Mengapa Pemimpin Cerdas Melewatkan Sinyal Besar\" merupakan karya thought leadership yang menyoroti fenomena di mana para pengambil keputusan tingkat atas sering kali gagal mendeteksi ancaman nyata atau peluang strategis, meskipun mereka memiliki kecerdasan dan data yang memadai.",
+            fontSize = 16.sp,
+            lineHeight = 26.sp,
+            color = Color(0xFF0D1F2D),
+            fontFamily = getDmSansFontFamily()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Buku ini ditujukan bagi para pengambil keputusan di berbagai level (CEO, Manajemen Senior, hingga Menengah) yang ingin meningkatkan kualitas keputusan dan menghindari \"biaya\" tak terlihat dari blind spot.",
+            fontSize = 16.sp,
+            lineHeight = 26.sp,
+            color = Color(0xFF0D1F2D),
+            fontFamily = getDmSansFontFamily()
+        )
         
-        Spacer(modifier = Modifier.height(64.dp))
-        Footer()
+        Spacer(modifier = Modifier.height(36.dp))
+        
+        // Responsive action buttons (stack on small screens or wrap cleanly)
+        if (isMobile) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { /* TODO */ },
+                    shape = RoundedCornerShape(9999.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)),
+                    modifier = Modifier.fillMaxWidth().height(52.dp)
+                ) {
+                    Text("Read Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                }
+                
+                OutlinedButton(
+                    onClick = { /* TODO */ },
+                    shape = RoundedCornerShape(9999.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF00B5C8)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00B5C8)),
+                    modifier = Modifier.fillMaxWidth().height(52.dp)
+                ) {
+                    Text("Add to Library", fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                }
+            }
+        } else {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = { /* TODO */ },
+                    shape = RoundedCornerShape(9999.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)),
+                    modifier = Modifier.height(52.dp).width(160.dp)
+                ) {
+                    Text("Read Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                }
+                
+                OutlinedButton(
+                    onClick = { /* TODO */ },
+                    shape = RoundedCornerShape(9999.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF00B5C8)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00B5C8)),
+                    modifier = Modifier.height(52.dp).width(190.dp)
+                ) {
+                    Text("Add to Library", fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                }
+            }
+        }
     }
 }
 

@@ -10,16 +10,32 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 class AuthRepositoryImpl(private val tokenStorage: TokenStorage) : AuthRepository {
     override suspend fun login(request: AuthRequest): Result<AuthResponse> {
         return try {
-            val response = NetworkClient.client.post("/auth/login") {
+            val httpResponse = NetworkClient.authClient.post("${com.sekota.AUTH_BASE_URL}auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
-            }.body<AuthResponse>()
-            saveToken(response.token)
-            Result.success(response)
+            }
+            if (httpResponse.status.isSuccess()) {
+                val response = httpResponse.body<AuthResponse>()
+                saveToken(response.token)
+                Result.success(response)
+            } else {
+                val errorMessage = try {
+                    val errorObj = httpResponse.body<com.sekota.features.auth.domain.model.ErrorResponse>()
+                    errorObj.error
+                } catch (_: Exception) {
+                    try {
+                        httpResponse.body<String>().ifBlank { "HTTP ${httpResponse.status}" }
+                    } catch (_: Exception) {
+                        "Authentication failed (${httpResponse.status.value})"
+                    }
+                }
+                Result.failure(Exception(errorMessage))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -27,12 +43,41 @@ class AuthRepositoryImpl(private val tokenStorage: TokenStorage) : AuthRepositor
 
     override suspend fun signup(request: AuthRequest): Result<AuthResponse> {
         return try {
-            val response = NetworkClient.client.post("/auth/signup") {
+            val httpResponse = NetworkClient.authClient.post("${com.sekota.AUTH_BASE_URL}auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
-            }.body<AuthResponse>()
-            saveToken(response.token)
-            Result.success(response)
+            }
+            if (httpResponse.status.isSuccess()) {
+                // If register returns created response with token, or message + userId
+                val response = try {
+                    httpResponse.body<AuthResponse>()
+                } catch (_: Exception) {
+                    // Try automatic login if register returns only userId
+                    val loginRes = NetworkClient.authClient.post("${com.sekota.AUTH_BASE_URL}auth/login") {
+                        contentType(ContentType.Application.Json)
+                        setBody(request)
+                    }
+                    if (loginRes.status.isSuccess()) {
+                        loginRes.body<AuthResponse>()
+                    } else {
+                        throw Exception("Registration succeeded, please log in.")
+                    }
+                }
+                saveToken(response.token)
+                Result.success(response)
+            } else {
+                val errorMessage = try {
+                    val errorObj = httpResponse.body<com.sekota.features.auth.domain.model.ErrorResponse>()
+                    errorObj.error
+                } catch (_: Exception) {
+                    try {
+                        httpResponse.body<String>().ifBlank { "HTTP ${httpResponse.status}" }
+                    } catch (_: Exception) {
+                        "Registration failed (${httpResponse.status.value})"
+                    }
+                }
+                Result.failure(Exception(errorMessage))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

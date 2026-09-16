@@ -1,5 +1,5 @@
 [versions]
-sqldelight = "2.0.2"
+sqldelight = "2.1.0"
 exposed = "0.47.0"
 postgresql = "42.7.2"
 hikaricp = "5.1.0"

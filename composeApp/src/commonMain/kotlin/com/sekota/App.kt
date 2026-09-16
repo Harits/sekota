@@ -57,30 +57,58 @@ fun App() {
                 .fillMaxSize()
                 .background(Color(0xFFFAFAFA))
         ) {
-            val scrollState = rememberScrollState()
-            
-            // Re-sync scroll on screen change
-            LaunchedEffect(currentScreen) {
-                scrollState.scrollTo(0)
-            }
-
-            Column(
+            // Screen Content Container
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .padding(top = 80.dp) // Offset for sticky navbar
             ) {
-                Spacer(modifier = Modifier.height(80.dp))
-                
                 when (currentScreen) {
-                    Screen.Landing -> LandingScreen()
-                    Screen.Catalog -> CatalogScreen(
-                        onBookClick = { currentScreen = Screen.Details },
-                        onNavigate = { currentScreen = it }
-                    )
-                    Screen.Details -> BookDetailsScreen()
-                    Screen.Merchandise -> MerchandiseScreen(
-                        onNavigate = { currentScreen = it }
-                    )
+                    Screen.Landing -> {
+                        val landingScroll = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(landingScroll)
+                        ) {
+                            LandingScreen()
+                        }
+                    }
+                    Screen.Catalog -> {
+                        val catalogScroll = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(catalogScroll)
+                        ) {
+                            CatalogScreen(
+                                onBookClick = { currentScreen = Screen.Details },
+                                onNavigate = { currentScreen = it }
+                            )
+                        }
+                    }
+                    Screen.Details -> {
+                        val detailsScroll = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(detailsScroll)
+                        ) {
+                            BookDetailsScreen()
+                        }
+                    }
+                    Screen.Merchandise -> {
+                        val merchScroll = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(merchScroll)
+                        ) {
+                            MerchandiseScreen(
+                                onNavigate = { currentScreen = it }
+                            )
+                        }
+                    }
                     Screen.Login -> LoginScreen(
                         loginUseCase = loginUseCase,
                         onLoginSuccess = { 
@@ -91,6 +119,7 @@ fun App() {
                     )
                     Screen.Signup -> SignupScreen(
                         signupUseCase = signupUseCase,
+                        updateProfileUseCase = updateProfileUseCase,
                         onSignupSuccess = { 
                             isLoggedIn = true
                             currentScreen = Screen.Catalog 
