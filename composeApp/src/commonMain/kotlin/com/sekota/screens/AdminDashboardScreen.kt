@@ -33,7 +33,9 @@ val InkNavy = Color(0xFF0D1F2D)
 val BrandTeal = Color(0xFF00B5C8)
 
 @Composable
-fun AdminDashboardScreen() {
+fun AdminDashboardScreen(
+    onLogout: () -> Unit = {}
+) {
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
     val saveBookUseCase = remember { SaveAdminBookUseCase(repository) }
@@ -69,8 +71,12 @@ fun AdminDashboardScreen() {
                             color = BrandTeal,
                             fontFamily = getMontserratFontFamily(),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            modifier = Modifier.weight(1f)
                         )
+                        IconButton(onClick = onLogout) {
+                            Text(text = "🚪", fontSize = 18.sp)
+                        }
                     }
                 }
 
@@ -154,6 +160,22 @@ fun AdminDashboardScreen() {
                                 unselectedTextColor = Color.LightGray
                             ),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).fillMaxWidth()
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    OutlinedButton(
+                        onClick = onLogout,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                        shape = RoundedCornerShape(100.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 24.dp)
+                    ) {
+                        Text(
+                            text = "🚪 Sign Out",
+                            fontFamily = getDmSansFontFamily(),
+                            fontSize = 13.sp,
+                            color = Color(0xFFFF8A80)
                         )
                     }
                 }

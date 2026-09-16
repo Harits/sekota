@@ -49,7 +49,10 @@ Seluruh Work Package telah disinkronisasikan ke OpenProject PMO (`https://pmo.bl
    - Dialog interaktif `AlertDialog` lengkap dengan `OutlinedTextField` (Title, Author, Price, Category, Stock) dan tombol pill kapsul (`PillButton`) mendukung penambahan buku dan merchandise secara dinamis.
 4. **Ktor Client CIO Engine Multiplatform**:
    - Konfigurasi `ktor-client-cio` pada `shared/build.gradle.kts` target `jvmMain` menyelesaikan `IllegalStateException: Failed to find HTTP client engine implementation`.
-5. **Design System Specification**:
+5. **CMS Authentication Gate & Role-Based Access Control**:
+   - Berkas: `composeApp/src/commonMain/kotlin/com/sekota/screens/AdminLoginScreen.kt` & `shared/src/commonMain/kotlin/com/sekota/features/admin/domain/usecase/AdminUseCases.kt` (`ValidateAdminRoleUseCase`).
+   - Mencegat akses tanpa kredensial pada Desktop JVM (`Main.kt`), Android (`AdminActivity.kt`), dan CLI (`cli login`/`logout`/`whoami`). Hanya akun ber-role `ADMIN` atau `BOD` yang diizinkan masuk ke dashboard manajemen.
+6. **Design System Specification**:
    - File: `docs/02_technical_specifications/DESIGN_SYSTEM.md`
    - Standar resmi token warna (`InkNavy`, `BrandTeal`, `BrandGreen`), tipografi (`Montserrat`, `DM Sans`), elevasi, shape, dan adaptive layout breakpoints.
 

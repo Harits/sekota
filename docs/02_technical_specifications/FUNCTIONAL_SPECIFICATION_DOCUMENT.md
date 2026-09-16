@@ -259,11 +259,23 @@ Sistem Sekota mendefinisikan 4 aktor formal dengan profil kewenangan dan ruang l
 ### 3.6 Modul CMS Pengelola Tri-Platform (Desktop, Android & Kotlin CLI)
 
 #### UC-CMS-01: Tata Kelola Produk, Manuskrip Buku, dan Merchandise
-- **Aktor**: Admin Sistem (Akun Role `ADMIN`)
+- **Aktor**: Admin Sistem (Akun Terautentikasi dengan Role `ADMIN` / `BOD`)
+- **Relasi Use Case**: Mengikutsertakan `UC-AUTH-02` (*<<include>>*) sebagai syarat mutlak sebelum antarmuka workbench diizinkan terbuka.
 - **Antarmuka CMS**:
-  - **Compose Desktop JVM (`:desktopApp`)**: Dashboard visual admin multi-kolom.
-  - **Compose Android Native (`:androidApp`)**: Portal mobile monitoring & manajemen.
-  - **Kotlin CLI (`:cli` / `sekota-cli`)**: Shell command-line administrasi.
+  - **Compose Desktop JVM (`:desktopApp`)**: Dashboard visual admin multi-kolom dilindungi oleh layar `AdminLoginScreen`.
+  - **Compose Android Native (`:androidApp`)**: Portal mobile monitoring & manajemen dilindungi oleh sesi autentikasi `AdminActivity`.
+  - **Kotlin CLI (`:cli` / `sekota-cli`)**: Shell command-line administrasi dengan sub-perintah autentikasi (`login`, `logout`, `whoami`).
+- **Prekondisi**:
+  1. Pengguna membuka aplikasi CMS (Desktop, Android, atau CLI).
+  2. Pengguna belum memiliki sesi aktif atau token telah kedaluwarsa.
+- **Alur Autentikasi CMS Gate**:
+  1. Sistem mencegat akses langsung ke workbench dan menampilkan **AdminLoginScreen**.
+  2. Administrator memasukkan kredensial email dan kata sandi.
+  3. Sistem memanggil `LoginUseCase` untuk memverifikasi kredensial ke endpoint autentikasi (`/auth/login`).
+  4. Sistem mengevaluasi klaim peran (`role`) menggunakan `ValidateAdminRoleUseCase`.
+  5. **Jika role bukan ADMIN atau BOD**: Sistem menolak akses dengan pesan *"Akses Ditolak: Akses Backoffice CMS terbatas hanya untuk ADMIN atau BOD"*, dan sesi tidak diberikan.
+  6. **Jika role ADMIN atau BOD valid**: Sistem menyimpan token JWT ke `TokenStorage` lokal dan menampilkan layar utama `AdminDashboardScreen`.
+  7. Administrator dapat mengakhiri sesi kapan saja melalui tombol **"Sign Out"** (Desktop/Android) atau `cli logout`, yang memanggil `ClearTokenUseCase`.
 - **Ruang Lingkup Manajemen**:
   1. **Katalog Buku & Manuskrip**:
      - Membaca daftar buku dari `GET /admin/books`.

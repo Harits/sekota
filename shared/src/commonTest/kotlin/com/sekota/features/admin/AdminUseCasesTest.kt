@@ -109,4 +109,20 @@ class AdminUseCasesTest {
         assertTrue(failResult.isFailure)
         assertEquals("Harga merchandise tidak boleh negatif", failResult.exceptionOrNull()?.message)
     }
+
+    @Test
+    fun testValidateAdminRole() {
+        val validateRole = ValidateAdminRoleUseCase()
+
+        assertTrue(validateRole("ADMIN"))
+        assertTrue(validateRole("admin"))
+        assertTrue(validateRole("BOD"))
+        assertTrue(validateRole("SYSADMIN"))
+
+        kotlin.test.assertFalse(validateRole("READER"))
+        kotlin.test.assertFalse(validateRole("CLIENT"))
+        kotlin.test.assertFalse(validateRole(""))
+        kotlin.test.assertFalse(validateRole(null))
+    }
 }
+

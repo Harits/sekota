@@ -1,11 +1,24 @@
 package com.sekota.cli
 
+import com.sekota.core.storage.TokenStorage
 import com.sekota.features.admin.data.repository.AdminRepositoryImpl
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.usecase.*
+import com.sekota.features.auth.data.repository.AuthRepositoryImpl
+import com.sekota.features.auth.domain.model.AuthRequest
+import com.sekota.features.auth.domain.usecase.ClearTokenUseCase
+import com.sekota.features.auth.domain.usecase.GetTokenUseCase
+import com.sekota.features.auth.domain.usecase.LoginUseCase
 import kotlinx.coroutines.runBlocking
 
 fun main(args: Array<String>) = runBlocking {
+    val tokenStorage = TokenStorage()
+    val authRepository = AuthRepositoryImpl(tokenStorage)
+    val loginUseCase = LoginUseCase(authRepository)
+    val getTokenUseCase = GetTokenUseCase(authRepository)
+    val clearTokenUseCase = ClearTokenUseCase(authRepository)
+    val validateAdminRoleUseCase = ValidateAdminRoleUseCase()
+
     val repository = AdminRepositoryImpl()
     val getBooksUseCase = GetAdminBooksUseCase(repository)
     val saveBookUseCase = SaveAdminBookUseCase(repository)
@@ -14,11 +27,43 @@ fun main(args: Array<String>) = runBlocking {
     val getMerchUseCase = GetAdminMerchUseCase(repository)
 
     if (args.isEmpty()) {
-        printHelp()
+        printHelp(getTokenUseCase() != null)
         return@runBlocking
     }
 
     when (args[0]) {
+        "login" -> {
+            val email = args.getOrNull(1)
+            val password = args.getOrNull(2)
+            if (email == null || password == null) {
+                println("❌ Usage: cli login <email> <password>")
+                return@runBlocking
+            }
+            val result = loginUseCase(AuthRequest(email, password))
+            if (result.isSuccess) {
+                val auth = result.getOrNull()
+                val role = auth?.role ?: "READER"
+                if (validateAdminRoleUseCase(role)) {
+                    println("✅ Login successful as ${role.uppercase()} ($email). Token stored in session.")
+                } else {
+                    println("⚠️ Warning: Authenticated with role '$role'. Note: CMS access requires ADMIN or BOD.")
+                }
+            } else {
+                println("❌ Login failed: ${result.exceptionOrNull()?.message}")
+            }
+        }
+        "logout" -> {
+            clearTokenUseCase()
+            println("✅ Successfully logged out from Sekota CLI.")
+        }
+        "whoami" -> {
+            val token = getTokenUseCase()
+            if (token != null) {
+                println("🔑 Authenticated session active. Token: ${token.take(15)}...")
+            } else {
+                println("⚠️ No active authentication session. Run: cli login <email> <password>")
+            }
+        }
         "books" -> {
             when (args.getOrNull(1)) {
                 "list" -> {
@@ -53,7 +98,7 @@ fun main(args: Array<String>) = runBlocking {
                         }
                     }
                 }
-                else -> printHelp()
+                else -> printHelp(getTokenUseCase() != null)
             }
         }
         "products" -> {
@@ -64,7 +109,7 @@ fun main(args: Array<String>) = runBlocking {
                     println("${it.id.padEnd(5)} | ${it.code.padEnd(5)} | ${it.name.padEnd(15)} | ${it.categoryEyebrow}")
                 }
             } else {
-                printHelp()
+                printHelp(getTokenUseCase() != null)
             }
         }
         "merch" -> {
@@ -75,23 +120,29 @@ fun main(args: Array<String>) = runBlocking {
                     println("${it.id.padEnd(5)} | ${it.title.padEnd(30)} | ${it.category.padEnd(15)} | \$${it.price}")
                 }
             } else {
-                printHelp()
+                printHelp(getTokenUseCase() != null)
             }
         }
-        "help" -> printHelp()
+        "help" -> printHelp(getTokenUseCase() != null)
         else -> {
             println("Unknown command: ${args[0]}")
-            printHelp()
+            printHelp(getTokenUseCase() != null)
         }
     }
 }
 
-fun printHelp() {
+fun printHelp(isLoggedIn: Boolean) {
+    val sessionStatus = if (isLoggedIn) "ACTIVE" else "NONE"
     println("""
-        Sekota Admin CLI (Production Engineering v1.0)
+        Sekota Admin CLI (Production Engineering v1.0) [Session: $sessionStatus]
         Usage: cli [command] [action] [options]
         
-        Commands:
+        Auth Commands:
+          login <email> <password>      - Authenticates admin and saves session token
+          logout                        - Clears stored session token
+          whoami                        - Shows active session status
+        
+        Management Commands:
           books list                    - Prints list of books
           books add [id] [title] [auth] - Adds a new book
           books delete <id>             - Deletes a book by ID

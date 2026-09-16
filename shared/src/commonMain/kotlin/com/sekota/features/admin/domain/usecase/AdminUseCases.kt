@@ -82,3 +82,12 @@ class DeleteAdminMerchUseCase(private val repository: AdminRepository) {
         return repository.deleteMerchandise(id)
     }
 }
+
+class ValidateAdminRoleUseCase {
+    operator fun invoke(role: String?): Boolean {
+        if (role == null) return false
+        val normalized = role.trim().uppercase()
+        return normalized == "ADMIN" || normalized == "BOD" || normalized == "SYSADMIN"
+    }
+}
+

@@ -123,5 +123,6 @@ UC_SYNC_01 ..> UC_AUTH_03 : <<include>>
 UC_CMS_01 ..> UC_CMS_BOOKS : <<include>>
 UC_CMS_01 ..> UC_CMS_PRODUCTS : <<include>>
 UC_CMS_01 ..> UC_CMS_MERCH : <<include>>
+UC_CMS_01 ..> UC_AUTH_02 : <<include>>\n(Requires ADMIN/BOD Role)
 
 @enduml
