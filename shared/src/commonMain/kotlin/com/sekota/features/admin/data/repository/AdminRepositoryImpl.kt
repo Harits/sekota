@@ -6,6 +6,7 @@ import com.sekota.NetworkClient
 import com.sekota.core.storage.AdminDataStorage
 import com.sekota.core.storage.TokenStorage
 import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.repository.AdminRepository
@@ -296,5 +297,28 @@ class AdminRepositoryImpl(
 
     private fun persistMerch(merch: List<AdminMerch>) {
         dataStorage.saveMerchJson(json.encodeToString(merch))
+    }
+
+    override suspend fun getLiveMetrics(): AdminLiveMetrics {
+        val storedJson = dataStorage.getMetricsJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<AdminLiveMetrics>(storedJson)
+            } catch (_: Exception) {
+                // Ignore fallback to defaults
+            }
+        }
+        val defaultMetrics = AdminLiveMetrics()
+        persistLiveMetrics(defaultMetrics)
+        return defaultMetrics
+    }
+
+    override suspend fun saveLiveMetrics(metrics: AdminLiveMetrics): Result<AdminLiveMetrics> {
+        persistLiveMetrics(metrics)
+        return Result.success(metrics)
+    }
+
+    private fun persistLiveMetrics(metrics: AdminLiveMetrics) {
+        dataStorage.saveMetricsJson(json.encodeToString(metrics))
     }
 }

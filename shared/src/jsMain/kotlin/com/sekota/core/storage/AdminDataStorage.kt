@@ -26,4 +26,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getMerchJson(): String? {
         return window.localStorage.getItem("admin_merch_json")
     }
+
+    actual fun saveMetricsJson(json: String) {
+        window.localStorage.setItem("admin_metrics_json", json)
+    }
+
+    actual fun getMetricsJson(): String? {
+        return window.localStorage.getItem("admin_metrics_json")
+    }
 }

@@ -1,6 +1,7 @@
 package com.sekota.features.admin
 
 import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.repository.AdminRepository
@@ -14,6 +15,7 @@ class FakeAdminRepository : AdminRepository {
     val books = mutableListOf<AdminBook>()
     val products = mutableListOf<AdminProduct>()
     val merchandise = mutableListOf<AdminMerch>()
+    var liveMetrics = AdminLiveMetrics()
 
     override suspend fun getBooks(): List<AdminBook> = books.toList()
     override suspend fun saveBook(book: AdminBook): Result<AdminBook> {
@@ -46,6 +48,12 @@ class FakeAdminRepository : AdminRepository {
     override suspend fun deleteMerchandise(id: String): Result<Boolean> {
         val removed = merchandise.removeAll { it.id == id }
         return Result.success(removed)
+    }
+
+    override suspend fun getLiveMetrics(): AdminLiveMetrics = liveMetrics
+    override suspend fun saveLiveMetrics(metrics: AdminLiveMetrics): Result<AdminLiveMetrics> {
+        liveMetrics = metrics
+        return Result.success(metrics)
     }
 }
 
@@ -107,7 +115,25 @@ class AdminUseCasesTest {
         val negativePriceMerch = AdminMerch("m1", "Sekota Mug", "Accessories", "Core", -10.0, 5.0)
         val failResult = saveMerchUseCase(negativePriceMerch)
         assertTrue(failResult.isFailure)
-        assertEquals("Harga merchandise tidak boleh negatif", failResult.exceptionOrNull()?.message)
+        assertEquals("Harga merchandise harus lebih dari 0", failResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testLiveMetricsValidationAndSave() = runBlocking {
+        val repo = FakeAdminRepository()
+        val saveMetricsUseCase = SaveAdminLiveMetricsUseCase(repo)
+        val getMetricsUseCase = GetAdminLiveMetricsUseCase(repo)
+
+        val blankMetrics = AdminLiveMetrics(dataAccuracy = "")
+        val failResult = saveMetricsUseCase(blankMetrics)
+        assertTrue(failResult.isFailure)
+
+        val validMetrics = AdminLiveMetrics("99.9%", "250+", "2020")
+        val successResult = saveMetricsUseCase(validMetrics)
+        assertTrue(successResult.isSuccess)
+        assertEquals("99.9%", getMetricsUseCase().dataAccuracy)
+        assertEquals("250+", getMetricsUseCase().totalClients)
+        assertEquals("2020", getMetricsUseCase().establishedYear)
     }
 
     @Test

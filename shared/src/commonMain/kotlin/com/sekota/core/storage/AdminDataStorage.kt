@@ -9,4 +9,7 @@ expect class AdminDataStorage() {
 
     fun saveMerchJson(json: String)
     fun getMerchJson(): String?
+
+    fun saveMetricsJson(json: String)
+    fun getMetricsJson(): String?
 }

@@ -27,4 +27,13 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_merch_json")
         return if (data == null) null else data
     }
+
+    actual fun saveMetricsJson(json: String) {
+        setStorageItem("admin_metrics_json", json)
+    }
+
+    actual fun getMetricsJson(): String? {
+        val data = getStorageItem("admin_metrics_json")
+        return if (data == null) null else data
+    }
 }

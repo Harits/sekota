@@ -9,5 +9,6 @@ data class AdminMerch(
     val category: String,
     val seriesName: String,
     val price: Double,
-    val rating: Double
+    val rating: Double,
+    val imageUrl: String? = null
 )

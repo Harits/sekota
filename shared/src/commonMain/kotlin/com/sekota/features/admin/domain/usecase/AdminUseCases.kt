@@ -1,6 +1,7 @@
 package com.sekota.features.admin.domain.usecase
 
 import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.repository.AdminRepository
@@ -43,6 +44,9 @@ class SaveAdminProductUseCase(private val repository: AdminRepository) {
         if (product.name.isBlank()) {
             return Result.failure(IllegalArgumentException("Nama produk tidak boleh kosong"))
         }
+        if (product.code.isBlank()) {
+            return Result.failure(IllegalArgumentException("Kode produk tidak boleh kosong"))
+        }
         return repository.saveProduct(product)
     }
 }
@@ -67,8 +71,8 @@ class SaveAdminMerchUseCase(private val repository: AdminRepository) {
         if (merch.title.isBlank()) {
             return Result.failure(IllegalArgumentException("Nama merchandise tidak boleh kosong"))
         }
-        if (merch.price < 0) {
-            return Result.failure(IllegalArgumentException("Harga merchandise tidak boleh negatif"))
+        if (merch.price <= 0.0) {
+            return Result.failure(IllegalArgumentException("Harga merchandise harus lebih dari 0"))
         }
         return repository.saveMerchandise(merch)
     }
@@ -83,6 +87,27 @@ class DeleteAdminMerchUseCase(private val repository: AdminRepository) {
     }
 }
 
+class GetAdminLiveMetricsUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): AdminLiveMetrics {
+        return repository.getLiveMetrics()
+    }
+}
+
+class SaveAdminLiveMetricsUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(metrics: AdminLiveMetrics): Result<AdminLiveMetrics> {
+        if (metrics.dataAccuracy.isBlank()) {
+            return Result.failure(IllegalArgumentException("Data Accuracy tidak boleh kosong"))
+        }
+        if (metrics.totalClients.isBlank()) {
+            return Result.failure(IllegalArgumentException("Total Clients tidak boleh kosong"))
+        }
+        if (metrics.establishedYear.isBlank()) {
+            return Result.failure(IllegalArgumentException("Established Year tidak boleh kosong"))
+        }
+        return repository.saveLiveMetrics(metrics)
+    }
+}
+
 class ValidateAdminRoleUseCase {
     operator fun invoke(role: String?): Boolean {
         if (role == null) return false
@@ -90,4 +115,3 @@ class ValidateAdminRoleUseCase {
         return normalized == "ADMIN" || normalized == "BOD" || normalized == "SYSADMIN"
     }
 }
-

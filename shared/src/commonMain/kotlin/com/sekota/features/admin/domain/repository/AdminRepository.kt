@@ -1,6 +1,7 @@
 package com.sekota.features.admin.domain.repository
 
 import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 
@@ -16,4 +17,7 @@ interface AdminRepository {
     suspend fun getMerchandise(): List<AdminMerch>
     suspend fun saveMerchandise(merch: AdminMerch): Result<AdminMerch>
     suspend fun deleteMerchandise(id: String): Result<Boolean>
+
+    suspend fun getLiveMetrics(): AdminLiveMetrics
+    suspend fun saveLiveMetrics(metrics: AdminLiveMetrics): Result<AdminLiveMetrics>
 }

@@ -28,4 +28,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getMerchJson(): String? {
         return prefs.get("merch_json", null)
     }
+
+    actual fun saveMetricsJson(json: String) {
+        prefs.put("metrics_json", json)
+    }
+
+    actual fun getMetricsJson(): String? {
+        return prefs.get("metrics_json", null)
+    }
 }
