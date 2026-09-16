@@ -20,8 +20,10 @@ private data class ApiAdminBook(
 
 class AdminRepositoryImpl : AdminRepository {
     private val inMemoryBooks = mutableListOf(
-        AdminBook("b1", "The Kotlin Book", "JetBrains", "123-456-789"),
-        AdminBook("b2", "Compose Multiplatform", "Google", "987-654-321")
+        AdminBook("manifesto-ekuitas-lahan", "Manifesto Ekuitas Lahan", "Putu Aan J.", "978-623-99999-0-0"),
+        AdminBook("blind-spot-radar", "Blind Spot Radar", "Sekota Team", "978-623-99999-3-1"),
+        AdminBook("csr-berdampak", "CSR Berdampak", "Sekota Team", "978-623-99999-1-7"),
+        AdminBook("esg-strategic-integration", "ESG Strategic Integration", "Sekota Team", "978-623-99999-2-4")
     )
     private val inMemoryProducts = mutableListOf(
         AdminProduct("p1", "VRD", "Veridia", "Intelligence Suite", "Description for Veridia", listOf("Feature 1", "Feature 2")),
