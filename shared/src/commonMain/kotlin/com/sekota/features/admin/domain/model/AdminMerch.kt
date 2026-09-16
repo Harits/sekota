@@ -1,5 +1,8 @@
 package com.sekota.features.admin.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class AdminMerch(
     val id: String,
     val title: String,
