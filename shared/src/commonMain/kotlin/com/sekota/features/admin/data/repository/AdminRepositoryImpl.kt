@@ -1,28 +1,43 @@
 package com.sekota.features.admin.data.repository
 
+import com.sekota.AUTH_BASE_URL
+import com.sekota.LOCAL_API_BASE_URL
 import com.sekota.NetworkClient
 import com.sekota.core.storage.AdminDataStorage
+import com.sekota.core.storage.TokenStorage
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.repository.AdminRepository
 import io.ktor.client.call.body
-import io.ktor.client.request.get
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
-private data class ApiAdminBook(
+data class RemoteBookDto(
     val id: String,
     val title: String,
     val author: String,
     val isbn: String,
-    val coverImage: String? = null
+    val coverImage: String? = null,
+    val qrLogo: String? = null
+)
+
+@Serializable
+data class CreateBookRequestDto(
+    val title: String,
+    val author: String,
+    val isbn: String,
+    val coverImage: String? = null,
+    val qrLogo: String? = null
 )
 
 class AdminRepositoryImpl(
-    private val dataStorage: AdminDataStorage = AdminDataStorage()
+    private val dataStorage: AdminDataStorage = AdminDataStorage(),
+    private val tokenStorage: TokenStorage = TokenStorage()
 ) : AdminRepository {
 
     private val json = Json {
@@ -52,24 +67,40 @@ class AdminRepositoryImpl(
     )
 
     override suspend fun getBooks(): List<AdminBook> {
-        // 1. Try fetching from remote network gateway if available
-        try {
-            val response: List<ApiAdminBook> = NetworkClient.authClient.get("https://sekota.id/api/v1/admin/books").body()
-            if (response.isNotEmpty()) {
-                val mapped = response.map {
-                    AdminBook(
-                        id = it.id,
-                        title = it.title,
-                        author = it.author,
-                        isbn = it.isbn,
-                        coverImage = it.coverImage
-                    )
+        // 1. Try fetching from live HTTP backend (supporting bookinteractiontool API at AUTH_BASE_URL or LOCAL_API_BASE_URL)
+        val token = tokenStorage.getToken()
+        val baseUrls = listOf(
+            "${AUTH_BASE_URL}admin/books",
+            "${LOCAL_API_BASE_URL}api/v1/admin/books",
+            "${AUTH_BASE_URL}books"
+        )
+
+        for (url in baseUrls) {
+            try {
+                val httpResponse = NetworkClient.authClient.get(url) {
+                    if (token != null) {
+                        header(HttpHeaders.Authorization, "Bearer $token")
+                    }
                 }
-                persistBooks(mapped)
-                return mapped
+                if (httpResponse.status.isSuccess()) {
+                    val response = httpResponse.body<List<RemoteBookDto>>()
+                    if (response.isNotEmpty()) {
+                        val mapped = response.map {
+                            AdminBook(
+                                id = it.id,
+                                title = it.title,
+                                author = it.author,
+                                isbn = it.isbn,
+                                coverImage = it.coverImage
+                            )
+                        }
+                        persistBooks(mapped)
+                        return mapped
+                    }
+                }
+            } catch (_: Exception) {
+                // Continue trying next candidate url or fallback
             }
-        } catch (_: Exception) {
-            // Fallback to local persistent layer
         }
 
         // 2. Read from persistent local disk storage
@@ -88,7 +119,54 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun saveBook(book: AdminBook): Result<AdminBook> {
-        val current = getBooks().toMutableList()
+        val token = tokenStorage.getToken()
+        val candidateUrls = listOf(
+            "${AUTH_BASE_URL}admin/books",
+            "${LOCAL_API_BASE_URL}api/v1/admin/books"
+        )
+
+        // Attempt remote save via POST (per BookRoutes in bookinteractiontool)
+        for (url in candidateUrls) {
+            try {
+                val httpResponse = NetworkClient.authClient.post(url) {
+                    contentType(ContentType.Application.Json)
+                    if (token != null) {
+                        header(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    setBody(CreateBookRequestDto(
+                        title = book.title,
+                        author = book.author,
+                        isbn = book.isbn,
+                        coverImage = book.coverImage
+                    ))
+                }
+                if (httpResponse.status.isSuccess()) {
+                    val remoteBook = httpResponse.body<RemoteBookDto>()
+                    val savedBook = AdminBook(
+                        id = remoteBook.id,
+                        title = remoteBook.title,
+                        author = remoteBook.author,
+                        isbn = remoteBook.isbn,
+                        coverImage = remoteBook.coverImage
+                    )
+                    updateLocalBookCache(savedBook)
+                    return Result.success(savedBook)
+                }
+            } catch (_: Exception) {
+                // Fallback to local persistent storage
+            }
+        }
+
+        // Local persistent update
+        updateLocalBookCache(book)
+        return Result.success(book)
+    }
+
+    private fun updateLocalBookCache(book: AdminBook) {
+        val current = (dataStorage.getBooksJson()?.let {
+            try { json.decodeFromString<List<AdminBook>>(it) } catch (_: Exception) { null }
+        } ?: defaultCanonicalBooks).toMutableList()
+
         val index = current.indexOfFirst { it.id == book.id }
         if (index >= 0) {
             current[index] = book
@@ -96,16 +174,47 @@ class AdminRepositoryImpl(
             current.add(book)
         }
         persistBooks(current)
-        return Result.success(book)
     }
 
     override suspend fun deleteBook(id: String): Result<Boolean> {
-        val current = getBooks().toMutableList()
+        val token = tokenStorage.getToken()
+        val candidateUrls = listOf(
+            "${AUTH_BASE_URL}admin/books/$id",
+            "${LOCAL_API_BASE_URL}api/v1/admin/books/$id"
+        )
+
+        // Attempt remote delete via DELETE
+        for (url in candidateUrls) {
+            try {
+                val httpResponse = NetworkClient.authClient.delete(url) {
+                    if (token != null) {
+                        header(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                }
+                if (httpResponse.status.isSuccess()) {
+                    deleteFromLocalBookCache(id)
+                    return Result.success(true)
+                }
+            } catch (_: Exception) {
+                // Fallback
+            }
+        }
+
+        // Local persistent delete
+        val removed = deleteFromLocalBookCache(id)
+        return Result.success(removed)
+    }
+
+    private fun deleteFromLocalBookCache(id: String): Boolean {
+        val current = (dataStorage.getBooksJson()?.let {
+            try { json.decodeFromString<List<AdminBook>>(it) } catch (_: Exception) { null }
+        } ?: defaultCanonicalBooks).toMutableList()
+
         val removed = current.removeAll { it.id == id }
         if (removed) {
             persistBooks(current)
         }
-        return Result.success(removed)
+        return removed
     }
 
     private fun persistBooks(books: List<AdminBook>) {
