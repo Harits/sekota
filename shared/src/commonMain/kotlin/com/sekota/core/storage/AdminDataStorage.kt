@@ -12,4 +12,8 @@ expect class AdminDataStorage() {
 
     fun saveMetricsJson(json: String)
     fun getMetricsJson(): String?
+
+    fun saveInquiriesJson(json: String)
+    fun getInquiriesJson(): String?
 }
+

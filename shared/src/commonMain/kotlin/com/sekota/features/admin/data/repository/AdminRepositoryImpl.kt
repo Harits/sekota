@@ -5,6 +5,7 @@ import com.sekota.LOCAL_API_BASE_URL
 import com.sekota.NetworkClient
 import com.sekota.core.storage.AdminDataStorage
 import com.sekota.core.storage.TokenStorage
+import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
@@ -28,6 +29,34 @@ data class RemoteBookDto(
 )
 
 @Serializable
+data class RemoteBookSummaryDto(
+    val bookId: String,
+    val title: String,
+    val author: String,
+    val totalInteractions: Int,
+    val averageEngagementScore: Double,
+    val highValueLeads: Int
+)
+
+@Serializable
+data class RemoteUserActivityDto(
+    val email: String,
+    val bookTitle: String,
+    val toolName: String,
+    val timestamp: String = "",
+    val data: String = ""
+)
+
+@Serializable
+data class RemoteDashboardSummaryDto(
+    val books: List<RemoteBookSummaryDto> = emptyList(),
+    val totalReaders: Int = 0,
+    val timestamp: String = "",
+    val activeUsers: List<String> = emptyList(),
+    val recentActivities: List<RemoteUserActivityDto> = emptyList()
+)
+
+@Serializable
 data class CreateBookRequestDto(
     val title: String,
     val author: String,
@@ -48,11 +77,64 @@ class AdminRepositoryImpl(
     }
 
     private val defaultCanonicalBooks = listOf(
-        AdminBook("manifesto-ekuitas-lahan", "Manifesto Ekuitas Lahan", "Putu Aan J.", "978-623-99999-0-0"),
-        AdminBook("blind-spot-radar", "Blind Spot Radar", "Sekota Team", "978-623-99999-3-1"),
-        AdminBook("csr-berdampak", "CSR Berdampak", "Sekota Team", "978-623-99999-1-7"),
-        AdminBook("esg-strategic-integration", "ESG Strategic Integration", "Sekota Team", "978-623-99999-2-4")
+        AdminBook(
+            id = "manifesto-ekuitas-lahan",
+            title = "Manifesto Ekuitas Lahan",
+            author = "Putu Aan J.",
+            isbn = "978-623-99999-0-0",
+            coverImage = null,
+            category = "SMART CITY",
+            description = "Strategi dan framework implementasi Smart City dan tata kelola ekuitas lahan perkotaan.",
+            rating = 4.9,
+            ratingCount = 890,
+            pdfUrl = "https://sekota.id/assets/docs/manifesto-ekuitas-lahan.pdf",
+            readingTime = "4H 15M",
+            pages = 280
+        ),
+        AdminBook(
+            id = "blind-spot-radar",
+            title = "Blind Spot Radar",
+            author = "Sekota Team",
+            isbn = "978-623-99999-3-1",
+            coverImage = null,
+            category = "INTELLIGENCE",
+            description = "Metodologi Open Source Intelligence untuk mendeteksi blind spot kebijakan publik dan fenomena keputusan strategis.",
+            rating = 4.8,
+            ratingCount = 1240,
+            pdfUrl = "https://sekota.id/assets/docs/blind-spot-radar.pdf",
+            readingTime = "3H 45M",
+            pages = 240
+        ),
+        AdminBook(
+            id = "csr-berdampak",
+            title = "CSR Berdampak",
+            author = "Sekota Team",
+            isbn = "978-623-99999-1-7",
+            coverImage = null,
+            category = "ESG",
+            description = "Panduan penyusunan program tanggung jawab sosial perusahaan berbasis dampak nyata dan keberlanjutan.",
+            rating = 4.7,
+            ratingCount = 650,
+            pdfUrl = "https://sekota.id/assets/docs/csr-berdampak.pdf",
+            readingTime = "2H 30M",
+            pages = 180
+        ),
+        AdminBook(
+            id = "esg-strategic-integration",
+            title = "ESG Strategic Integration",
+            author = "Sekota Team",
+            isbn = "978-623-99999-2-4",
+            coverImage = null,
+            category = "ESG",
+            description = "Integrasi menyeluruh standar kepatuhan lingkungan, sosial, dan tata kelola korporasi modern.",
+            rating = 4.9,
+            ratingCount = 1020,
+            pdfUrl = "https://sekota.id/assets/docs/esg-strategic-integration.pdf",
+            readingTime = "5H 10M",
+            pages = 320
+        )
     )
+
 
     private val defaultCanonicalProducts = listOf(
         AdminProduct("p1", "VRD", "Veridia", "Intelligence Suite", "Description for Veridia", listOf("Feature 1", "Feature 2")),
@@ -76,6 +158,41 @@ class AdminRepositoryImpl(
             "${AUTH_BASE_URL}books"
         )
 
+        val existingLocal = runCatching {
+            dataStorage.getBooksJson()?.let { json.decodeFromString<List<AdminBook>>(it) }
+        }.getOrNull()?.associateBy { it.id } ?: emptyMap()
+
+        // Attempt to fetch real telemetry metrics (Real Readers, Active Collaborators, & Real Stars) from bookinteractiontool dashboard
+        val dashboardSummary = runCatching {
+            val dashboardUrls = listOf(
+                "${LOCAL_API_BASE_URL}api/v1/dashboard/summary",
+                "${AUTH_BASE_URL}dashboard/summary"
+            )
+            var summary: RemoteDashboardSummaryDto? = null
+            for (dUrl in dashboardUrls) {
+                try {
+                    val resp = NetworkClient.authClient.get(dUrl) {
+                        if (token != null) header(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    if (resp.status.isSuccess()) {
+                        summary = resp.body<RemoteDashboardSummaryDto>()
+                        if (summary.books.isNotEmpty()) break
+                    }
+                } catch (_: Exception) {}
+            }
+            summary
+        }.getOrNull()
+
+        val telemetryMap = dashboardSummary?.books?.associateBy { it.bookId } ?: emptyMap()
+
+        // Map registered readers per book from recentActivities and activeUsers
+        val registeredReadersPerBook = mutableMapOf<String, MutableSet<String>>()
+        dashboardSummary?.recentActivities?.forEach { activity ->
+            val bookId = dashboardSummary.books.find { it.title.equals(activity.bookTitle, ignoreCase = true) }?.bookId
+                ?: activity.bookTitle.lowercase().replace(" ", "-")
+            registeredReadersPerBook.getOrPut(bookId) { mutableSetOf() }.add(activity.email)
+        }
+
         for (url in baseUrls) {
             try {
                 val httpResponse = NetworkClient.authClient.get(url) {
@@ -86,13 +203,51 @@ class AdminRepositoryImpl(
                 if (httpResponse.status.isSuccess()) {
                     val response = httpResponse.body<List<RemoteBookDto>>()
                     if (response.isNotEmpty()) {
-                        val mapped = response.map {
+                        val mapped = response.map { remote ->
+                            val local = existingLocal[remote.id]
+                            val telemetry = telemetryMap[remote.id]
+
+                            // Real star computation: strictly derived from telemetry averageEngagementScore (0-100% -> 1.0-5.0 scale)
+                            val derivedStar = telemetry?.averageEngagementScore?.let { score ->
+                                if (score > 0.0) {
+                                    val computed = 1.0 + (score / 100.0) * 4.0
+                                    (kotlin.math.round(computed * 10.0) / 10.0).coerceIn(1.0, 5.0)
+                                } else 0.0
+                            } ?: 0.0
+
+                            // Real Registered Readers (Active Collaborator Accounts like RP-2026-ZQAX)
+                            val registeredCount = registeredReadersPerBook[remote.id]?.size
+                                ?: if (remote.id == "manifesto-ekuitas-lahan" && dashboardSummary?.activeUsers?.isNotEmpty() == true) {
+                                    dashboardSummary.activeUsers.size
+                                } else 0
+
+                            // Total Raw Interactions from telemetry
+                            val totalInteractions = telemetry?.totalInteractions ?: 0
+
+                            val defaultCategory = when (remote.id) {
+                                "blind-spot-radar" -> "INTELLIGENCE"
+                                "manifesto-ekuitas-lahan" -> "SMART CITY"
+                                "csr-berdampak", "esg-strategic-integration" -> "ESG"
+                                else -> "SMART CITY"
+                            }
+
                             AdminBook(
-                                id = it.id,
-                                title = it.title,
-                                author = it.author,
-                                isbn = it.isbn,
-                                coverImage = it.coverImage
+                                id = remote.id,
+                                title = remote.title,
+                                author = remote.author,
+                                isbn = remote.isbn,
+                                coverImage = remote.coverImage ?: local?.coverImage,
+                                category = local?.category?.takeIf { it.isNotBlank() } ?: defaultCategory,
+                                description = local?.description ?: "",
+                                rating = derivedStar,
+                                ratingCount = registeredCount,
+                                interactions = totalInteractions,
+                                pdfUrl = local?.pdfUrl,
+                                readingTime = local?.readingTime ?: "3H 45M",
+                                pages = local?.pages ?: 240,
+                                publishedDate = local?.publishedDate ?: "Nov 2025",
+                                language = local?.language ?: "Indonesia",
+                                year = local?.year ?: "2025"
                             )
                         }
                         persistBooks(mapped)
@@ -119,6 +274,11 @@ class AdminRepositoryImpl(
         return defaultCanonicalBooks
     }
 
+    override suspend fun getBookById(id: String): AdminBook? {
+        val books = getBooks()
+        return books.firstOrNull { it.id == id || it.id.equals(id, ignoreCase = true) }
+    }
+
     override suspend fun saveBook(book: AdminBook): Result<AdminBook> {
         val token = tokenStorage.getToken()
         val candidateUrls = listOf(
@@ -143,12 +303,12 @@ class AdminRepositoryImpl(
                 }
                 if (httpResponse.status.isSuccess()) {
                     val remoteBook = httpResponse.body<RemoteBookDto>()
-                    val savedBook = AdminBook(
+                    val savedBook = book.copy(
                         id = remoteBook.id,
                         title = remoteBook.title,
                         author = remoteBook.author,
                         isbn = remoteBook.isbn,
-                        coverImage = remoteBook.coverImage
+                        coverImage = remoteBook.coverImage ?: book.coverImage
                     )
                     updateLocalBookCache(savedBook)
                     return Result.success(savedBook)
@@ -163,6 +323,19 @@ class AdminRepositoryImpl(
         return Result.success(book)
     }
 
+    /**
+     * Telemetry fields are owned by the bookinteractiontool engine, never by the
+     * CMS operator (architecture rule 6). A save carries whatever the caller
+     * happened to hold, so the stored values always win for these three -- this
+     * is what stops an edit from resetting a book's rating and reader counts.
+     */
+    private fun preserveTelemetry(incoming: AdminBook, existing: AdminBook): AdminBook =
+        incoming.copy(
+            rating = existing.rating,
+            ratingCount = existing.ratingCount,
+            interactions = existing.interactions
+        )
+
     private fun updateLocalBookCache(book: AdminBook) {
         val current = (dataStorage.getBooksJson()?.let {
             try { json.decodeFromString<List<AdminBook>>(it) } catch (_: Exception) { null }
@@ -170,7 +343,7 @@ class AdminRepositoryImpl(
 
         val index = current.indexOfFirst { it.id == book.id }
         if (index >= 0) {
-            current[index] = book
+            current[index] = preserveTelemetry(book, current[index])
         } else {
             current.add(book)
         }
@@ -321,4 +494,36 @@ class AdminRepositoryImpl(
     private fun persistLiveMetrics(metrics: AdminLiveMetrics) {
         dataStorage.saveMetricsJson(json.encodeToString(metrics))
     }
+
+    override suspend fun getInquiries(): List<ClientInquiry> {
+        val storedJson = dataStorage.getInquiriesJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<List<ClientInquiry>>(storedJson)
+            } catch (_: Exception) {}
+        }
+        return emptyList()
+    }
+
+    override suspend fun saveInquiry(inquiry: ClientInquiry): Result<ClientInquiry> {
+        val current = getInquiries().toMutableList()
+        val index = current.indexOfFirst { it.id == inquiry.id }
+        if (index >= 0) {
+            current[index] = inquiry
+        } else {
+            current.add(0, inquiry)
+        }
+        dataStorage.saveInquiriesJson(json.encodeToString(current))
+        return Result.success(inquiry)
+    }
+
+    override suspend fun deleteInquiry(id: String): Result<Boolean> {
+        val current = getInquiries().toMutableList()
+        val removed = current.removeAll { it.id == id }
+        if (removed) {
+            dataStorage.saveInquiriesJson(json.encodeToString(current))
+        }
+        return Result.success(removed)
+    }
 }
+

@@ -12,6 +12,12 @@ class GetAdminBooksUseCase(private val repository: AdminRepository) {
     }
 }
 
+class GetBookByIdUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(id: String): AdminBook? {
+        return repository.getBookById(id)
+    }
+}
+
 class SaveAdminBookUseCase(private val repository: AdminRepository) {
     suspend operator fun invoke(book: AdminBook): Result<AdminBook> {
         if (book.title.isBlank()) {

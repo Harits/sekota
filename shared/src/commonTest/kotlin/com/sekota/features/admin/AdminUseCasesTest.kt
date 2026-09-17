@@ -4,9 +4,10 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.repository.AdminRepository
 import com.sekota.features.admin.domain.usecase.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -15,9 +16,11 @@ class FakeAdminRepository : AdminRepository {
     val books = mutableListOf<AdminBook>()
     val products = mutableListOf<AdminProduct>()
     val merchandise = mutableListOf<AdminMerch>()
+    val inquiries = mutableListOf<ClientInquiry>()
     var liveMetrics = AdminLiveMetrics()
 
     override suspend fun getBooks(): List<AdminBook> = books.toList()
+    override suspend fun getBookById(id: String): AdminBook? = books.firstOrNull { it.id == id }
     override suspend fun saveBook(book: AdminBook): Result<AdminBook> {
         books.removeAll { it.id == book.id }
         books.add(book)
@@ -55,12 +58,23 @@ class FakeAdminRepository : AdminRepository {
         liveMetrics = metrics
         return Result.success(metrics)
     }
+
+    override suspend fun getInquiries(): List<ClientInquiry> = inquiries.toList()
+    override suspend fun saveInquiry(inquiry: ClientInquiry): Result<ClientInquiry> {
+        inquiries.removeAll { it.id == inquiry.id }
+        inquiries.add(inquiry)
+        return Result.success(inquiry)
+    }
+    override suspend fun deleteInquiry(id: String): Result<Boolean> {
+        val removed = inquiries.removeAll { it.id == id }
+        return Result.success(removed)
+    }
 }
 
 class AdminUseCasesTest {
 
     @Test
-    fun testBookValidationAndSave() = runBlocking {
+    fun testBookValidationAndSave() = runTest {
         val repo = FakeAdminRepository()
         val saveUseCase = SaveAdminBookUseCase(repo)
         val getUseCase = GetAdminBooksUseCase(repo)
@@ -79,7 +93,7 @@ class AdminUseCasesTest {
     }
 
     @Test
-    fun testBookDelete() = runBlocking {
+    fun testBookDelete() = runTest {
         val repo = FakeAdminRepository()
         repo.books.add(AdminBook("b1", "Book 1", "Author 1", "ISBN-1"))
         val deleteUseCase = DeleteAdminBookUseCase(repo)
@@ -91,7 +105,7 @@ class AdminUseCasesTest {
     }
 
     @Test
-    fun testProductValidationAndSave() = runBlocking {
+    fun testProductValidationAndSave() = runTest {
         val repo = FakeAdminRepository()
         val saveProductUseCase = SaveAdminProductUseCase(repo)
         val getProductUseCase = GetAdminProductsUseCase(repo)
@@ -108,7 +122,7 @@ class AdminUseCasesTest {
     }
 
     @Test
-    fun testMerchandisePriceValidation() = runBlocking {
+    fun testMerchandisePriceValidation() = runTest {
         val repo = FakeAdminRepository()
         val saveMerchUseCase = SaveAdminMerchUseCase(repo)
 
@@ -119,7 +133,7 @@ class AdminUseCasesTest {
     }
 
     @Test
-    fun testLiveMetricsValidationAndSave() = runBlocking {
+    fun testLiveMetricsValidationAndSave() = runTest {
         val repo = FakeAdminRepository()
         val saveMetricsUseCase = SaveAdminLiveMetricsUseCase(repo)
         val getMetricsUseCase = GetAdminLiveMetricsUseCase(repo)

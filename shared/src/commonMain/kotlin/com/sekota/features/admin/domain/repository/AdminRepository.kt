@@ -5,8 +5,11 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 
+import com.sekota.features.admin.domain.model.ClientInquiry
+
 interface AdminRepository {
     suspend fun getBooks(): List<AdminBook>
+    suspend fun getBookById(id: String): AdminBook?
     suspend fun saveBook(book: AdminBook): Result<AdminBook>
     suspend fun deleteBook(id: String): Result<Boolean>
 
@@ -20,4 +23,9 @@ interface AdminRepository {
 
     suspend fun getLiveMetrics(): AdminLiveMetrics
     suspend fun saveLiveMetrics(metrics: AdminLiveMetrics): Result<AdminLiveMetrics>
+
+    suspend fun getInquiries(): List<ClientInquiry>
+    suspend fun saveInquiry(inquiry: ClientInquiry): Result<ClientInquiry>
+    suspend fun deleteInquiry(id: String): Result<Boolean>
 }
+
