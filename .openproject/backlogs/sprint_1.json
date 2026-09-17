@@ -7,73 +7,105 @@
       "localId": "WP-001",
       "opId": 21685,
       "subject": "Implement Web Navbar",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 6,
       "description": "Responsive navbar based on Figma 'Web/Header' design.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-12",
+      "dueDate": "2026-05-13"
     },
     {
       "localId": "WP-002",
       "opId": 21686,
       "subject": "Setup Ktor Web Client",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 2,
       "description": "Initialize Ktor for JS target in shared module.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-12",
+      "dueDate": "2026-05-14"
     },
     {
       "localId": "WP-003",
       "opId": 21687,
       "subject": "Implement Landing Page Hero Section",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 6,
       "description": "Engaging entrance for new users.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-13",
+      "dueDate": "2026-05-15"
     },
     {
       "localId": "WP-004",
       "opId": 21688,
       "subject": "Implement Sidebar Filter",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 6,
       "description": "Search and category filtering for the catalogs.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-14",
+      "dueDate": "2026-05-16"
     },
     {
       "localId": "WP-005",
       "opId": 21689,
       "subject": "Complete Landing Page Implementation",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 6,
       "description": "Implement all remaining sections of the landing page as per designs.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-15",
+      "dueDate": "2026-05-18"
     },
     {
       "localId": "WP-006",
       "opId": 21690,
       "subject": "Implement eBook Catalog",
+      "type": "Task",
       "status": "Closed",
-      "lockVersion": 3,
-      "description": "Grid view of eBooks with filtering.",
-      "assignee": "AS Agent"
+      "lockVersion": 4,
+      "description": "Grid view of eBooks with filtering, dynamic category tags, star ratings, and click routing to Book Details.",
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-16",
+      "dueDate": "2026-05-18"
     },
     {
       "localId": "WP-007",
       "opId": 21691,
       "subject": "Implement eBook Details",
+      "type": "Task",
       "status": "Closed",
-      "lockVersion": 2,
-      "description": "Detailed view for eBook items.",
-      "assignee": "AS Agent"
+      "lockVersion": 3,
+      "description": "Dynamic eBook details view rendering reader star ratings, category, reading duration, and gated PDF manuscript download/reader.",
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-17",
+      "dueDate": "2026-05-19"
     },
     {
       "localId": "WP-008",
       "opId": 21692,
       "subject": "Implement Merchandise Catalog",
+      "type": "Task",
       "status": "Closed",
       "lockVersion": 2,
       "description": "Grid view of merchandise with filtering.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-18",
+      "dueDate": "2026-05-19"
     }
   ]
 }

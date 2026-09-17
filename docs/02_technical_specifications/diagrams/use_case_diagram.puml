@@ -1,10 +1,13 @@
 @startuml
 !theme plain
+left to right direction
 skinparam backgroundColor #FFFFFF
 skinparam packageStyle rectangle
 skinparam roundcorner 12
 skinparam shadowing false
 skinparam defaultFontName "DM Sans"
+skinparam nodesep 40
+skinparam ranksep 50
 
 skinparam actor {
     BackgroundColor #F7FAFB
@@ -30,8 +33,9 @@ skinparam package {
 
 actor "Pembaca Publik\n(Reader)" as Reader
 actor "Klien Korporat\nB2B/B2G" as CorporateClient
-actor "Admin Sistem" as SysAdmin
+actor "Admin Sistem\n(Sekota CMS)" as SysAdmin
 actor "Sync Engine\n(WebSocket)" as SyncEngine
+actor "Master Inventory System\n(bookinteractiontool / Ops)" as MasterTool <<secondary system>>
 
 rectangle "Sekota Web Platform" {
 
@@ -44,9 +48,9 @@ rectangle "Sekota Web Platform" {
     }
 
     package "Thought Leadership, E-Book & Keterlibatan Pembaca" {
-        usecase "UC-BOOK-01: Interaksi Pembaca:\nAksi 'Read' dan 'Add to Library'" as UC_BOOK_01
+        usecase "UC-BOOK-01: Interaksi Rincian Buku Dinamis:\nAksi 'Read Now' (PDF), Bintang Pembaca,\n& 'Add to Library'" as UC_BOOK_01
         usecase "UC-BOOK-02: Eksplorasi Bento Grid\n(Bab Kunci & Profil Penulis Putu Aan J.)" as UC_BOOK_02
-        usecase "UC-CAT-01: Pencarian & Filter Multikategori E-Book\n(Genre, Tahun, Sortir)" as UC_CAT_01
+        usecase "UC-CAT-01: Pencarian & Filter Multikategori E-Book\n(Genre, Kategori, Rating, Sortir)" as UC_CAT_01
     }
 
     package "B2B/B2G Leads, Konsultasi & Merchandise" {
@@ -61,7 +65,8 @@ rectangle "Sekota Web Platform" {
 
     package "CMS Pengelola Tri-Platform (Desktop, Android & CLI)" {
         usecase "UC-CMS-01: Tata Kelola Produk, Manuskrip\nBuku, dan Merchandise" as UC_CMS_01
-        usecase "Katalog Manuskrip & Sync RAG\n(GET /admin/books, POST /admin/books)" as UC_CMS_BOOKS
+        usecase "Sinkronisasi Master Buku Inventory\n(View-Only GET /admin/books via Operation Tool)" as UC_CMS_BOOKS
+        usecase "Kelola Tampilan Web & Metadata Buku\n(Kategori, Rating Bintang, Unduh PDF, Sinopsis)" as UC_CMS_WEB_META
         usecase "Pengelolaan Ekosistem Produk\n(Veridia, Ascendio, Sociara, Ecoflow)" as UC_CMS_PRODUCTS
         usecase "Pengelolaan Inventaris Merchandise\n(T-Shirt, Pin, Sticker, Pricing)" as UC_CMS_MERCH
     }
@@ -103,6 +108,9 @@ SysAdmin --> UC_AUTH_02
 SysAdmin --> UC_ADM_01
 SysAdmin --> UC_CMS_01
 
+' Secondary System Associations
+MasterTool ..> UC_CMS_BOOKS : <<master data source>>
+
 ' Sync Engine Associations
 SyncEngine --> UC_SYNC_01
 
@@ -115,12 +123,13 @@ UC_AUTH_03 ..> UC_STORAGE : <<include>>
 UC_AUTH_03 ..> UC_VERIFY : <<include>>
 
 UC_GATE_01 ..> UC_AUTH_MODAL : <<include>>
-UC_BOOK_01 ..> UC_GATE_01 : <<extend>>\n(Guest Read/Download)
+UC_BOOK_01 ..> UC_GATE_01 : <<extend>>\n(Guest Read/PDF Download)
 UC_MERCH_01 ..> UC_GATE_01 : <<extend>>\n(Guest Order Action)
 UC_MERCH_01 ..> UC_LEAD_01 : <<extend>>\n(Customize Solution CTA)
 UC_SYNC_01 ..> UC_AUTH_03 : <<include>>
 
 UC_CMS_01 ..> UC_CMS_BOOKS : <<include>>
+UC_CMS_01 ..> UC_CMS_WEB_META : <<include>>
 UC_CMS_01 ..> UC_CMS_PRODUCTS : <<include>>
 UC_CMS_01 ..> UC_CMS_MERCH : <<include>>
 UC_CMS_01 ..> UC_AUTH_02 : <<include>>\n(Requires ADMIN/BOD Role)

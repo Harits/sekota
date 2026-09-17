@@ -146,23 +146,22 @@ Sistem Sekota mendefinisikan 4 aktor formal dengan profil kewenangan dan ruang l
 
 ### 3.3 Modul Thought Leadership, E-Book & Keterlibatan Pembaca (Reader Experience)
 
-#### UC-BOOK-01: Interaksi Pembaca: Aksi "Read" dan "Add to Library"
+#### UC-BOOK-01: Interaksi Pembaca: Detail Naskah Dinamis, Skor Rating Bintang, Aksi "Read / Download PDF" dan "Add to Library"
 - **Aktor**: Pembaca Publik (Reader), Klien Korporat B2B/B2G
-- **Referensi Visual Figma**: `BookDetailsScreen` (Hero Info Section: Large Book Cover, Title *"Blind Spot Radar"*, Button *"Read"* `#46B778`, Button *"Add to Library"* `#F1F4F7` + `#00B7D1`).
-- **Deskripsi Fungsional**: Pembaca berinteraksi secara mendalam dengan publikasi digital unggulan melalui dua aksi operasional utama: membaca naskah langsung (*"Read"*) atau mengamankan publikasi ke dalam perpustakaan pribadi pembaca (*"Add to Library"*).
-- **Prekondisi**: Layar rincian publikasi (`BookDetailsScreen`) aktif dan menampilkan data buku (misal: *"Blind Spot Radar: Mengapa Pemimpin Cerdas Melewatkan Sinyal Besar"*).
+- **Referensi Visual Figma**: `BookDetailsScreen` (Hero Info Section: Large Book Cover / dynamic title typography, dynamic Category Pill, Title, Author, Star Rating `(${book.rating}/5 from ${book.ratingCount} readers)`, Button *"Read Now"* / *"Unduh PDF"*, Button *"Add to Library"*).
+- **Deskripsi Fungsional**: Pembaca berinteraksi secara mendalam dengan publikasi digital unggulan yang dimuat secara dinamis berdasarkan buku terpilih dari katalog atau URL query: membaca/mengunduh naskah digital PDF (`pdfUrl`), meninjau skor rating bintang pembaca, kategori kurasi, atau mengamankan publikasi ke dalam perpustakaan pribadi pembaca (*"Add to Library"*).
+- **Prekondisi**: Layar rincian publikasi (`BookDetailsScreen`) aktif dengan parameter `bookId`, menyelesaikan pengambilan data buku dinamis dari `GetBookByIdUseCase`.
 - **Alur Utama**:
-  1. Pengguna menelaah informasi hero buku: sampul berbayang tebal, kategori *"Self-Improvement / Mindfulness"*, rating *"4.8/5 from 1,240 readers"*, dan sinopsis eksekutif.
-  2. **Kasus A - Membaca Publikasi ("Read")**:
-     - Pengguna menekan tombol primer hijau **"Read"** (warna `#46B778`, font Montserrat/DM Sans Bold).
-     - Sistem membuka viewer pembaca interaktif (e-reader/PDF viewer mode) untuk menampilkan konten lengkap.
+  1. Pengguna menelaah informasi hero buku yang dimuat secara reaktif: sampul custom atau gradien palet editorial, pill kategori kapital (e.g. `SMART CITY`, `ESG`, `INTELLIGENCE`), judul buku dinamis, nama penulis, skor rating bintang visual (`RatingStars`), total pembaca terverifikasi, dan sinopsis naskah eksekutif.
+  2. **Kasus A - Membaca / Mengunduh Naskah Digital ("Read Now" / "Unduh PDF")**:
+     - Pengguna menekan tombol primer **"Read Now"** (warna `--ink` `#0D1F2D`).
+     - Sistem memvalidasi ketersediaan `book.pdfUrl`. Jika pembaca berstatus Guest, sistem memicu modal proteksi `UC-GATE-01` (`AuthGateDialog`).
+     - Pasca verifikasi otentikasi, sistem membuka atau mengunduh berkas PDF manuskrip langsung ke peramban pengguna.
   3. **Kasus B - Menambahkan ke Perpustakaan ("Add to Library")**:
-     - Pengguna menekan tombol sekunder **"Add to Library"** (background `#F1F4F7`, teks Brand Teal `#00B7D1`, lebar 200dp).
-     - Sistem memeriksa status sesi pembaca.
-     - Jika terautentikasi (READER), sistem mendaftarkan ID buku ke relasi perpustakaan pengguna di penyimpanan lokal SQLDelight dan mengirimkan mutasi data ke server backend.
-     - Label tombol bertransisi menjadi indikator visual konfirmasi *"Added to Library"* dengan ikon ceklis.
-     - Jika belum terautentikasi, sistem menyimpan status buku ke rak sementara (*guest shelf*) dan menawarkan navigasi login via `UC-AUTH-02`.
-- **Pascasyarat**: Buku tercatat di koleksi pembaca aktif dan dapat diakses cepat melalui profil pembaca.
+     - Pengguna menekan tombol sekunder **"Add to Library"** (border Brand Teal `#00B5C8`, teks Brand Teal).
+     - Sistem memeriksa status sesi pembaca via `AuthGateDialog` jika belum login.
+     - Setelah terautentikasi (READER), sistem mendaftarkan ID buku ke koleksi pustaka pengguna dan menampilkan banner konfirmasi ramah pengguna.
+- **Pascasyarat**: Data buku tersaji secara dinamis, skor bintang pembaca tervalidasi, dan akses naskah PDF terlindungi oleh sesi autentikasi.
 
 ---
 
@@ -277,11 +276,11 @@ Sistem Sekota mendefinisikan 4 aktor formal dengan profil kewenangan dan ruang l
   6. **Jika role ADMIN atau BOD valid**: Sistem menyimpan token JWT ke `TokenStorage` lokal dan menampilkan layar utama `AdminDashboardScreen`.
   7. Administrator dapat mengakhiri sesi kapan saja melalui tombol **"Sign Out"** (Desktop/Android) atau `cli logout`, yang memanggil `ClearTokenUseCase`.
 - **Ruang Lingkup Manajemen**:
-  1. **Katalog Buku & Manuskrip**:
-     - Membaca daftar buku dari `GET /admin/books`.
-     - Mendaftarkan buku baru (`POST /admin/books`) dengan judul, penulis, ISBN, cover image, dan status index RAG.
-     - Memperbarui data buku (`PUT /admin/books/{id}`).
-     - Menghapus buku dari katalog (`DELETE /admin/books/{id}`).
+  1. **Katalog Buku & Manuskrip (Master Inventory & Web Enrichment)**:
+     - Membaca daftar buku dari master inventory `bookinteractiontool` (`GET /api/v1/admin/books`).
+     - Menyerap telemetri pembaca riil (*Real Readers*) dan skor keterlibatan (*Real Stars*) dari `GET /api/v1/dashboard/summary` (`SummaryService.kt` & `EngagementService.kt`).
+     - Membuka dialog **"Kelola Tampilan Web"** untuk kurasi metadata web: kategori (e.g. *SMART CITY, ESG, INTELLIGENCE*), sinopsis naskah, rating bintang, jumlah pembaca, jumlah halaman, estimasi durasi baca, tahun publikasi, bahasa, tautan unduh naskah PDF (`pdfUrl`), dan custom cover upload.
+     - Menyimpan pembaruan secara lokal/remote dan memancarkan sinyal siaran real-time (`syncService.triggerLocalUpdate()`) agar seluruh peramban Web Sekota memperbarui tampilan seketika tanpa reload.
   2. **Ekosistem Produk (Intelligence Suite)**:
      - Mengelola 4 produk unggulan: **Veridia**, **Ascendio**, **Sociara**, **Ecoflow**.
      - Mengubah copy editorial, eyebrow kategori, daftar 3 fitur kunci, tautan demo, dan status tayang.

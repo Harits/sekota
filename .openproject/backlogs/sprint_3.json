@@ -7,55 +7,79 @@
       "localId": "WP-016",
       "opId": 21708,
       "subject": "Implement SQLDelight for Local Persistence",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Setup SQLDelight in shared module to persist auth tokens and user profile locally.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-28",
+      "dueDate": "2026-05-30"
     },
     {
       "localId": "WP-017",
       "opId": 21709,
       "subject": "Setup PostgreSQL Database for Server",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Integrate Exposed ORM and PostgreSQL on the server for user data persistence.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-29",
+      "dueDate": "2026-05-31"
     },
     {
       "localId": "WP-018",
       "opId": 21710,
       "subject": "Implement User Profile API",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Create endpoints to fetch and update user profile information.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-05-31",
+      "dueDate": "2026-06-02"
     },
     {
       "localId": "WP-019",
       "opId": 21711,
       "subject": "Implement User Profile Screen UI",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Develop a responsive profile management screen with editing capabilities.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-06-01",
+      "dueDate": "2026-06-03"
     },
     {
       "localId": "WP-020",
       "opId": 21712,
       "subject": "Implement Persistent Login Session",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Auto-login users on app restart by reading tokens from local persistence.",
-      "assignee": "AS Agent"
+      "assignee": "AS Agent",
+      "percentageDone": 100,
+      "startDate": "2026-06-02",
+      "dueDate": "2026-06-04"
     },
     {
       "localId": "WP-021",
       "opId": 21716,
       "subject": "Design UI/UX for login, register, sign out, and profile",
-      "status": "Completed",
+      "type": "Task",
+      "status": "Closed",
       "lockVersion": 2,
       "description": "Follow new designs from Figma: https://www.figma.com/design/oZqXuSsN7u7S73vfjWXQIN/Sekota-Landing-Page?node-id=0-1",
-      "assignee": "Agy Ahmad"
+      "assignee": "Agy Ahmad",
+      "percentageDone": 100,
+      "startDate": "2026-05-28",
+      "dueDate": "2026-06-04"
     }
   ]
 }

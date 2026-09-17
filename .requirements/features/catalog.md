@@ -1,29 +1,33 @@
 # eBook Catalog Implementation Requirements
 
+## 🏛️ Data Architecture & Governance
+- **Data Source**: Fetches books from master inventory (`bookinteractiontool`) merged with local CMS enriched web metadata.
+- **Dynamic Routing**: Clicking any book card passes its unique `id` to the parent navigation coordinator (`App.kt`), opening the corresponding dynamic `BookDetailsScreen`.
+
 ## 🧱 Component Breakdown
 
 ### 1. Header
-- Breadcrumbs or small title.
-- Main title: "eBook Catalogue".
-- Description text.
+- Title: "eBook Catalogue".
+- Subtitle: Editorial description emphasizing strategic leadership and thought leadership instruments.
 
 ### 2. Sidebar Filter
-- **Search**: Text input.
-- **Sort by**: Dropdown (e.g., Newest).
-- **Genre**: Checkbox list (All, Self-Improvement, Social-Improvement, Sustainability, Other).
-- **Year**: Checkbox list (2025, 2024, 2023).
+- **Search**: Search filter input for book title or author.
+- **Sort by**: Sorting selector (Newest, Rating, Alphabetical).
+- **Genre / Category**: Multi-select tags (`SMART CITY`, `ESG`, `INTELLIGENCE`, `GOVERNANCE`).
 - **CTA Cards**:
-  - "Customize Solution" with "Contact Us" button.
-  - "Executive Presence" with "Get Merchandise" button.
+  - "Customize Solution" with "Contact Us" routing.
+  - "Executive Presence" with "Get Merchandise" routing.
 
 ### 3. Grid View
 - 3 columns on desktop.
-- **Card**:
-  - Book Cover Image.
-  - Rating (Stars + Number).
-  - Title.
-  - Author.
-  - "View Details" link.
+- **ProductCard**:
+  - Book Cover Image (custom base64 upload or dynamic brand palette background).
+  - Rating (Dynamic Stars + Decimal rating, e.g., 4.9).
+  - Title & Author.
+  - Click Action: Passes `book.id` to route directly to `BookDetailsScreen`.
 
 ### 4. Pagination
-- Simple numeric pagination (1, 2, 3 ... 10).
+- Numeric pagination (1, 2, 3 ... 10).
+
+### 5. Verification & Previews
+- Desktop Preview: `@Preview(device = DESKTOP)` wrapped in `MaterialTheme`.

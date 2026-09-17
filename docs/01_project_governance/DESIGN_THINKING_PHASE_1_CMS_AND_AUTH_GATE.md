@@ -15,19 +15,24 @@ Kita mendefinisikan dua persona riil yang bersentuhan langsung dengan platform W
 
 ### Persona A: Admin Internal Sekota (Content & Ops Manager)
 * **Konteks Nyata**:
-  - Mengelola pembaruan katalog buku (*Blind Spot Radar*, *Manifesto Ekuitas Lahan*).
+  - Mengelola pembaruan katalog buku (*Blind Spot Radar*, *Manifesto Ekuitas Lahan*) yang diimpor dari master inventaris terpusat `/Users/macbook/StudioProjects/bookinteractiontool`.
+  - **Mekanisme Real Star & Readers dari `bookinteractiontool`**:
+    - **Total Pembaca Nyata (*Real Readers*)**: Dihitung dari agregasi live telemetry interaksi pembaca pada `bookinteractiontool` (`SummaryService.kt` via tabel `websessions` dan `toolusages`). Agregasi mencakup pembaca terautentikasi (`userId != 'anonymous-reader'`) ditambah sesi unik pembaca publik anonim.
+    - **Skor Bintang Riil (*Real Star Rating*)**: Diturunkan dari metrik keterlibatan pembaca terverifikasi melalui `EngagementService.calculateEngagementScore(durationSeconds)` dan `calculateHardenedScore(toolType, data)`. Rata-rata skor keterlibatan (0–100%) dikonversi menjadi skala bintang 1.0–5.0 ($\text{Stars} = \text{round}(1.0 + (\text{Score} / 100.0) \times 4.0, 1)$), memvalidasi rating berbasis aktivitas membaca riil alih-alih angka dummy.
+    - **Enrichment & Pengendalian di CMS**: Sekota CMS bertindak sebagai gerbang kurasi editorial yang memadukan metrik telemetri live dari endpoint `/api/v1/dashboard/summary` dengan kurasi manual admin (misalnya penetapan kategori *ESG*, *SMART CITY*, sinopsis eksekutif, dan penautan manuskrip PDF).
   - Mengubah deskripsi dan fitur 4 produk *Intelligence Suite* (Veridia, Ascendio, Sociara, Ecoflow).
   - Mengelola stok dan seri merchandise resmi (*The Urban Collaborator*).
 * **Rutinitas Harian & Titik Frustrasi**:
 
 | Yang Dia Kerjakan Hari Ini | Yang Menyulitkan / Titik Frustrasi |
 |---|---|
-| Memperbarui copy produk atau menambah buku baru ke web | Harus meminta developer frontend mengubah hardcoded file Kotlin Compose dan melakukan build/deploy ulang kontainer |
+| Mengintegrasikan metrik pembaca dan skor bintang riil dari telemetri `bookinteractiontool` | Sebelumnya terancam menggunakan angka rekaan jika backend tidak menyuplai metrik kalkulasi interaksi pembaca |
+| Memperkaya metadata buku dari master `bookinteractiontool` (sinopsis, kategori, PDF) | Harus meminta developer mengubah hardcoded Kotlin Compose jika tidak ada form pengayaan tampilan web |
 | Memeriksa katalog buku saat berada di luar kantor (mobile) | Tidak ada portal admin mobile; harus membuka laptop atau terminal database |
 | Batch registrasi buku dan manuskrip untuk ingestion AI RAG | Tidak ada tool otomatisasi command-line; input manual satu per satu sangat lambat |
 
 * **Kata-Katanya**:
-  > *"Masa untuk ganti teks fitur di Veridia atau nambah satu merchandise kaos saja kita harus tunggu engineer rilis Docker baru? Kita butuh CMS praktis yang bisa dibuka di laptop, HP, atau lewat script terminal cepat."*
+  > *"Buku master dan inventaris fisik memang dikelola terpusat dari aplikasi industrial, tapi untuk tampilan di Web Sekota (rating bintang pembaca, kategori, sinopsis eksekutif, dan tombol unduh PDF) kita butuh CMS yang bisa langsung mengupdate informasi tersebut tanpa perlu rilis ulang kode. Real star dan pembaca harus bisa disinkronkan dari data telemetri interaksi pembaca di bookinteractiontool."*
 
 ---
 
