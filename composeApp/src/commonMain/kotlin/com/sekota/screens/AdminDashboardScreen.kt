@@ -1,6 +1,8 @@
 package com.sekota.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +33,8 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.usecase.*
+import com.sekota.ui.WindowWidth
+import com.sekota.ui.windowWidthOf
 
 val InkNavy = Color(0xFF0D1F2D)
 val BrandTeal = Color(0xFF00B5C8)
@@ -42,7 +46,6 @@ fun AdminDashboardScreen(
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
     val saveBookUseCase = remember { SaveAdminBookUseCase(repository) }
-    val deleteBookUseCase = remember { DeleteAdminBookUseCase(repository) }
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
     val saveProductUseCase = remember { SaveAdminProductUseCase(repository) }
     val deleteProductUseCase = remember { DeleteAdminProductUseCase(repository) }
@@ -57,7 +60,12 @@ fun AdminDashboardScreen(
     val icons = listOf("📝", "🛠", "🛒", "ℹ️")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
-        val isCompact = maxWidth < 700.dp
+        // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
+        // Medium up. The rail collapses to icons-only at Medium so it does not eat
+        // 250dp of a 600-840dp workbench.
+        val windowWidth = windowWidthOf(maxWidth)
+        val isCompact = windowWidth.isCompact
+        val railExpanded = windowWidth.isAtLeastExpanded
 
         if (isCompact) {
             // Mobile (Android Phone) Layout: Top AppBar + Content + Bottom Navigation Bar
@@ -94,10 +102,10 @@ fun AdminDashboardScreen(
                         .padding(16.dp)
                 ) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, deleteBookUseCase)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase)
-                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase)
-                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase)
+                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, windowWidth)
+                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
+                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
+                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
                     }
                 }
 
@@ -133,18 +141,21 @@ fun AdminDashboardScreen(
             // Desktop / Tablet Layout: Left Navigation Rail + Right Content Workbench
             Row(modifier = Modifier.fillMaxSize()) {
                 NavigationRail(
-                    modifier = Modifier.width(250.dp).fillMaxHeight(),
+                    modifier = Modifier.width(if (railExpanded) 250.dp else 88.dp).fillMaxHeight(),
                     containerColor = InkNavy,
                     contentColor = Color.White
                 ) {
                     Spacer(modifier = Modifier.height(32.dp))
                     Text(
-                        text = "ADMIN PANEL",
+                        text = if (railExpanded) "ADMIN PANEL" else "CMS",
                         color = BrandTeal,
                         fontFamily = getMontserratFontFamily(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                        fontSize = if (railExpanded) 20.sp else 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = if (railExpanded) 24.dp else 8.dp, vertical = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     tabs.forEachIndexed { index, title ->
@@ -152,12 +163,16 @@ fun AdminDashboardScreen(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
                             icon = { Text(text = icons[index], fontSize = 24.sp) },
-                            label = { 
+                            label = {
                                 Text(
-                                    text = title, 
-                                    fontFamily = getDmSansFontFamily(), 
+                                    text = if (railExpanded) title else title.split(" ").first(),
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = if (railExpanded) 14.sp else 10.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = if (selectedTab == index) BrandTeal else Color.LightGray
-                                ) 
+                                )
                             },
                             colors = NavigationRailItemDefaults.colors(
                                 selectedIconColor = BrandTeal,
@@ -174,14 +189,16 @@ fun AdminDashboardScreen(
                         onClick = onLogout,
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                         shape = RoundedCornerShape(100.dp),
+                        contentPadding = if (railExpanded) ButtonDefaults.ContentPadding else PaddingValues(4.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 24.dp)
+                            .padding(horizontal = if (railExpanded) 24.dp else 8.dp, vertical = 24.dp)
                     ) {
                         Text(
-                            text = "🚪 Sign Out",
+                            text = if (railExpanded) "🚪 Sign Out" else "🚪",
                             fontFamily = getDmSansFontFamily(),
                             fontSize = 13.sp,
+                            maxLines = 1,
                             color = Color(0xFFFF8A80)
                         )
                     }
@@ -189,13 +206,96 @@ fun AdminDashboardScreen(
 
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp)) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, deleteBookUseCase)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase)
-                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase)
-                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase)
+                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, windowWidth)
+                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
+                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
+                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * CMS workbench section header. A 32sp title next to a pill button needs roughly
+ * 520dp; below that the action drops onto its own full-width row so neither the
+ * heading nor the button is clipped.
+ */
+@Composable
+private fun WorkbenchHeader(
+    title: String,
+    subtitle: String,
+    windowWidth: WindowWidth,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    secondaryLabel: String? = null,
+    onSecondaryAction: (() -> Unit)? = null
+) {
+    val isCompact = windowWidth.isCompact
+    val heading = @Composable { modifier: Modifier ->
+        Column(modifier = modifier) {
+            Text(
+                text = title,
+                fontFamily = getMontserratFontFamily(),
+                fontWeight = FontWeight.Bold,
+                fontSize = if (isCompact) 24.sp else 32.sp,
+                lineHeight = if (isCompact) 30.sp else 40.sp,
+                color = InkNavy
+            )
+            Text(
+                text = subtitle,
+                fontFamily = getDmSansFontFamily(),
+                color = Color.Gray,
+                fontSize = if (isCompact) 13.sp else 14.sp
+            )
+        }
+    }
+    val action = @Composable { modifier: Modifier ->
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (secondaryLabel != null && onSecondaryAction != null) {
+                OutlinedButton(
+                    onClick = onSecondaryAction,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = InkNavy),
+                    modifier = if (isCompact) Modifier.weight(1f) else Modifier
+                ) {
+                    Text(secondaryLabel, fontFamily = getDmSansFontFamily(), fontSize = 13.sp, maxLines = 1)
+                }
+            }
+            if (actionLabel != null && onAction != null) {
+                Button(
+                    onClick = onAction,
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                    shape = RoundedCornerShape(50),
+                    modifier = if (isCompact) Modifier.weight(1f) else Modifier
+                ) {
+                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(actionLabel, fontFamily = getDmSansFontFamily(), maxLines = 1)
+                }
+            }
+        }
+    }
+
+    if (isCompact) {
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            heading(Modifier.fillMaxWidth())
+            action(Modifier.fillMaxWidth())
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // weight(1f) keeps the heading from starving the button of width.
+            heading(Modifier.weight(1f).padding(end = 16.dp))
+            action(Modifier)
         }
     }
 }
@@ -204,92 +304,211 @@ fun AdminDashboardScreen(
 fun BooksRegistryTab(
     getBooksUseCase: GetAdminBooksUseCase,
     saveBookUseCase: SaveAdminBookUseCase,
-    deleteBookUseCase: DeleteAdminBookUseCase
+    windowWidth: WindowWidth = WindowWidth.Expanded
 ) {
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
-    var showDialog by remember { mutableStateOf(false) }
-    var editingBookId by remember { mutableStateOf<String?>(null) }
-    var bookTitle by remember { mutableStateOf("") }
-    var bookAuthor by remember { mutableStateOf("") }
-    var bookIsbn by remember { mutableStateOf("") }
-    var bookCoverImage by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // UC-CMS-03 "Kelola Tampilan Web": operator-owned presentation metadata.
+    // Book identity (title/author/ISBN/cover) and lifecycle (create/delete) are
+    // owned by bookinteractiontool; this tab is read-only for those.
+    var showWebDialog by remember { mutableStateOf(false) }
+    var webBook by remember { mutableStateOf<AdminBook?>(null) }
+    var webCategory by remember { mutableStateOf("") }
+    var webDescription by remember { mutableStateOf("") }
+    var webPdfUrl by remember { mutableStateOf("") }
+    var webReadingTime by remember { mutableStateOf("") }
+    var webPages by remember { mutableStateOf("") }
+    var webYear by remember { mutableStateOf("") }
+    var webLanguage by remember { mutableStateOf("") }
+    var webPublishedDate by remember { mutableStateOf("") }
+    var webError by remember { mutableStateOf<String?>(null) }
+    var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         books = getBooksUseCase()
     }
 
-    if (showDialog) {
+    // UC-CMS-03 / WP-026: web presentation metadata editor.
+    if (showWebDialog && webBook != null) {
+        val target = webBook!!
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showWebDialog = false; webBook = null },
             title = {
-                Text(
-                    text = if (editingBookId == null) "Tambah Naskah Buku Baru" else "Edit Data Buku",
-                    fontFamily = getMontserratFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = InkNavy
-                )
+                Column {
+                    Text(
+                        text = "\u270F\uFE0F Kelola Tampilan Web",
+                        fontFamily = getMontserratFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = InkNavy
+                    )
+                    Text(
+                        text = target.title,
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 13.sp,
+                        color = Color.Gray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    errorMessage?.let {
-                        Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp)
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    webError?.let {
+                        Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
+
+                    Text(
+                        "KATEGORI KATALOG",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = Color.Gray,
+                        letterSpacing = 1.sp
+                    )
+                    // Must match SidebarFilter's options or the book drops out of
+                    // every catalog filter on the public site.
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("SMART CITY", "ESG", "INTELLIGENCE", "Other").forEach { cat ->
+                            FilterChip(
+                                selected = webCategory.equals(cat, ignoreCase = true),
+                                onClick = { webCategory = cat; webError = null },
+                                label = { Text(cat, fontFamily = getDmSansFontFamily(), fontSize = 12.sp) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = BrandTeal.copy(alpha = 0.18f),
+                                    selectedLabelColor = InkNavy
+                                )
+                            )
+                        }
+                    }
+
                     OutlinedTextField(
-                        value = bookTitle,
-                        onValueChange = { bookTitle = it; errorMessage = null },
-                        label = { Text("Judul Buku", fontFamily = getDmSansFontFamily()) },
-                        singleLine = true,
+                        value = webDescription,
+                        onValueChange = { webDescription = it; webError = null },
+                        label = { Text("Deskripsi Editorial", fontFamily = getDmSansFontFamily()) },
+                        minLines = 2,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
-                        value = bookAuthor,
-                        onValueChange = { bookAuthor = it; errorMessage = null },
-                        label = { Text("Penulis", fontFamily = getDmSansFontFamily()) },
+                        value = webPdfUrl,
+                        onValueChange = { webPdfUrl = it; webError = null },
+                        label = { Text("URL PDF / Reader", fontFamily = getDmSansFontFamily()) },
+                        placeholder = { Text("https://sekota.id/reader/${target.id}") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = bookIsbn,
-                        onValueChange = { bookIsbn = it; errorMessage = null },
-                        label = { Text("ISBN", fontFamily = getDmSansFontFamily()) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = bookCoverImage,
-                        onValueChange = { bookCoverImage = it; errorMessage = null },
-                        label = { Text("Cover Image (URL atau nama file)", fontFamily = getDmSansFontFamily()) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("e.g. /images/cover.jpg atau https://...") }
                     )
 
-                    // Preview thumbnail box for cover
-                    if (bookCoverImage.isNotBlank()) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFFF1F5F9), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(40.dp, 52.dp),
-                                shape = RoundedCornerShape(4.dp),
-                                color = BrandTeal.copy(alpha = 0.2f)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text("🖼️", fontSize = 18.sp)
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text("Cover Preview Ready", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = InkNavy)
-                                Text(bookCoverImage, fontFamily = getDmSansFontFamily(), fontSize = 11.sp, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            }
+                    val durationField = @Composable { modifier: Modifier ->
+                        OutlinedTextField(
+                            value = webReadingTime,
+                            onValueChange = { webReadingTime = it; webError = null },
+                            label = { Text("Durasi Baca", fontFamily = getDmSansFontFamily()) },
+                            placeholder = { Text("3H 45M") },
+                            singleLine = true,
+                            modifier = modifier
+                        )
+                    }
+                    val pagesField = @Composable { modifier: Modifier ->
+                        OutlinedTextField(
+                            value = webPages,
+                            onValueChange = { webPages = it.filter { c -> c.isDigit() }; webError = null },
+                            label = { Text("Jumlah Halaman", fontFamily = getDmSansFontFamily()) },
+                            singleLine = true,
+                            isError = webPages.isNotBlank() && webPages.toIntOrNull() == null,
+                            modifier = modifier
+                        )
+                    }
+                    if (windowWidth.isCompact) {
+                        durationField(Modifier.fillMaxWidth())
+                        pagesField(Modifier.fillMaxWidth())
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            durationField(Modifier.weight(1f))
+                            pagesField(Modifier.weight(1f))
+                        }
+                    }
+
+                    val yearField = @Composable { modifier: Modifier ->
+                        OutlinedTextField(
+                            value = webYear,
+                            onValueChange = { webYear = it.filter { c -> c.isDigit() }.take(4); webError = null },
+                            label = { Text("Tahun Terbit", fontFamily = getDmSansFontFamily()) },
+                            singleLine = true,
+                            modifier = modifier
+                        )
+                    }
+                    val languageField = @Composable { modifier: Modifier ->
+                        OutlinedTextField(
+                            value = webLanguage,
+                            onValueChange = { webLanguage = it; webError = null },
+                            label = { Text("Bahasa", fontFamily = getDmSansFontFamily()) },
+                            singleLine = true,
+                            modifier = modifier
+                        )
+                    }
+                    if (windowWidth.isCompact) {
+                        yearField(Modifier.fillMaxWidth())
+                        languageField(Modifier.fillMaxWidth())
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            yearField(Modifier.weight(1f))
+                            languageField(Modifier.weight(1f))
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = webPublishedDate,
+                        onValueChange = { webPublishedDate = it; webError = null },
+                        label = { Text("Tanggal Terbit", fontFamily = getDmSansFontFamily()) },
+                        placeholder = { Text("Nov 2025") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    HorizontalDivider(color = Color(0xFFE2E8F0))
+
+                    // Architecture rule 6: telemetry is engine-owned. Shown for
+                    // context, deliberately not editable.
+                    Text(
+                        "TELEMETRI (READ-ONLY)",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = Color.Gray,
+                        letterSpacing = 1.sp
+                    )
+                    Surface(
+                        color = Color(0xFFF1F5F9),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            val hasRating = target.rating > 0.0
+                            Text(
+                                text = if (hasRating) "\u2605 ${target.rating}  \u2022  ${target.ratingCount} pembaca terdaftar"
+                                       else "Publikasi Baru \u2014 belum ada rating",
+                                fontFamily = getDmSansFontFamily(),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (hasRating) Color(0xFF60BD65) else Color.Gray
+                            )
+                            Text(
+                                text = "${target.interactions} interaksi / penggunaan tool",
+                                fontFamily = getDmSansFontFamily(),
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = "Dihitung oleh mesin telemetri bookinteractiontool; tidak dapat diubah operator.",
+                                fontFamily = getDmSansFontFamily(),
+                                fontSize = 11.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
                 }
@@ -297,32 +516,41 @@ fun BooksRegistryTab(
             confirmButton = {
                 Button(
                     onClick = {
+                        val pages = webPages.trim().toIntOrNull()
+                        if (webPages.isNotBlank() && (pages == null || pages <= 0)) {
+                            webError = "Jumlah halaman harus berupa angka lebih dari 0"
+                            return@Button
+                        }
                         scope.launch {
-                            val id = editingBookId ?: bookTitle.lowercase().replace(" ", "-").replace(Regex("[^a-z0-9-]"), "").ifBlank { "b-${kotlin.random.Random.nextInt(1000, 9999)}" }
-                            val cover = bookCoverImage.trim().ifBlank { null }
-                            val result = saveBookUseCase(AdminBook(id, bookTitle.trim(), bookAuthor.trim(), bookIsbn.trim(), cover))
+                            val updated = target.copy(
+                                category = webCategory.trim().ifBlank { target.category },
+                                description = webDescription.trim(),
+                                pdfUrl = webPdfUrl.trim().ifBlank { null },
+                                readingTime = webReadingTime.trim().ifBlank { target.readingTime },
+                                pages = pages ?: target.pages,
+                                year = webYear.trim().ifBlank { target.year },
+                                language = webLanguage.trim().ifBlank { target.language },
+                                publishedDate = webPublishedDate.trim().ifBlank { target.publishedDate }
+                            )
+                            val result = saveBookUseCase(updated)
                             if (result.isSuccess) {
                                 books = getBooksUseCase()
-                                showDialog = false
-                                editingBookId = null
-                                bookTitle = ""
-                                bookAuthor = ""
-                                bookIsbn = ""
-                                bookCoverImage = ""
-                                errorMessage = null
+                                showWebDialog = false
+                                webBook = null
+                                webError = null
                             } else {
-                                errorMessage = result.exceptionOrNull()?.message
+                                webError = result.exceptionOrNull()?.message
                             }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
-                    Text(if (editingBookId == null) "Simpan" else "Perbarui", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                    Text("Simpan Tampilan Web", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false; editingBookId = null }) {
+                TextButton(onClick = { showWebDialog = false; webBook = null; webError = null }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
@@ -330,44 +558,21 @@ fun BooksRegistryTab(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(), 
-            horizontalArrangement = Arrangement.SpaceBetween, 
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Books Registry", 
-                    fontFamily = getMontserratFontFamily(), 
-                    fontWeight = FontWeight.Bold, 
-                    fontSize = 32.sp,
-                    color = InkNavy
-                )
-                Text(
-                    text = "Kurasi naskah e-book dan publikasi resmi Sekota (${books.size} terdaftar)",
-                    fontFamily = getDmSansFontFamily(),
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-            }
-            Button(
-                onClick = { 
-                editingBookId = null
-                bookTitle = ""
-                bookAuthor = ""
-                bookIsbn = ""
-                bookCoverImage = ""
-                errorMessage = null
-                showDialog = true 
+        WorkbenchHeader(
+            title = "Books Registry",
+            subtitle = "Master naskah disinkronkan dari bookinteractiontool \u2014 kelola tampilan web di sini (${books.size} terdaftar)",
+            windowWidth = windowWidth,
+            secondaryLabel = if (isRefreshing) "Memuat..." else "\u21BB Refresh Live Data",
+            onSecondaryAction = {
+                if (!isRefreshing) {
+                    scope.launch {
+                        isRefreshing = true
+                        books = getBooksUseCase()
+                        isRefreshing = false
+                    }
+                }
             },
-                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Book", fontFamily = getDmSansFontFamily())
-            }
-        }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
         LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -378,12 +583,11 @@ fun BooksRegistryTab(
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    // Metadata and the two action buttons need ~560dp side by side;
+                    // on compact the actions move to their own row underneath.
+                    val bookRowStacked = windowWidth.isCompact
+                    val bookMeta = @Composable { modifier: Modifier ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
                             Surface(
                                 modifier = Modifier.size(60.dp, 80.dp),
                                 color = if (book.coverImage != null) BrandTeal.copy(alpha = 0.15f) else InkNavy.copy(alpha = 0.08f),
@@ -404,10 +608,12 @@ fun BooksRegistryTab(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    "Penulis: ${book.author}  •  ISBN: ${book.isbn}", 
-                                    fontFamily = getDmSansFontFamily(), 
+                                    "Penulis: ${book.author}  •  ISBN: ${book.isbn}",
+                                    fontFamily = getDmSansFontFamily(),
                                     color = Color.Gray,
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
@@ -429,30 +635,53 @@ fun BooksRegistryTab(
                                 }
                             }
                         }
-                        Row {
+                    }
+                    val bookActions = @Composable { modifier: Modifier ->
+                        @OptIn(ExperimentalLayoutApi::class)
+                        FlowRow(
+                            modifier = modifier,
+                            horizontalArrangement = Arrangement.End,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                             TextButton(
                                 onClick = {
-                                    editingBookId = book.id
-                                    bookTitle = book.title
-                                    bookAuthor = book.author
-                                    bookIsbn = book.isbn
-                                    bookCoverImage = book.coverImage ?: ""
-                                    errorMessage = null
-                                    showDialog = true
+                                    webBook = book
+                                    webCategory = book.category
+                                    webDescription = book.description
+                                    webPdfUrl = book.pdfUrl ?: ""
+                                    webReadingTime = book.readingTime
+                                    webPages = book.pages.toString()
+                                    webYear = book.year
+                                    webLanguage = book.language
+                                    webPublishedDate = book.publishedDate
+                                    webError = null
+                                    showWebDialog = true
                                 }
-                            ) { 
-                                Text("✏️ Edit", color = BrandTeal, fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold) 
+                            ) {
+                                Text(
+                                    "\u270F\uFE0F Tampilan Web",
+                                    color = Color(0xFF60BD65),
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
                             }
-                            TextButton(
-                                onClick = {
-                                    books = books.filter { it.id != book.id }
-                                    scope.launch {
-                                        deleteBookUseCase(book.id)
-                                    }
-                                }
-                            ) { 
-                                Text("🗑 Delete", color = Color(0xFFE53E3E), fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold) 
-                            }
+                        }
+                    }
+
+                    if (bookRowStacked) {
+                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                            bookMeta(Modifier.fillMaxWidth())
+                            bookActions(Modifier.fillMaxWidth())
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            bookMeta(Modifier.weight(1f))
+                            bookActions(Modifier)
                         }
                     }
                 }
@@ -465,7 +694,8 @@ fun BooksRegistryTab(
 fun IntelligenceSuiteTab(
     getProductsUseCase: GetAdminProductsUseCase,
     saveProductUseCase: SaveAdminProductUseCase,
-    deleteProductUseCase: DeleteAdminProductUseCase
+    deleteProductUseCase: DeleteAdminProductUseCase,
+    windowWidth: WindowWidth = WindowWidth.Expanded
 ) {
     var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -494,25 +724,40 @@ fun IntelligenceSuiteTab(
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     errorMessage?.let {
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp)
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val codeField = @Composable { modifier: Modifier ->
                         OutlinedTextField(
                             value = prodCode,
                             onValueChange = { prodCode = it; errorMessage = null },
                             label = { Text("Kode (e.g. VRD, ASC)") },
                             singleLine = true,
-                            modifier = Modifier.weight(0.4f)
+                            modifier = modifier
                         )
+                    }
+                    val nameField = @Composable { modifier: Modifier ->
                         OutlinedTextField(
                             value = prodName,
                             onValueChange = { prodName = it; errorMessage = null },
                             label = { Text("Nama Produk") },
                             singleLine = true,
-                            modifier = Modifier.weight(0.6f)
+                            modifier = modifier
                         )
+                    }
+                    // Two fields on one line leave the code field unreadable on a phone.
+                    if (windowWidth.isCompact) {
+                        codeField(Modifier.fillMaxWidth())
+                        nameField(Modifier.fillMaxWidth())
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            codeField(Modifier.weight(0.4f))
+                            nameField(Modifier.weight(0.6f))
+                        }
                     }
                     OutlinedTextField(
                         value = prodCategory,
@@ -587,49 +832,27 @@ fun IntelligenceSuiteTab(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(), 
-            horizontalArrangement = Arrangement.SpaceBetween, 
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Intelligence Suite", 
-                    fontFamily = getMontserratFontFamily(), 
-                    fontWeight = FontWeight.Bold, 
-                    fontSize = 32.sp,
-                    color = InkNavy
-                )
-                Text(
-                    text = "Kelola produk kecerdasan bisnis Sekota (${products.size} modul terdaftar)",
-                    fontFamily = getDmSansFontFamily(),
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+        WorkbenchHeader(
+            title = "Intelligence Suite",
+            subtitle = "Kelola produk kecerdasan bisnis Sekota (${products.size} modul terdaftar)",
+            windowWidth = windowWidth,
+            actionLabel = "Add Product",
+            onAction = {
+                editingProduct = null
+                prodCode = ""
+                prodName = ""
+                prodCategory = "Intelligence Suite"
+                prodDesc = ""
+                prodFeaturesText = ""
+                errorMessage = null
+                showDialog = true
             }
-            Button(
-                onClick = { 
-                    editingProduct = null
-                    prodCode = ""
-                    prodName = ""
-                    prodCategory = "Intelligence Suite"
-                    prodDesc = ""
-                    prodFeaturesText = ""
-                    errorMessage = null
-                    showDialog = true 
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Product", fontFamily = getDmSansFontFamily())
-            }
-        }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
+        // Rule 11: Adaptive grid for CMS Intelligence Suite
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(minSize = if (windowWidth.isCompact) 240.dp else 320.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -707,7 +930,8 @@ fun IntelligenceSuiteTab(
 fun MerchandiseTab(
     getMerchUseCase: GetAdminMerchUseCase,
     saveMerchUseCase: SaveAdminMerchUseCase,
-    deleteMerchUseCase: DeleteAdminMerchUseCase
+    deleteMerchUseCase: DeleteAdminMerchUseCase,
+    windowWidth: WindowWidth = WindowWidth.Expanded
 ) {
     var merchList by remember { mutableStateOf<List<AdminMerch>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -736,7 +960,10 @@ fun MerchandiseTab(
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     errorMessage?.let {
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
@@ -844,48 +1071,26 @@ fun MerchandiseTab(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(), 
-            horizontalArrangement = Arrangement.SpaceBetween, 
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Merchandise Store", 
-                    fontFamily = getMontserratFontFamily(), 
-                    fontWeight = FontWeight.Bold, 
-                    fontSize = 32.sp,
-                    color = InkNavy
-                )
-                Text(
-                    text = "Kelola inventaris suvenir dan pernak-pernik resmi (${merchList.size} item)",
-                    fontFamily = getDmSansFontFamily(),
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
+        WorkbenchHeader(
+            title = "Merchandise Store",
+            subtitle = "Kelola inventaris suvenir dan pernak-pernik resmi (${merchList.size} item)",
+            windowWidth = windowWidth,
+            actionLabel = "Add Item",
+            onAction = {
+                editingMerchId = null
+                itemTitle = ""
+                itemCategory = "Apparel"
+                itemPrice = ""
+                itemImageUrl = ""
+                errorMessage = null
+                showDialog = true
             }
-            Button(
-                onClick = { 
-                    editingMerchId = null
-                    itemTitle = ""
-                    itemCategory = "Apparel"
-                    itemPrice = ""
-                    itemImageUrl = ""
-                    errorMessage = null
-                    showDialog = true 
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Item", fontFamily = getDmSansFontFamily())
-            }
-        }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
+        // Rule 11: Adaptive grid for CMS Merchandise
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Adaptive(minSize = if (windowWidth.isCompact) 200.dp else 260.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -959,7 +1164,8 @@ fun MerchandiseTab(
 @Composable
 fun LiveMetricsTab(
     getLiveMetricsUseCase: GetAdminLiveMetricsUseCase,
-    saveLiveMetricsUseCase: SaveAdminLiveMetricsUseCase
+    saveLiveMetricsUseCase: SaveAdminLiveMetricsUseCase,
+    windowWidth: WindowWidth = WindowWidth.Expanded
 ) {
     var accuracy by remember { mutableStateOf("99.8%") }
     var totalClients by remember { mutableStateOf("100+") }
@@ -975,18 +1181,10 @@ fun LiveMetricsTab(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Live Metrics Editor", 
-            fontFamily = getMontserratFontFamily(), 
-            fontWeight = FontWeight.Bold, 
-            fontSize = 32.sp,
-            color = InkNavy
-        )
-        Text(
-            text = "Konfigurasi angka metrik yang tampil langsung pada Hero & Trust section Landing Page",
-            fontFamily = getDmSansFontFamily(),
-            color = Color.Gray,
-            fontSize = 14.sp
+        WorkbenchHeader(
+            title = "Live Metrics Editor",
+            subtitle = "Konfigurasi angka metrik yang tampil langsung pada Hero & Trust section Landing Page",
+            windowWidth = windowWidth
         )
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -1009,8 +1207,14 @@ fun LiveMetricsTab(
 
         Spacer(modifier = Modifier.height(12.dp))
         
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        // Rule 11: Adaptive wrapping for Live Metrics Workbench
+        @OptIn(ExperimentalLayoutApi::class)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             MetricCardEditor(
+                modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Data Accuracy",
                 value = accuracy,
                 onValueChange = { accuracy = it; statusFeedback = null },
@@ -1024,6 +1228,7 @@ fun LiveMetricsTab(
                 }
             )
             MetricCardEditor(
+                modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Total Clients",
                 value = totalClients,
                 onValueChange = { totalClients = it; statusFeedback = null },
@@ -1037,6 +1242,7 @@ fun LiveMetricsTab(
                 }
             )
             MetricCardEditor(
+                modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Established",
                 value = establishedYear,
                 onValueChange = { establishedYear = it; statusFeedback = null },
@@ -1055,19 +1261,20 @@ fun LiveMetricsTab(
 
 @Composable
 fun MetricCardEditor(
-    label: String, 
+    label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.width(220.dp),
+        modifier = modifier.widthIn(min = 180.dp, max = 260.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(label, fontFamily = getDmSansFontFamily(), color = Color.Gray, fontSize = 13.sp)
