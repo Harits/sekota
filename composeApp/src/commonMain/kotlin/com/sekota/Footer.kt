@@ -3,6 +3,8 @@ package com.sekota
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,8 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sekota.ui.contentHorizontalPadding
+import com.sekota.ui.WindowWidth
+import com.sekota.ui.sectionHorizontalPadding
+import com.sekota.ui.windowWidthOf
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.container
@@ -21,18 +28,27 @@ import sekota.composeapp.generated.resources.logo_sekota
 
 @Composable
 fun Footer() {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        FooterContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth))
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FooterContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
+    val isCompact = windowWidth.isCompact
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 48.dp, vertical = 64.dp)
+            .padding(
+                horizontal = horizontalPadding,
+                vertical = if (isCompact) 48.dp else 64.dp
+            )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Column 1: Branding
-            Column(modifier = Modifier.weight(1.8f).padding(end = 48.dp)) {
+        val branding = @Composable { modifier: Modifier ->
+            Column(modifier = modifier) {
                 FooterLogo()
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -41,7 +57,7 @@ fun Footer() {
                     fontFamily = getDmSansFontFamily(),
                     color = Color.Gray,
                     lineHeight = 22.sp,
-                    modifier = Modifier.width(300.dp)
+                    modifier = Modifier.widthIn(max = 300.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -74,7 +90,9 @@ fun Footer() {
                     Text("TWITTER", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.LightGray)
                 }
             }
+        }
 
+        val linkColumns = @Composable {
             // Column 2: Produk
             FooterColumn(
                 title = "PRODUK",
@@ -94,14 +112,36 @@ fun Footer() {
             )
         }
 
-        Spacer(modifier = Modifier.height(64.dp))
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-        Spacer(modifier = Modifier.height(32.dp))
+        // Branding block plus three 150dp link columns needs ~750dp. Below Expanded
+        // the branding takes a full row and the link columns wrap underneath it.
+        if (windowWidth.isAtMostMedium) {
+            branding(Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(40.dp))
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                linkColumns()
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                branding(Modifier.weight(1.8f).padding(end = 48.dp))
+                linkColumns()
+            }
+        }
 
-        Row(
+        Spacer(modifier = Modifier.height(if (isCompact) 40.dp else 64.dp))
+        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+        Spacer(modifier = Modifier.height(if (isCompact) 24.dp else 32.dp))
+
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
                 text = "© 2025 PT. SEKOTA SINERGI INDONESIA. BAGIAN DARI EBDESK GROUP.",
@@ -120,7 +160,7 @@ fun Footer() {
 
 @Composable
 fun FooterColumn(title: String, items: List<String>) {
-    Column(modifier = Modifier.width(150.dp)) {
+    Column(modifier = Modifier.widthIn(min = 140.dp)) {
         Text(
             text = title,
             fontSize = 12.sp,

@@ -18,15 +18,56 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sekota.*
+import com.sekota.features.admin.data.repository.AdminRepositoryImpl
+import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.usecase.GetBookByIdUseCase
+import com.sekota.utils.decodeBase64ToBitmap
+import com.sekota.ui.sectionHorizontalPadding
+import com.sekota.ui.windowWidthOf
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
 
 @Composable
 fun BookDetailsScreen(
+    bookId: String? = "blind-spot-radar",
     isLoggedIn: Boolean = false,
     onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
 ) {
+    val repository = remember { AdminRepositoryImpl() }
+    val getBookByIdUseCase = remember { GetBookByIdUseCase(repository) }
+    var book by remember {
+        mutableStateOf(
+            AdminBook(
+                id = "blind-spot-radar",
+                title = "Blind Spot Radar",
+                author = "Putu Aan J.",
+                isbn = "978-623-99999-3-1",
+                category = "INTELLIGENCE",
+                description = "Buku \"Blind Spot Radar: Mengapa Pemimpin Cerdas Melewatkan Sinyal Besar\" merupakan karya thought leadership yang menyoroti fenomena di mana para pengambil keputusan tingkat atas sering kali gagal mendeteksi ancaman nyata atau peluang strategis, meskipun mereka memiliki kecerdasan dan data yang memadai.",
+                rating = 4.8,
+                ratingCount = 1240,
+                pdfUrl = "https://sekota.id/assets/docs/blind-spot-radar.pdf",
+                readingTime = "3H 45M",
+                pages = 240
+            )
+        )
+    }
+
+    LaunchedEffect(bookId) {
+        if (!bookId.isNullOrBlank()) {
+            val loaded = getBookByIdUseCase(bookId)
+            if (loaded != null) {
+                book = loaded
+            }
+        }
+        syncService.syncEventFlow.collect {
+            if (!bookId.isNullOrBlank()) {
+                getBookByIdUseCase(bookId)?.let { book = it }
+            }
+        }
+    }
+
     var readSuccessMessage by remember { mutableStateOf<String?>(null) }
     var librarySuccessMessage by remember { mutableStateOf<String?>(null) }
 
@@ -35,9 +76,12 @@ fun BookDetailsScreen(
             .fillMaxSize()
             .background(Color(0xFFF9FAFB))
     ) {
-        val isMobile = maxWidth < 840.dp
-        val horizontalPadding = if (isMobile) 20.dp else 64.dp
-        val verticalPadding = if (isMobile) 24.dp else 48.dp
+        val windowWidth = windowWidthOf(maxWidth)
+        // A 340dp cover plus a readable info column needs the Expanded breakpoint;
+        // below that the cover sits above the copy.
+        val isMobile = !windowWidth.isAtLeastExpanded
+        val horizontalPadding = windowWidth.sectionHorizontalPadding
+        val verticalPadding = if (windowWidth.isCompact) 24.dp else 48.dp
 
         Column(modifier = Modifier.fillMaxSize()) {
             // Hero Section
@@ -49,31 +93,36 @@ fun BookDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     BookCover(
+                        title = book.title,
+                        coverImage = book.coverImage,
                         modifier = Modifier
-                            .width(260.dp)
+                            .widthIn(max = 260.dp)
+                            .fillMaxWidth()
                             .height(370.dp)
                     )
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     BookInfoContent(
+                        book = book,
                         isMobile = true,
                         isLoggedIn = isLoggedIn,
                         onReadNowClick = {
+                            val targetUrl = book.pdfUrl ?: "https://sekota.id/reader/${book.id}"
                             if (isLoggedIn) {
-                                readSuccessMessage = "Opening manuscript reader..."
+                                readSuccessMessage = "Membuka manuscript e-book: $targetUrl"
                             } else {
                                 onRequestAuth {
-                                    readSuccessMessage = "Authentication verified. Opening manuscript reader..."
+                                    readSuccessMessage = "Autentikasi terverifikasi. Mengakses naskah: $targetUrl"
                                 }
                             }
                         },
                         onAddToLibraryClick = {
                             if (isLoggedIn) {
-                                librarySuccessMessage = "Book added to your personal library!"
+                                librarySuccessMessage = "Buku \"${book.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
                             } else {
                                 onRequestAuth {
-                                    librarySuccessMessage = "Authentication verified. Book added to your library!"
+                                    librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${book.title}\" ditambahkan ke pustaka!"
                                 }
                             }
                         },
@@ -89,6 +138,8 @@ fun BookDetailsScreen(
                     horizontalArrangement = Arrangement.spacedBy(64.dp)
                 ) {
                     BookCover(
+                        title = book.title,
+                        coverImage = book.coverImage,
                         modifier = Modifier
                             .width(340.dp)
                             .height(480.dp)
@@ -96,23 +147,25 @@ fun BookDetailsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         BookInfoContent(
+                            book = book,
                             isMobile = false,
                             isLoggedIn = isLoggedIn,
                             onReadNowClick = {
+                                val targetUrl = book.pdfUrl ?: "https://sekota.id/reader/${book.id}"
                                 if (isLoggedIn) {
-                                    readSuccessMessage = "Opening manuscript reader..."
+                                    readSuccessMessage = "Membuka manuscript e-book: $targetUrl"
                                 } else {
                                     onRequestAuth {
-                                        readSuccessMessage = "Authentication verified. Opening manuscript reader..."
+                                        readSuccessMessage = "Autentikasi terverifikasi. Mengakses naskah: $targetUrl"
                                     }
                                 }
                             },
                             onAddToLibraryClick = {
                                 if (isLoggedIn) {
-                                    librarySuccessMessage = "Book added to your personal library!"
+                                    librarySuccessMessage = "Buku \"${book.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
                                 } else {
                                     onRequestAuth {
-                                        librarySuccessMessage = "Authentication verified. Book added to your library!"
+                                        librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${book.title}\" ditambahkan ke pustaka!"
                                     }
                                 }
                             },
@@ -131,8 +184,16 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    WhatsInsideSection(modifier = Modifier.fillMaxWidth())
-                    MetadataSection(modifier = Modifier.fillMaxWidth())
+                    WhatsInsideSection(
+                        book = book,
+                        readingTime = book.readingTime,
+                        modifier = Modifier.fillMaxWidth(),
+                        stackChapters = windowWidth.isCompact
+                    )
+                    MetadataSection(
+                        book = book,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             } else {
                 Row(
@@ -141,8 +202,15 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = 32.dp),
                     horizontalArrangement = Arrangement.spacedBy(32.dp)
                 ) {
-                    WhatsInsideSection(modifier = Modifier.weight(2f))
-                    MetadataSection(modifier = Modifier.weight(1f))
+                    WhatsInsideSection(
+                        book = book,
+                        readingTime = book.readingTime,
+                        modifier = Modifier.weight(2f)
+                    )
+                    MetadataSection(
+                        book = book,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
             
@@ -154,6 +222,7 @@ fun BookDetailsScreen(
 
 @Composable
 private fun BookInfoContent(
+    book: AdminBook,
     isMobile: Boolean,
     isLoggedIn: Boolean = false,
     onReadNowClick: () -> Unit = {},
@@ -162,15 +231,22 @@ private fun BookInfoContent(
     librarySuccessMessage: String? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
+        Surface(
+            color = Color(0xFF00B5C8).copy(alpha = 0.12f),
+            shape = RoundedCornerShape(6.dp)
+        ) {
+            Text(
+                text = book.category.uppercase(),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0097A7),
+                fontFamily = getDmSansFontFamily(),
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Self-Improvement / Mindfulness",
-            fontSize = 14.sp,
-            color = Color(0xFF71717A),
-            fontFamily = getDmSansFontFamily()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Blind Spot Radar",
+            text = book.title,
             fontSize = if (isMobile) 36.sp else 52.sp,
             fontWeight = FontWeight.ExtraBold,
             fontFamily = getMontserratFontFamily(),
@@ -180,7 +256,7 @@ private fun BookInfoContent(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "by Putu Aan J.",
+            text = "by ${book.author}",
             fontSize = if (isMobile) 18.sp else 20.sp,
             fontWeight = FontWeight.Medium,
             fontFamily = getDmSansFontFamily(),
@@ -188,31 +264,53 @@ private fun BookInfoContent(
         )
         Spacer(modifier = Modifier.height(20.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RatingStars(rating = 5, color = Color(0xFF60BD65))
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "(4.8/5 from 1,240 readers)",
-                fontSize = 14.sp,
-                color = Color(0xFF71717A),
-                fontFamily = getDmSansFontFamily()
-            )
+            if (book.rating > 0.0) {
+                RatingStars(rating = kotlin.math.round(book.rating).toInt().coerceIn(1, 5), color = Color(0xFF60BD65))
+                Spacer(modifier = Modifier.width(12.dp))
+                val readerLabel = if (book.ratingCount == 1) "1 pembaca terdaftar" else "${book.ratingCount} pembaca terdaftar"
+                Text(
+                    text = "(${book.rating}/5 dari $readerLabel • ${book.interactions} interaksi)",
+                    fontSize = 14.sp,
+                    color = Color(0xFF71717A),
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Medium
+                )
+            } else if (book.interactions > 0) {
+                Text(
+                    text = "📊 ${book.interactions} Interaksi Pembaca Tercatat (E-Score dalam kalkulasi)",
+                    fontSize = 14.sp,
+                    color = Color(0xFF00B5C8),
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold
+                )
+            } else {
+                Text(
+                    text = "📖 Publikasi Baru • Belum Ada Interaksi Pembaca",
+                    fontSize = 14.sp,
+                    color = Color(0xFF71717A),
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Buku \"Blind Spot Radar: Mengapa Pemimpin Cerdas Melewatkan Sinyal Besar\" merupakan karya thought leadership yang menyoroti fenomena di mana para pengambil keputusan tingkat atas sering kali gagal mendeteksi ancaman nyata atau peluang strategis, meskipun mereka memiliki kecerdasan dan data yang memadai.",
+            text = if (book.description.isNotBlank()) book.description else "Buku publikasi resmi dari Sekota Research & Intelligence, menghadirkan analisis komprehensif, framework taktis, dan rekomendasi implementasi berdaya saing.",
             fontSize = 16.sp,
             lineHeight = 26.sp,
             color = Color(0xFF0D1F2D),
             fontFamily = getDmSansFontFamily()
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Buku ini ditujukan bagi para pengambil keputusan di berbagai level (CEO, Manajemen Senior, hingga Menengah) yang ingin meningkatkan kualitas keputusan dan menghindari \"biaya\" tak terlihat dari blind spot.",
-            fontSize = 16.sp,
-            lineHeight = 26.sp,
-            color = Color(0xFF0D1F2D),
-            fontFamily = getDmSansFontFamily()
-        )
+        if (!book.pdfUrl.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "📄 Digital Edition: Termasuk manuskrip PDF resolusi tinggi dan lisensi pembaca interaktif.",
+                fontSize = 14.sp,
+                color = Color(0xFF00796B),
+                fontFamily = getDmSansFontFamily(),
+                fontWeight = FontWeight.Medium
+            )
+        }
         
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -274,24 +372,27 @@ private fun BookInfoContent(
                 }
             }
         } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Button(
                     onClick = onReadNowClick,
                     shape = RoundedCornerShape(9999.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)),
-                    modifier = Modifier.height(52.dp).width(160.dp)
+                    modifier = Modifier.height(52.dp).weight(1f).widthIn(max = 200.dp)
                 ) {
-                    Text("Read Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                    Text("Read Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily(), maxLines = 1)
                 }
-                
+
                 OutlinedButton(
                     onClick = onAddToLibraryClick,
                     shape = RoundedCornerShape(9999.dp),
                     border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF00B5C8)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00B5C8)),
-                    modifier = Modifier.height(52.dp).width(190.dp)
+                    modifier = Modifier.height(52.dp).weight(1.2f).widthIn(max = 230.dp)
                 ) {
-                    Text("Add to Library", fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily())
+                    Text("Add to Library", fontWeight = FontWeight.Bold, fontSize = 15.sp, fontFamily = getDmSansFontFamily(), maxLines = 1)
                 }
             }
         }
@@ -299,22 +400,49 @@ private fun BookInfoContent(
 }
 
 @Composable
-fun BookCover(modifier: Modifier = Modifier) {
+fun BookCover(
+    title: String = "BLIND SPOT\nRADAR",
+    coverImage: String? = null,
+    modifier: Modifier = Modifier
+) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 8.dp,
         color = Color(0xFF121212)
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = "BLIND SPOT\nRADAR",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 40.sp,
-                textAlign = TextAlign.Center,
-                fontFamily = getMontserratFontFamily()
+        val bitmap = remember(coverImage) {
+            if (!coverImage.isNullOrBlank()) decodeBase64ToBitmap(coverImage) else null
+        }
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = title,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
             )
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            listOf(Color(0xFF1E293B), Color(0xFF0F172A), Color(0xFF0D1F2D))
+                        )
+                    )
+                    .padding(24.dp)
+            ) {
+                Text(
+                    text = title.uppercase(),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    textAlign = TextAlign.Center,
+                    fontFamily = getMontserratFontFamily(),
+                    lineHeight = 34.sp
+                )
+            }
         }
     }
 }
@@ -334,7 +462,36 @@ fun RatingStars(rating: Int, color: Color) {
 }
 
 @Composable
-fun WhatsInsideSection(modifier: Modifier = Modifier) {
+fun WhatsInsideSection(
+    book: AdminBook? = null,
+    readingTime: String = "3H 45M",
+    modifier: Modifier = Modifier,
+    // Two chapter tiles side by side need ~500dp of pane; below that they stack.
+    stackChapters: Boolean = false
+) {
+    val chapters = remember(book?.id, book?.category) {
+        when (book?.category?.uppercase()) {
+            "ESG" -> listOf(
+                Pair("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi."),
+                Pair("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi."),
+                Pair("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi."),
+                Pair("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.")
+            )
+            "SMART CITY" -> listOf(
+                Pair("Urban Data & Sensorik Cerdas", "Membangun arsitektur data kota berbasis sensor dan telemetri terpadu."),
+                Pair("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan."),
+                Pair("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga."),
+                Pair("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.")
+            )
+            else -> listOf(
+                Pair("The Attention Economy", "Understanding the mechanics behind digital distractions."),
+                Pair("Deep Work Protocols", "Actionable steps to enter flow state on command."),
+                Pair("Mindful Tech Integration", "Setting boundaries that stick without the guilt."),
+                Pair("Cognitive Recovery", "Restoring your mental energy after intense digital usage.")
+            )
+        }
+    }
+
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -350,38 +507,30 @@ fun WhatsInsideSection(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(32.dp))
             
-            Row(modifier = Modifier.fillMaxWidth()) {
-                InsideItem(
-                    icon = Res.drawable.icon_6,
-                    title = "The Attention Economy",
-                    subtitle = "Understanding the mechanics behind digital distractions.",
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(32.dp))
-                InsideItem(
-                    icon = Res.drawable.icon_7,
-                    title = "Deep Work Protocols",
-                    subtitle = "Actionable steps to enter flow state on command.",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth()) {
-                InsideItem(
-                    icon = Res.drawable.icon_8,
-                    title = "Mindful Tech Integration",
-                    subtitle = "Setting boundaries that stick without the guilt.",
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(32.dp))
-                InsideItem(
-                    icon = Res.drawable.icon_5,
-                    title = "Cognitive Recovery",
-                    subtitle = "Restoring your mental energy after intense digital usage.",
-                    modifier = Modifier.weight(1f)
-                )
+            val chapterIcons = listOf(
+                Res.drawable.icon_6,
+                Res.drawable.icon_7,
+                Res.drawable.icon_8,
+                Res.drawable.icon_5
+            )
+            val chapterRows = if (stackChapters) 1 else 2
+
+            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                chapterIcons.withIndex().chunked(chapterRows).forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(32.dp)
+                    ) {
+                        rowItems.forEach { (index, icon) ->
+                            InsideItem(
+                                icon = icon,
+                                title = chapters.getOrNull(index)?.first ?: "Chapter ${index + 1}",
+                                subtitle = chapters.getOrNull(index)?.second ?: "",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
             
             Spacer(modifier = Modifier.height(48.dp))
@@ -401,7 +550,7 @@ fun WhatsInsideSection(modifier: Modifier = Modifier) {
                     fontFamily = getDmSansFontFamily()
                 )
                 Text(
-                    text = "3H 45M",
+                    text = readingTime,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A99D),
@@ -457,7 +606,10 @@ fun InsideItem(
 }
 
 @Composable
-fun MetadataSection(modifier: Modifier = Modifier) {
+fun MetadataSection(
+    book: AdminBook? = null,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier.fillMaxHeight(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F4F7)),
@@ -469,13 +621,13 @@ fun MetadataSection(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MetadataItem("PUBLISHED", "Nov 2025")
+            MetadataItem("PUBLISHED", book?.publishedDate ?: "Nov 2025")
             Spacer(modifier = Modifier.height(32.dp))
-            MetadataItem("PAGES", "240")
+            MetadataItem("PAGES", "${book?.pages ?: 240}")
             Spacer(modifier = Modifier.height(32.dp))
-            MetadataItem("LANGUAGE", "Indonesia")
+            MetadataItem("LANGUAGE", book?.language ?: "Indonesia")
             Spacer(modifier = Modifier.height(32.dp))
-            MetadataItem("FORMAT", "eBook, PDF")
+            MetadataItem("FORMAT", if (!book?.pdfUrl.isNullOrBlank()) "eBook, PDF" else "eBook")
         }
     }
 }

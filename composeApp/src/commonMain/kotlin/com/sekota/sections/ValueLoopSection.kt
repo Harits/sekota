@@ -16,17 +16,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.*
+import com.sekota.ui.contentHorizontalPadding
+import com.sekota.ui.WindowWidth
+import com.sekota.ui.windowWidthOf
+import com.sekota.ui.sectionHorizontalPadding
+import com.sekota.ui.sectionVerticalPadding
+
+private val LoopSteps = listOf(
+    Triple("01", "INTENT", "Definisi Strategis"),
+    Triple("02", "EXECUTION", "Implementasi Data"),
+    Triple("03", "VALUE", "Penciptaan Nilai"),
+    Triple("04", "MEASUREMENT", "Audit Dampak"),
+    Triple("05", "LEARNING", "Optimasi Berkelanjutan")
+)
 
 @Composable
 fun ValueLoopSection() {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        ValueLoopContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth))
+    }
+}
+
+@Composable
+private fun ValueLoopContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 100.dp, horizontal = 48.dp),
+            .padding(
+                vertical = windowWidth.sectionVerticalPadding,
+                horizontal = horizontalPadding
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -40,10 +64,12 @@ fun ValueLoopSection() {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Strategic Value Loop",
-            fontSize = 48.sp,
+            fontSize = if (windowWidth.isCompact) 32.sp else 48.sp,
+            lineHeight = if (windowWidth.isCompact) 40.sp else 56.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A),
-            fontFamily = getMontserratFontFamily()
+            fontFamily = getMontserratFontFamily(),
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -55,22 +81,48 @@ fun ValueLoopSection() {
             modifier = Modifier.widthIn(max = 700.dp),
             lineHeight = 28.sp
         )
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(if (windowWidth.isCompact) 48.dp else 80.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            LoopStep("01", "INTENT", "Definisi Strategis", modifier = Modifier.weight(1f))
-            LoopDivider()
-            LoopStep("02", "EXECUTION", "Implementasi Data", modifier = Modifier.weight(1f))
-            LoopDivider()
-            LoopStep("03", "VALUE", "Penciptaan Nilai", modifier = Modifier.weight(1f))
-            LoopDivider()
-            LoopStep("04", "MEASUREMENT", "Audit Dampak", modifier = Modifier.weight(1f))
-            LoopDivider()
-            LoopStep("05", "LEARNING", "Optimasi Berkelanjutan", modifier = Modifier.weight(1f))
+        when (windowWidth) {
+            // A five-across rail needs roughly 170dp per card to stay legible.
+            // Below Expanded it wraps instead of crushing each step.
+            WindowWidth.Compact -> Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                LoopSteps.forEach { (number, title, subtitle) ->
+                    LoopStep(number, title, subtitle, modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            WindowWidth.Medium -> Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                LoopSteps.chunked(2).forEach { pair ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        pair.forEach { (number, title, subtitle) ->
+                            LoopStep(number, title, subtitle, modifier = Modifier.weight(1f).fillMaxHeight())
+                        }
+                        // Keeps the trailing odd card at half width instead of stretching it.
+                        repeat(2 - pair.size) { Spacer(modifier = Modifier.weight(1f)) }
+                    }
+                }
+            }
+
+            else -> Row(
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LoopSteps.forEachIndexed { index, (number, title, subtitle) ->
+                    if (index > 0) LoopDivider()
+                    LoopStep(number, title, subtitle, modifier = Modifier.weight(1f).fillMaxHeight())
+                }
+            }
         }
     }
 }

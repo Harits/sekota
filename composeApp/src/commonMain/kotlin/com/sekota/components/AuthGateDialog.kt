@@ -58,7 +58,8 @@ fun AuthGateDialog(
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
             modifier = Modifier
-                .widthIn(min = 340.dp, max = 460.dp)
+                .fillMaxWidth()
+                .widthIn(max = 460.dp)
                 .padding(24.dp)
         ) {
             Column(

@@ -13,29 +13,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.*
+import com.sekota.ui.contentHorizontalPadding
+import com.sekota.ui.WindowWidth
+import com.sekota.ui.cardPadding
+import com.sekota.ui.sectionHorizontalPadding
+import com.sekota.ui.sectionVerticalPadding
+import com.sekota.ui.windowWidthOf
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
 
 @Composable
 fun ValuePropDark() {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        ValuePropDarkContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth))
+    }
+}
+
+@Composable
+private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
+    // The copy column and the two proof cards only fit side by side from Expanded;
+    // narrower than that the pair stacks beneath the headline.
+    val stacked = windowWidth.isAtMostMedium
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFF0B141B))
-            .padding(vertical = 120.dp, horizontal = 64.dp)
+            .padding(
+                vertical = windowWidth.sectionVerticalPadding,
+                horizontal = horizontalPadding
+            )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(80.dp)
-        ) {
-            Column(modifier = Modifier.weight(1.2f)) {
+        val copy = @Composable { modifier: Modifier ->
+            Column(modifier = modifier) {
                 Text(
                     text = "MENGAPA SEKOTA",
                     fontSize = 14.sp,
@@ -46,9 +64,10 @@ fun ValuePropDark() {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Sekota Bukan\nSekadar Vendor,\nBukan Sekadar\nKonsultan.",
-                    fontSize = 56.sp,
-                    lineHeight = 64.sp,
+                    text = if (stacked) "Sekota Bukan Sekadar Vendor,\nBukan Sekadar Konsultan."
+                           else "Sekota Bukan\nSekadar Vendor,\nBukan Sekadar\nKonsultan.",
+                    fontSize = if (windowWidth.isCompact) 34.sp else 56.sp,
+                    lineHeight = if (windowWidth.isCompact) 42.sp else 64.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
                     fontFamily = getMontserratFontFamily()
@@ -67,17 +86,19 @@ fun ValuePropDark() {
                     onClick = { /* TODO */ },
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    contentPadding = PaddingValues()
+                    contentPadding = PaddingValues(),
+                    modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier
                 ) {
                     Box(
                         modifier = Modifier
+                            .then(if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier)
                             .background(
                                 brush = Brush.linearGradient(
                                     colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
                                 ),
                                 shape = RoundedCornerShape(50)
                             )
-                            .padding(horizontal = 32.dp, vertical = 20.dp),
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -85,38 +106,67 @@ fun ValuePropDark() {
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontFamily = getDmSansFontFamily(),
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
             }
+        }
 
+        val cards = @Composable { modifier: Modifier ->
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 ValuePropCard(
                     title = "Lebih Strategis dari Vendor IT",
                     description = "Memberikan insight yang dapat langsung ditindaklanjuti untuk kebijakan.",
-                    icon = Res.drawable.icon_3
+                    icon = Res.drawable.icon_3,
+                    contentPadding = windowWidth.cardPadding
                 )
                 ValuePropCard(
                     title = "Lebih Teknis dari Konsultan",
                     description = "Implementasi data real-time, bukan sekadar slide deck rekomendasi.",
-                    icon = Res.drawable.icon_4
+                    icon = Res.drawable.icon_4,
+                    contentPadding = windowWidth.cardPadding
                 )
+            }
+        }
+
+        if (stacked) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(48.dp)
+            ) {
+                copy(Modifier.fillMaxWidth())
+                cards(Modifier.fillMaxWidth())
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (windowWidth == WindowWidth.Large) 80.dp else 48.dp)
+            ) {
+                copy(Modifier.weight(1.2f))
+                cards(Modifier.weight(1f))
             }
         }
     }
 }
 
 @Composable
-fun ValuePropCard(title: String, description: String, icon: DrawableResource) {
+fun ValuePropCard(
+    title: String,
+    description: String,
+    icon: DrawableResource,
+    contentPadding: androidx.compose.ui.unit.Dp = 40.dp
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFF111E26), shape = RoundedCornerShape(24.dp))
-            .padding(40.dp)
+            .padding(contentPadding)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

@@ -25,40 +25,55 @@ import sekota.composeapp.generated.resources.check
 import sekota.composeapp.generated.resources.magnifying_glass
 
 @Composable
-fun SidebarFilter(onNavigate: (Screen) -> Unit, isMerchandise: Boolean = false) {
-    var searchQuery by remember { mutableStateOf("") }
-    
+fun SidebarFilter(
+    onNavigate: (Screen) -> Unit,
+    isMerchandise: Boolean = false,
+    searchQuery: String = "",
+    onSearchChange: (String) -> Unit = {},
+    selectedSort: String = "Newest",
+    onSortChange: (String) -> Unit = {},
+    selectedOptions: List<String> = listOf("All"),
+    onOptionsChange: (List<String>) -> Unit = {},
+    selectedYears: List<String> = listOf("2025"),
+    onYearsChange: (List<String>) -> Unit = {},
+    modifier: Modifier = Modifier.width(280.dp).fillMaxHeight()
+) {
     val filterTitle = if (isMerchandise) "Category" else "Genre"
     val options = if (isMerchandise) {
         listOf("All", "T-Shirt", "Pin", "Sticker", "Others")
     } else {
-        listOf("All", "Self-Improvement", "Social-Improvement", "Sustainablity", "Other")
+        listOf("All", "SMART CITY", "ESG", "INTELLIGENCE", "Other")
     }
-    
-    val selectedOptions = remember { mutableStateListOf("All") }
     val years = listOf("2025", "2024", "2023")
-    val selectedYears = remember { mutableStateListOf("2025") }
 
     Column(
-        modifier = Modifier
-            .width(280.dp)
-            .fillMaxHeight()
+        modifier = modifier
             .background(Color.White)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         // Search
-        SearchSection(searchQuery) { searchQuery = it }
+        SearchSection(searchQuery) { onSearchChange(it) }
 
         // Sort By
-        SortSection()
+        SortSection(selectedSort = selectedSort, onSortChange = onSortChange)
 
         // Filter Section (Genre or Category)
-        FilterSection(title = filterTitle, options = options, selectedOptions = selectedOptions)
+        FilterSectionStateless(
+            title = filterTitle,
+            options = options,
+            selectedOptions = selectedOptions,
+            onOptionsChange = onOptionsChange
+        )
 
         if (!isMerchandise) {
             // Year (only for E-Books)
-            FilterSection(title = "Year", options = years, selectedOptions = selectedYears)
+            FilterSectionStateless(
+                title = "Year",
+                options = years,
+                selectedOptions = selectedYears,
+                onOptionsChange = onYearsChange
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -114,7 +129,13 @@ fun SearchSection(query: String, onQueryChange: (String) -> Unit) {
 }
 
 @Composable
-fun SortSection() {
+fun SortSection(
+    selectedSort: String = "Newest",
+    onSortChange: (String) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val sortOptions = listOf("Newest", "Rating Tertinggi", "A-Z", "Z-A")
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             "Sort by",
@@ -129,6 +150,7 @@ fun SortSection() {
                 .height(56.dp)
                 .background(Color.White, RoundedCornerShape(12.dp))
                 .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                .clickable { expanded = !expanded }
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -138,7 +160,7 @@ fun SortSection() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Newest",
+                    text = selectedSort,
                     fontSize = 18.sp,
                     fontFamily = getDmSansFontFamily(),
                     color = Color.Black
@@ -149,6 +171,20 @@ fun SortSection() {
                     modifier = Modifier.size(20.dp),
                     tint = Color.Black
                 )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                sortOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option, fontFamily = getDmSansFontFamily(), fontSize = 15.sp) },
+                        onClick = {
+                            onSortChange(option)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -193,10 +229,11 @@ fun CustomCheckbox(
 }
 
 @Composable
-fun FilterSection(
+fun FilterSectionStateless(
     title: String,
     options: List<String>,
-    selectedOptions: MutableList<String>,
+    selectedOptions: List<String>,
+    onOptionsChange: (List<String>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -208,39 +245,79 @@ fun FilterSection(
             color = Color.Black
         )
         options.forEach { option ->
+            val isChecked = if (option == "All") {
+                selectedOptions.contains("All") || selectedOptions.isEmpty()
+            } else {
+                selectedOptions.contains(option)
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        if (selectedOptions.contains(option)) {
-                            selectedOptions.remove(option)
+                        val current = selectedOptions.toMutableList()
+                        if (option == "All") {
+                            onOptionsChange(listOf("All"))
                         } else {
-                            selectedOptions.add(option)
+                            current.remove("All")
+                            if (current.contains(option)) {
+                                current.remove(option)
+                                if (current.isEmpty()) current.add("All")
+                            } else {
+                                current.add(option)
+                            }
+                            onOptionsChange(current)
                         }
                     }
                     .padding(vertical = 4.dp)
             ) {
                 CustomCheckbox(
-                    checked = selectedOptions.contains(option),
+                    checked = isChecked,
                     onCheckedChange = { checked ->
-                        if (checked) {
-                            selectedOptions.add(option)
+                        val current = selectedOptions.toMutableList()
+                        if (option == "All") {
+                            onOptionsChange(listOf("All"))
                         } else {
-                            selectedOptions.remove(option)
+                            current.remove("All")
+                            if (checked) {
+                                current.add(option)
+                            } else {
+                                current.remove(option)
+                                if (current.isEmpty()) current.add("All")
+                            }
+                            onOptionsChange(current)
                         }
                     }
                 )
                 Text(
                     text = option,
                     fontFamily = getDmSansFontFamily(),
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Black,
                     modifier = Modifier.padding(start = 12.dp)
                 )
             }
         }
     }
+}
+
+@Composable
+fun FilterSection(
+    title: String,
+    options: List<String>,
+    selectedOptions: MutableList<String>,
+    modifier: Modifier = Modifier
+) {
+    FilterSectionStateless(
+        title = title,
+        options = options,
+        selectedOptions = selectedOptions,
+        onOptionsChange = { updated ->
+            selectedOptions.clear()
+            selectedOptions.addAll(updated)
+        },
+        modifier = modifier
+    )
 }
 
 @Composable

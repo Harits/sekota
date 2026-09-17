@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +24,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.filled_star
+import androidx.compose.ui.layout.ContentScale
+import com.sekota.utils.decodeBase64ToBitmap
 import sekota.composeapp.generated.resources.stroke_star
 
 @Composable
@@ -31,28 +35,70 @@ fun ProductCard(
     rating: Double,
     buttonText: String = "View Details",
     imageColor: Color = Color(0xFFEEEEEE),
+    imageUrlOrBase64: String? = null,
     modifier: Modifier = Modifier,
+    // Sized by the caller from the window size class: a card in a 3-up desktop grid
+    // is much narrower than a full-bleed compact card and needs a shorter cover.
+    cardHeight: androidx.compose.ui.unit.Dp = 520.dp,
+    coverHeight: androidx.compose.ui.unit.Dp = 340.dp,
     onClick: () -> Unit,
 ) {
+    val bitmap: ImageBitmap? = remember(imageUrlOrBase64) {
+        if (!imageUrlOrBase64.isNullOrBlank()) {
+            decodeBase64ToBitmap(imageUrlOrBase64)
+        } else null
+    }
+
     Card(
-        modifier = modifier.fillMaxWidth().height(520.dp),
+        modifier = modifier.fillMaxWidth().height(cardHeight),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f)),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Image Placeholder
+            // Image / Cover Container
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(340.dp)
+                    .height(coverHeight)
                     .background(imageColor),
                 contentAlignment = Alignment.Center
             ) {
-                // If we had images, we'd use them here. 
-                // Using a color as a placeholder to distinguish cards.
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (!imageUrlOrBase64.isNullOrBlank() && imageUrlOrBase64.length < 10) {
+                    // Render emoji icon like 👕 or ☕
+                    Text(text = imageUrlOrBase64, fontSize = 64.sp)
+                } else {
+                    // Fallback sleek placeholder
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color.White.copy(alpha = 0.2f),
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = if (title.isNotBlank()) title.take(1).uppercase() else "✦",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
             }
+
 
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Rating
@@ -76,7 +122,8 @@ fun ProductCard(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = getDmSansFontFamily(),
-                    maxLines = 1,
+                    lineHeight = 24.sp,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     color = Color.Black
                 )

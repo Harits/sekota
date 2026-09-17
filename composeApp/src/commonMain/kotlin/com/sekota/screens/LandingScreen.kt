@@ -16,16 +16,50 @@ import com.sekota.*
 
 import com.sekota.sections.*
 
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+
 @Composable
-fun LandingScreen() {
+fun LandingScreen(
+    onNavigate: (Screen) -> Unit = {},
+    onSolusiPositioned: (Int) -> Unit = {},
+    onProdukPositioned: (Int) -> Unit = {},
+    onKontakPositioned: (Int) -> Unit = {}
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeroSection()
         FeatureGrid()
-        ValueLoopSection()
-        IntelligenceSuite()
-        EBookPromo()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    onSolusiPositioned(coordinates.positionInParent().y.toInt())
+                }
+        ) {
+            ValueLoopSection()
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    onProdukPositioned(coordinates.positionInParent().y.toInt())
+                }
+        ) {
+            IntelligenceSuite()
+        }
+        EBookPromo(
+            onNavigateToCatalog = { onNavigate(Screen.Catalog) }
+        )
         ValuePropDark()
-        ContactFormSection()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    onKontakPositioned(coordinates.positionInParent().y.toInt())
+                }
+        ) {
+            ContactFormSection()
+        }
         Footer()
     }
 }

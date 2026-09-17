@@ -9,12 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.unit.dp
+import com.sekota.ui.WindowWidth
+import com.sekota.ui.navbarHeight
+import com.sekota.ui.windowWidthOf
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.launch
 import com.sekota.screens.*
 import com.sekota.features.sync.data.repository.SyncService
 import com.sekota.core.storage.TokenStorage
@@ -44,36 +51,67 @@ fun App() {
     var currentScreen by remember { mutableStateOf(Screen.Landing) }
     val coroutineScope = rememberCoroutineScope()
     val syncState by syncService.syncState.collectAsState()
+    var selectedBookId by remember { mutableStateOf<String?>("blind-spot-radar") }
     
     var isLoggedIn by remember { mutableStateOf(getTokenUseCase() != null) }
     var showAuthGateDialog by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
+    val landingScroll = rememberScrollState()
+    var activeLandingSection by remember { mutableStateOf(NavbarActiveSection.SOLUSI) }
+    var solusiOffsetY by remember { mutableStateOf(0) }
+    var produkOffsetY by remember { mutableStateOf(0) }
+    var kontakOffsetY by remember { mutableStateOf(0) }
+
+    // Synchronize active nav pill based on scroll position while on LandingScreen
+    LaunchedEffect(landingScroll.value, currentScreen) {
+        if (currentScreen == Screen.Landing) {
+            val scrollY = landingScroll.value
+            activeLandingSection = when {
+                kontakOffsetY > 0 && scrollY >= kontakOffsetY - 250 -> NavbarActiveSection.KONTAK
+                produkOffsetY > 0 && scrollY >= produkOffsetY - 250 -> NavbarActiveSection.PRODUK
+                else -> NavbarActiveSection.SOLUSI
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         syncService.connect(coroutineScope)
     }
     
+    // Rule 10: window width derived via onSizeChanged rather than BoxWithConstraints,
+    // so the sticky-navbar offset recomposes deterministically on the Skiko Wasm canvas.
+    var windowWidth by remember { mutableStateOf(WindowWidth.Compact) }
+    val density = LocalDensity.current
+
     MaterialTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFAFAFA))
+                .onSizeChanged { size ->
+                    windowWidth = windowWidthOf(with(density) { size.width.toDp() })
+                }
         ) {
             // Screen Content Container
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 80.dp) // Offset for sticky navbar
+                    .padding(top = windowWidth.navbarHeight) // Offset for sticky navbar
             ) {
                 when (currentScreen) {
                     Screen.Landing -> {
-                        val landingScroll = rememberScrollState()
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(landingScroll)
                         ) {
-                            LandingScreen()
+                            LandingScreen(
+                                onNavigate = { screen -> currentScreen = screen },
+                                onSolusiPositioned = { y -> solusiOffsetY = y },
+                                onProdukPositioned = { y -> produkOffsetY = y },
+                                onKontakPositioned = { y -> kontakOffsetY = y }
+                            )
                         }
                     }
                     Screen.Catalog -> {
@@ -84,7 +122,10 @@ fun App() {
                                 .verticalScroll(catalogScroll)
                         ) {
                             CatalogScreen(
-                                onBookClick = { currentScreen = Screen.Details },
+                                onBookClick = { bookId ->
+                                    selectedBookId = bookId
+                                    currentScreen = Screen.Details
+                                },
                                 onNavigate = { currentScreen = it }
                             )
                         }
@@ -97,6 +138,7 @@ fun App() {
                                 .verticalScroll(detailsScroll)
                         ) {
                             BookDetailsScreen(
+                                bookId = selectedBookId,
                                 isLoggedIn = isLoggedIn,
                                 onRequestAuth = { onSuccess ->
                                     pendingAction = onSuccess
@@ -154,24 +196,50 @@ fun App() {
                 }
             }
 
-            // Sticky Navbar
-            Box(
+            // Sticky Navbar (Material Design 3 with integrated status pill)
+            Navbar(
+                currentScreen = currentScreen,
+                activeLandingSection = activeLandingSection,
+                isLoggedIn = isLoggedIn,
+                syncState = syncState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-            ) {
-                Navbar(
-                    isLoggedIn = isLoggedIn,
-                    onNavigate = { screen -> currentScreen = screen }
-                )
-                // Simple sync status overlay
-                Text(
-                    text = "Sync: $syncState",
-                    fontSize = 10.sp,
-                    color = if (syncState == "Connected" || syncState.startsWith("Sync update:")) Color(0xFF4CAF50) else Color(0xFFF44336),
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 4.dp)
-                )
-            }
+                    .zIndex(10f),
+                onNavigate = { screen -> currentScreen = screen },
+                onSolusiClick = {
+                    currentScreen = Screen.Landing
+                    activeLandingSection = NavbarActiveSection.SOLUSI
+                    coroutineScope.launch {
+                        val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
+                        landingScroll.animateScrollTo(targetY)
+                    }
+                },
+                onProdukClick = {
+                    currentScreen = Screen.Landing
+                    activeLandingSection = NavbarActiveSection.PRODUK
+                    coroutineScope.launch {
+                        val targetY = if (produkOffsetY > 0) produkOffsetY else 1200
+                        landingScroll.animateScrollTo(targetY)
+                    }
+                },
+                onKontakClick = {
+                    currentScreen = Screen.Landing
+                    activeLandingSection = NavbarActiveSection.KONTAK
+                    coroutineScope.launch {
+                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                        landingScroll.animateScrollTo(targetY)
+                    }
+                },
+                onConsultationClick = {
+                    currentScreen = Screen.Landing
+                    activeLandingSection = NavbarActiveSection.KONTAK
+                    coroutineScope.launch {
+                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                        landingScroll.animateScrollTo(targetY)
+                    }
+                }
+            )
 
             // UC-GATE-01: Inline Auth-Gating Modal Dialog
             if (showAuthGateDialog) {
