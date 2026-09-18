@@ -144,6 +144,13 @@ fun App() {
                                         landingScroll.animateScrollTo(targetY)
                                     }
                                 },
+                                onExplorationClick = {
+                                    activeLandingSection = NavbarActiveSection.PRODUK
+                                    coroutineScope.launch {
+                                        val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
+                                        landingScroll.animateScrollTo(targetY)
+                                    }
+                                },
                                 onSolusiPositioned = { y -> solusiOffsetY = y },
                                 onProdukPositioned = { y -> produkOffsetY = y },
                                 onKontakPositioned = { y -> kontakOffsetY = y }

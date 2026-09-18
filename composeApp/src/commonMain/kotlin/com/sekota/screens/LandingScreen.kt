@@ -25,16 +25,14 @@ fun LandingScreen(
     onProductClick: (String) -> Unit = {},
     onBookClick: (String) -> Unit = {},
     onConsultationClick: () -> Unit = {},
+    onExplorationClick: () -> Unit = {},
     onSolusiPositioned: (Int) -> Unit = {},
     onProdukPositioned: (Int) -> Unit = {},
     onKontakPositioned: (Int) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeroSection(
-            onExplorationClick = {
-                // Scroll or transition to Intelligence Suite
-                onProductClick("VRD")
-            },
+            onExplorationClick = onExplorationClick,
             onContactClick = onConsultationClick
         )
         FeatureGrid()

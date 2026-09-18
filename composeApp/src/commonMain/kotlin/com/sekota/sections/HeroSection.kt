@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -170,7 +171,7 @@ fun HeroSection(
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
-                    // CTA Buttons
+                    // CTA Buttons (Material Design 3: Primary Filled + Secondary Outlined)
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -178,9 +179,15 @@ fun HeroSection(
                     ) {
                         Button(
                             onClick = onExplorationClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF02B6CF)),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF02B6CF),
+                                contentColor = Color.White
+                            ),
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(52.dp).fillMaxWidth()
+                            modifier = Modifier
+                                .height(52.dp)
+                                .fillMaxWidth()
+                                .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
                                 text = "Eksplorasi Produk",
@@ -190,20 +197,22 @@ fun HeroSection(
                             )
                         }
 
-                        Button(
+                        OutlinedButton(
                             onClick = onContactClick,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = Color(0xFF374151)
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color(0xFF0D1F2D)
                             ),
-                            border = BorderStroke(1.5.dp, Color(0xFFE5E7EB)),
+                            border = BorderStroke(1.5.dp, Color(0xFFD1D5DB)),
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(52.dp).fillMaxWidth()
+                            modifier = Modifier
+                                .height(52.dp)
+                                .fillMaxWidth()
+                                .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
                                 text = "Hubungi Tim Ahli",
                                 fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 fontFamily = getDmSansFontFamily()
                             )
                         }
@@ -302,40 +311,46 @@ fun HeroSection(
                         modifier = Modifier.width(540.dp)
                     )
 
-                    // CTA Buttons
+                    // CTA Buttons (Material Design 3: Primary Filled + Secondary Outlined)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Button(
                             onClick = onExplorationClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF02B6CF)),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF02B6CF),
+                                contentColor = Color.White
+                            ),
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(52.dp)
+                            modifier = Modifier
+                                .height(52.dp)
+                                .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
-                                text = "Eksplorasi Produk",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = getDmSansFontFamily(),
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                 text = "Eksplorasi Produk",
+                                 fontSize = 15.sp,
+                                 fontWeight = FontWeight.Bold,
+                                 fontFamily = getDmSansFontFamily(),
+                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
                         }
 
-                        Button(
+                        OutlinedButton(
                             onClick = onContactClick,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = Color(0xFF374151)
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color(0xFF0D1F2D)
                             ),
-                            border = BorderStroke(1.5.dp, Color(0xFFE5E7EB)),
+                            border = BorderStroke(1.5.dp, Color(0xFFD1D5DB)),
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.height(52.dp)
+                            modifier = Modifier
+                                .height(52.dp)
+                                .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
                                 text = "Hubungi Tim Ahli",
                                 fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 fontFamily = getDmSansFontFamily(),
                                 modifier = Modifier.padding(horizontal = 32.dp)
                             )
