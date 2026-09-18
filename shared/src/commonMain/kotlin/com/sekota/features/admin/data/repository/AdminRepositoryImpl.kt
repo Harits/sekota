@@ -137,10 +137,58 @@ class AdminRepositoryImpl(
 
 
     private val defaultCanonicalProducts = listOf(
-        AdminProduct("p1", "VRD", "Veridia", "Intelligence Suite", "Description for Veridia", listOf("Feature 1", "Feature 2")),
-        AdminProduct("p2", "ASC", "Ascendio", "Intelligence Suite", "Description for Ascendio", listOf("Feature A", "Feature B")),
-        AdminProduct("p3", "SOC", "Sociara", "Intelligence Suite", "Description for Sociara", listOf("Feature X", "Feature Y")),
-        AdminProduct("p4", "ECO", "Ecoflow", "Intelligence Suite", "Description for Ecoflow", listOf("Feature M", "Feature N"))
+        AdminProduct(
+            id = "p1",
+            code = "VRD",
+            name = "Veridia",
+            categoryEyebrow = "ESG & Carbon Intelligence",
+            description = "Platform analitik komprehensif untuk pemantauan jejak karbon Scope 1, 2, dan 3, kepatuhan regulasi lingkungan, dan pelaporan ESG otomatis sesuai standar global.",
+            features = listOf(
+                "Audit Jejak Karbon Scope 1, 2, & 3 Real-time",
+                "Pelaporan Keberlanjutan Otomatis (GRI, ISSB, IDX-ESG)",
+                "Pemodelan Skenario Dekarbonisasi Prediktif",
+                "Dashboard Tata Kelola Pemangku Kepentingan"
+            )
+        ),
+        AdminProduct(
+            id = "p2",
+            code = "ASC",
+            name = "Ascendio",
+            categoryEyebrow = "Strategic Corporate Intelligence",
+            description = "Sistem intelijen bisnis strategis untuk pemetaan kompetitif pasar, analisis sentimen kebijakan publik, dan mitigasi risiko reputasi berbasis big data AI.",
+            features = listOf(
+                "Pemantauan Sentimen Media & Kebijakan Publik 24/7",
+                "Pemetaan Risiko Reputasi & Mitigasi Krisis B2B/B2G",
+                "Analisis Lanskap Regulasi & Pemangku Kepentingan",
+                "Executive Briefing & AI Strategic Recommendations"
+            )
+        ),
+        AdminProduct(
+            id = "p3",
+            code = "SOC",
+            name = "Sociara",
+            categoryEyebrow = "Social Impact & Community Engagement",
+            description = "Platform manajemen dan evaluasi dampak sosial (Social Return on Investment / SROI), relasi masyarakat lingkar industri, dan program CSR korporasi berkelanjutan.",
+            features = listOf(
+                "Pengukuran SROI & Evaluasi Efektivitas Dampak CSR",
+                "Pemetaan Sosial & Dinamika Komunitas Lingkar Industri",
+                "Manajemen Keluhan & Relasi Pemangku Kepentingan Lokal",
+                "Pelaporan Keterlibatan Sosial Terverifikasi Audit"
+            )
+        ),
+        AdminProduct(
+            id = "p4",
+            code = "ECO",
+            name = "Ecoflow",
+            categoryEyebrow = "Resource & Ecological Intelligence",
+            description = "Solusi pemantauan aliran sumber daya energi, air, dan limbah sirkular untuk efisiensi operasional industri menuju target Net Zero Emission.",
+            features = listOf(
+                "Pemantauan Konsumsi Energi & Efisiensi Operasional",
+                "Manajemen Sirkularitas Limbah & Daur Ulang Industri",
+                "Pelacakan Konsumsi & Kualitas Neraca Air Industri",
+                "Integrasi Sertifikasi Green Building & ISO 14001"
+            )
+        )
     )
 
     private val defaultCanonicalMerch = listOf(

@@ -1,17 +1,26 @@
 package com.sekota.sections
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
@@ -181,10 +190,19 @@ fun SuiteCard(
     Card(
         modifier = modifier
             .heightIn(min = minHeight)
-            .clickable(onClick = onClick),
+            .pointerHoverIcon(PointerIcon.Hand)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp,
+            hoveredElevation = 8.dp,
+            pressedElevation = 4.dp
+        )
     ) {
         Column(
             modifier = Modifier
@@ -194,86 +212,128 @@ fun SuiteCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(
-                    text = category,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = accentColor,
-                    fontFamily = getDmSansFontFamily(),
-                    letterSpacing = 1.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                // Header with M3 pill tag & logo
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = title,
-                        fontSize = 28.sp,
-                        lineHeight = 34.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = getMontserratFontFamily(),
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Surface(
+                        color = accentColor.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = category,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = accentColor,
+                            fontFamily = getDmSansFontFamily(),
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                        )
+                    }
+
                     Image(
                         painter = painterResource(logo),
                         contentDescription = "$title Logo",
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(44.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = title,
+                    fontSize = 28.sp,
+                    lineHeight = 34.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = getMontserratFontFamily(),
+                    color = Color(0xFF0F172A)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.Gray,
+                    color = Color(0xFF475569),
                     fontFamily = getDmSansFontFamily(),
-                    lineHeight = 20.sp
+                    lineHeight = 22.sp
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+
+                Spacer(modifier = Modifier.height(20.dp))
                 
                 features.forEach { feature ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = 5.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(6.dp)
-                                .background(accentColor, RoundedCornerShape(50))
+                                .clip(RoundedCornerShape(50))
+                                .background(accentColor)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = feature,
                             fontSize = 13.sp,
-                            color = Color.DarkGray,
-                            fontFamily = getDmSansFontFamily()
+                            color = Color(0xFF334155),
+                            fontFamily = getDmSansFontFamily(),
+                            lineHeight = 18.sp
                         )
                     }
                 }
             }
             
+            // Interactive M3 Text Action with authentic Material Icon vector
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .padding(top = 16.dp)
-                    .clickable(onClick = onClick)
+                    .padding(top = 20.dp)
+                    .pointerHoverIcon(PointerIcon.Hand)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick
+                    )
             ) {
                 Text(
                     text = "Pelajari Selengkapnya",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF60BD65),
+                    color = Color(0xFF00B5C8),
                     fontFamily = getDmSansFontFamily()
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "→",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF60BD65)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Canvas(modifier = Modifier.size(14.dp)) {
+                    val strokeWidth = 2.dp.toPx()
+                    val color = Color(0xFF00B5C8)
+                    // Horizontal arrow shaft
+                    drawLine(
+                        color = color,
+                        start = Offset(0f, size.height / 2f),
+                        end = Offset(size.width, size.height / 2f),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Round
+                    )
+                    // Upper arrowhead wing
+                    drawLine(
+                        color = color,
+                        start = Offset(size.width - 5.dp.toPx(), (size.height / 2f) - 5.dp.toPx()),
+                        end = Offset(size.width, size.height / 2f),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Round
+                    )
+                    // Lower arrowhead wing
+                    drawLine(
+                        color = color,
+                        start = Offset(size.width - 5.dp.toPx(), (size.height / 2f) + 5.dp.toPx()),
+                        end = Offset(size.width, size.height / 2f),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Round
+                    )
+                }
             }
         }
     }

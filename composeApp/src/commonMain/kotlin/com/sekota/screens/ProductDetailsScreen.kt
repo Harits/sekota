@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
@@ -53,14 +55,14 @@ fun ProductDetailsScreen(
             ?: AdminProduct(
                 id = "prd-veridia",
                 code = "VRD",
-                name = "VERIDIA",
+                name = "Veridia",
                 categoryEyebrow = "ESG & Carbon Intelligence",
-                description = "Platform analitik terpadu untuk pemantauan emisi karbon, kepatuhan regulasi lingkungan, dan mitigasi risiko transisi hijau perusahaan secara real-time.",
+                description = "Platform analitik komprehensif untuk pemantauan jejak karbon Scope 1, 2, dan 3, kepatuhan regulasi lingkungan, dan pelaporan ESG otomatis sesuai standar global.",
                 features = listOf(
-                    "Real-time Scope 1, 2, & 3 Carbon Footprint Auditing",
-                    "Automated Sustainability Reporting (GRI, ISSB, IDX-ESG)",
-                    "Predictive Decarbonization Scenario Modeling",
-                    "Interactive Stakeholder Governance Dashboard"
+                    "Audit Jejak Karbon Scope 1, 2, & 3 Real-time",
+                    "Pelaporan Keberlanjutan Otomatis (GRI, ISSB, IDX-ESG)",
+                    "Pemodelan Skenario Dekarbonisasi Prediktif",
+                    "Dashboard Tata Kelola Pemangku Kepentingan"
                 )
             )
     }
@@ -214,51 +216,111 @@ fun ProductDetailsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // CTA Action
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Tertarik mengadopsi ${product.name}?",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                fontFamily = getDmSansFontFamily(),
-                                color = Color(0xFF0F172A)
-                            )
-                            Text(
-                                text = "Konsultasikan arsitektur data institusi Anda dengan tim ahli Sekota.",
-                                fontSize = 13.sp,
-                                fontFamily = getDmSansFontFamily(),
-                                color = Color(0xFF64748B)
-                            )
-                        }
-
-                        Button(
-                            onClick = onConsultationClick,
-                            shape = RoundedCornerShape(100.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                            contentPadding = PaddingValues()
+                    if (isCompact) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
-                                        ),
-                                        shape = RoundedCornerShape(100.dp)
-                                    )
-                                    .padding(horizontal = 28.dp, vertical = 16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
-                                    text = "Konsultasikan Solusi",
-                                    color = Color.White,
+                                    text = "Tertarik mengadopsi ${product.name}?",
                                     fontWeight = FontWeight.Bold,
-                                    fontFamily = getDmSansFontFamily(),
-                                    fontSize = 14.sp
+                                    fontSize = 17.sp,
+                                    fontFamily = getMontserratFontFamily(),
+                                    color = Color(0xFF0F172A)
                                 )
+                                Text(
+                                    text = "Konsultasikan arsitektur data institusi Anda dengan tim ahli Sekota.",
+                                    fontSize = 14.sp,
+                                    fontFamily = getDmSansFontFamily(),
+                                    color = Color(0xFF64748B),
+                                    lineHeight = 20.sp
+                                )
+                            }
+
+                            Button(
+                                onClick = onConsultationClick,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                contentPadding = PaddingValues(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .pointerHoverIcon(PointerIcon.Hand)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
+                                            ),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Konsultasikan Solusi",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontSize = 15.sp
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f).padding(end = 32.dp)) {
+                                Text(
+                                    text = "Tertarik mengadopsi ${product.name}?",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    fontFamily = getMontserratFontFamily(),
+                                    color = Color(0xFF0F172A)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Konsultasikan arsitektur data institusi Anda dengan tim ahli Sekota.",
+                                    fontSize = 14.sp,
+                                    fontFamily = getDmSansFontFamily(),
+                                    color = Color(0xFF64748B)
+                                )
+                            }
+
+                            Button(
+                                onClick = onConsultationClick,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                contentPadding = PaddingValues(),
+                                modifier = Modifier
+                                    .height(52.dp)
+                                    .pointerHoverIcon(PointerIcon.Hand)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
+                                            ),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .padding(horizontal = 32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Konsultasikan Solusi",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontSize = 15.sp
+                                    )
+                                }
                             }
                         }
                     }
