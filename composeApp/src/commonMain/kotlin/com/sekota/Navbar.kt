@@ -95,7 +95,8 @@ fun Navbar(
             .fillMaxWidth()
             .background(Color.White)
     ) {
-        val isCompact = maxWidth < 840.dp
+        val containerWidth = maxWidth
+        val isCompact = containerWidth < 840.dp
 
         LaunchedEffect(isCompact) {
             if (!isCompact) {
@@ -344,11 +345,15 @@ fun Navbar(
             }
         } else {
             // Desktop Navbar (>= 840dp) with Row and Active Indicators
+            val isMediumDesktop = containerWidth < 1120.dp
+            val horizontalNavPadding = if (isMediumDesktop) 20.dp else 48.dp
+            val navItemSpacing = if (isMediumDesktop) 14.dp else 28.dp
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
-                    .padding(horizontal = 48.dp),
+                    .padding(horizontal = horizontalNavPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -357,14 +362,14 @@ fun Navbar(
                     modifier = Modifier.clickable { onNavigate(Screen.Landing) }
                 ) {
                     SekotaBrandLogo(
-                        iconSize = 38.dp,
-                        textSize = 26.sp
+                        iconSize = if (isMediumDesktop) 32.dp else 38.dp,
+                        textSize = if (isMediumDesktop) 22.sp else 26.sp
                     )
                 }
 
                 // Desktop Navigation Links
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(28.dp),
+                    horizontalArrangement = Arrangement.spacedBy(navItemSpacing),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Solusi
@@ -421,7 +426,7 @@ fun Navbar(
                 // Right Section: Status Pill & CTA
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(if (isMediumDesktop) 10.dp else 16.dp)
                 ) {
                     // Integrated Live Sync Status
                     Row(
@@ -447,7 +452,7 @@ fun Navbar(
                         )
                     }
 
-                    // Action Button
+                    // Action Button with nowrap guarantee and responsive padding
                     Button(
                         onClick = onConsultationClick,
                         shape = RoundedCornerShape(50),
@@ -462,7 +467,10 @@ fun Navbar(
                                     ),
                                     shape = RoundedCornerShape(50)
                                 )
-                                .padding(horizontal = 24.dp, vertical = 12.dp),
+                                .padding(
+                                    horizontal = if (isMediumDesktop) 16.dp else 24.dp,
+                                    vertical = 12.dp
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -470,7 +478,9 @@ fun Navbar(
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = getDmSansFontFamily(),
-                                fontSize = 14.sp
+                                fontSize = if (isMediumDesktop) 13.sp else 14.sp,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }

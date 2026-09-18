@@ -1,5 +1,5 @@
 package com.sekota
 
 enum class Screen {
-    Landing, Catalog, Details, Merchandise, Login, Signup, Profile, Admin
+    Landing, Catalog, Details, ProductDetails, Merchandise, Login, Signup, Profile, Admin
 }

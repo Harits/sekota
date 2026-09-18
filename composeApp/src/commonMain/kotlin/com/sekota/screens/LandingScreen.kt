@@ -22,12 +22,21 @@ import androidx.compose.ui.layout.positionInParent
 @Composable
 fun LandingScreen(
     onNavigate: (Screen) -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    onBookClick: (String) -> Unit = {},
+    onConsultationClick: () -> Unit = {},
     onSolusiPositioned: (Int) -> Unit = {},
     onProdukPositioned: (Int) -> Unit = {},
     onKontakPositioned: (Int) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        HeroSection()
+        HeroSection(
+            onExplorationClick = {
+                // Scroll or transition to Intelligence Suite
+                onProductClick("VRD")
+            },
+            onContactClick = onConsultationClick
+        )
         FeatureGrid()
         Box(
             modifier = Modifier
@@ -45,12 +54,19 @@ fun LandingScreen(
                     onProdukPositioned(coordinates.positionInParent().y.toInt())
                 }
         ) {
-            IntelligenceSuite()
+            IntelligenceSuite(
+                onProductClick = { product ->
+                    onProductClick(product.code)
+                }
+            )
         }
         EBookPromo(
-            onNavigateToCatalog = { onNavigate(Screen.Catalog) }
+            onNavigateToCatalog = { onNavigate(Screen.Catalog) },
+            onBookClick = { book -> onBookClick(book.id) }
         )
-        ValuePropDark()
+        ValuePropDark(
+            onConsultationClick = onConsultationClick
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,7 +76,11 @@ fun LandingScreen(
         ) {
             ContactFormSection()
         }
-        Footer()
+        Footer(
+            onNavigate = onNavigate,
+            onProductClick = onProductClick,
+            onKontakClick = onConsultationClick
+        )
     }
 }
 

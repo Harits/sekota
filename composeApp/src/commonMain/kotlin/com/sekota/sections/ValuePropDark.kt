@@ -31,14 +31,16 @@ import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
 
 @Composable
-fun ValuePropDark() {
+fun ValuePropDark(
+    onConsultationClick: () -> Unit = {}
+) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        ValuePropDarkContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth))
+        ValuePropDarkContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth), onConsultationClick)
     }
 }
 
 @Composable
-private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
+private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp, onConsultationClick: () -> Unit) {
     // The copy column and the two proof cards only fit side by side from Expanded;
     // narrower than that the pair stacks beneath the headline.
     val stacked = windowWidth.isAtMostMedium
@@ -83,7 +85,7 @@ private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp
                 )
                 Spacer(modifier = Modifier.height(48.dp))
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = onConsultationClick,
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     contentPadding = PaddingValues(),

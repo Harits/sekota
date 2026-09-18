@@ -26,16 +26,34 @@ import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.container
 import sekota.composeapp.generated.resources.logo_sekota
 
+import androidx.compose.foundation.clickable
+
 @Composable
-fun Footer() {
+fun Footer(
+    onNavigate: (Screen) -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    onKontakClick: () -> Unit = {}
+) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        FooterContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth))
+        FooterContent(
+            windowWidth = windowWidthOf(maxWidth),
+            horizontalPadding = contentHorizontalPadding(maxWidth),
+            onNavigate = onNavigate,
+            onProductClick = onProductClick,
+            onKontakClick = onKontakClick
+        )
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FooterContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
+private fun FooterContent(
+    windowWidth: WindowWidth,
+    horizontalPadding: Dp,
+    onNavigate: (Screen) -> Unit,
+    onProductClick: (String) -> Unit,
+    onKontakClick: () -> Unit
+) {
     val isCompact = windowWidth.isCompact
 
     Column(
@@ -49,7 +67,9 @@ private fun FooterContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
     ) {
         val branding = @Composable { modifier: Modifier ->
             Column(modifier = modifier) {
-                FooterLogo()
+                Box(modifier = Modifier.clickable { onNavigate(Screen.Landing) }) {
+                    FooterLogo()
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "Trusted Intelligence for Sustainable Impact. Memberdayakan keputusan strategis melalui data.",
@@ -96,19 +116,38 @@ private fun FooterContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
             // Column 2: Produk
             FooterColumn(
                 title = "PRODUK",
-                items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW")
+                items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW"),
+                onItemClick = { item ->
+                    val code = when (item) {
+                        "VERIDIA" -> "VRD"
+                        "ASCENDIO" -> "ASC"
+                        "SOCIARA" -> "SOC"
+                        "ECOFLOW" -> "ECO"
+                        else -> "VRD"
+                    }
+                    onProductClick(code)
+                }
             )
 
             // Column 3: Perusahaan
             FooterColumn(
                 title = "PERUSAHAAN",
-                items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak")
+                items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak"),
+                onItemClick = { item ->
+                    when (item) {
+                        "E-Book" -> onNavigate(Screen.Catalog)
+                        "Merchandise" -> onNavigate(Screen.Merchandise)
+                        "Kontak" -> onKontakClick()
+                        else -> onNavigate(Screen.Landing)
+                    }
+                }
             )
 
             // Column 4: Legal
             FooterColumn(
                 title = "LEGAL",
-                items = listOf("Privasi", "Syarat & Ketentuan")
+                items = listOf("Privasi", "Syarat & Ketentuan"),
+                onItemClick = {}
             )
         }
 
@@ -159,7 +198,11 @@ private fun FooterContent(windowWidth: WindowWidth, horizontalPadding: Dp) {
 }
 
 @Composable
-fun FooterColumn(title: String, items: List<String>) {
+fun FooterColumn(
+    title: String,
+    items: List<String>,
+    onItemClick: (String) -> Unit = {}
+) {
     Column(modifier = Modifier.widthIn(min = 140.dp)) {
         Text(
             text = title,
@@ -173,7 +216,9 @@ fun FooterColumn(title: String, items: List<String>) {
                 text = item,
                 fontSize = 14.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(bottom = 20.dp),
+                modifier = Modifier
+                    .padding(bottom = 20.dp)
+                    .clickable { onItemClick(item) },
                 fontFamily = getDmSansFontFamily()
             )
         }

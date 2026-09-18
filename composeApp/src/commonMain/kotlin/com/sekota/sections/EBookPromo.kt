@@ -163,8 +163,7 @@ private fun EBookPromoContent(
                 )
             }
         } else {
-            // 4 across only from Large; a 420dp-tall card needs ~240dp of width
-            // before its title and description start clipping.
+            // 4 across only from Large; consistent with ProductCard in Catalog
             val columns = when (windowWidth) {
                 WindowWidth.Compact -> 1
                 WindowWidth.Medium -> 2
@@ -180,9 +179,15 @@ private fun EBookPromoContent(
                     ) {
                         rowBooks.forEachIndexed { colIndex, book ->
                             val color = palette[(rowIndex * columns + colIndex) % palette.size]
-                            EBookCard(
-                                book = book,
-                                color = color,
+                            com.sekota.components.ProductCard(
+                                title = book.title,
+                                authorOrSubtitle = "${book.author} • ${book.category}",
+                                rating = book.rating,
+                                buttonText = "Lihat Detail",
+                                imageColor = color,
+                                imageUrlOrBase64 = book.coverImage,
+                                cardHeight = if (columns >= 3) 520.dp else 480.dp,
+                                coverHeight = if (columns >= 3) 340.dp else 300.dp,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onBookClick(book) }
                             )

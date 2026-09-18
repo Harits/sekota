@@ -1,5 +1,6 @@
 package com.sekota.sections
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.usecase.GetAdminProductsUseCase
 import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.WindowWidth
+import com.sekota.ui.gridSpacing
 import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.sectionVerticalPadding
 import com.sekota.ui.windowWidthOf
@@ -32,20 +34,28 @@ import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.*
 
 @Composable
-fun IntelligenceSuite() {
+fun IntelligenceSuite(
+    onProductClick: (AdminProduct) -> Unit = {}
+) {
     val repository = remember { AdminRepositoryImpl() }
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
     var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         products = getProductsUseCase()
+        syncService.syncEventFlow.collect {
+            products = getProductsUseCase()
+        }
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val windowWidth = windowWidthOf(maxWidth)
-        // Two side-by-side suite cards need ~360dp each to hold their feature list.
-        val columns = if (windowWidth.isAtMostMedium) 1 else 2
-        val gridSpacing = if (windowWidth.isCompact) 20.dp else 32.dp
+        val columns = when (windowWidth) {
+            WindowWidth.Compact -> 1
+            WindowWidth.Medium, WindowWidth.Expanded -> 2
+            WindowWidth.Large, WindowWidth.ExtraLarge -> 4
+        }
+        val gridSpacing = windowWidth.gridSpacing
 
     Column(
         modifier = Modifier
@@ -120,7 +130,8 @@ fun IntelligenceSuite() {
                             accentColor = accentColor,
                             compactPadding = windowWidth.isCompact,
                             minHeight = if (columns == 1) 0.dp else 480.dp,
-                            modifier = Modifier.weight(1f).fillMaxHeight()
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            onClick = { onProductClick(product) }
                         )
                     }
                     repeat(columns - rowProducts.size) {
@@ -164,15 +175,13 @@ fun SuiteCard(
     accentColor: Color,
     modifier: Modifier = Modifier,
     compactPadding: Boolean = false,
-    // In a 2-up grid the pair is equalised to a 480dp floor so the cards line up.
-    // A single full-width card has no partner to match, so it wraps its content
-    // instead of stranding whitespace above the footer link.
-    minHeight: androidx.compose.ui.unit.Dp = 480.dp
+    minHeight: androidx.compose.ui.unit.Dp = 480.dp,
+    onClick: () -> Unit = {}
 ) {
     Card(
-        // heightIn rather than a fixed height: a narrow card wraps its description
-        // and feature list onto more lines and must be allowed to grow.
-        modifier = modifier.heightIn(min = minHeight),
+        modifier = modifier
+            .heightIn(min = minHeight)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -247,7 +256,9 @@ fun SuiteCard(
             
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .clickable(onClick = onClick)
             ) {
                 Text(
                     text = "Pelajari Selengkapnya",

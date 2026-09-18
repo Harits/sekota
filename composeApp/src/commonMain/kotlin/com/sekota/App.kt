@@ -63,6 +63,34 @@ fun App() {
     var produkOffsetY by remember { mutableStateOf(0) }
     var kontakOffsetY by remember { mutableStateOf(0) }
 
+    var selectedProductCode by remember { mutableStateOf("VRD") }
+    var pendingLandingSection by remember { mutableStateOf<NavbarActiveSection?>(null) }
+
+    // Deferred scroll effect: When navigating to LandingScreen from other screens,
+    // wait for LandingScreen to mount and scroll smoothly to the target section.
+    LaunchedEffect(currentScreen, pendingLandingSection) {
+        if (currentScreen == Screen.Landing && pendingLandingSection != null) {
+            val section = pendingLandingSection
+            pendingLandingSection = null
+            kotlinx.coroutines.delay(100) // Brief frame delay for layout measurement
+            when (section) {
+                NavbarActiveSection.SOLUSI -> {
+                    val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
+                    landingScroll.animateScrollTo(targetY)
+                }
+                NavbarActiveSection.PRODUK -> {
+                    val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
+                    landingScroll.animateScrollTo(targetY)
+                }
+                NavbarActiveSection.KONTAK -> {
+                    val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                    landingScroll.animateScrollTo(targetY)
+                }
+                NavbarActiveSection.NONE, null -> {}
+            }
+        }
+    }
+
     // Synchronize active nav pill based on scroll position while on LandingScreen
     LaunchedEffect(landingScroll.value, currentScreen) {
         if (currentScreen == Screen.Landing) {
@@ -101,6 +129,21 @@ fun App() {
                         ) {
                             LandingScreen(
                                 onNavigate = { screen -> currentScreen = screen },
+                                onProductClick = { code ->
+                                    selectedProductCode = code
+                                    currentScreen = Screen.ProductDetails
+                                },
+                                onBookClick = { bookId ->
+                                    selectedBookId = bookId
+                                    currentScreen = Screen.Details
+                                },
+                                onConsultationClick = {
+                                    activeLandingSection = NavbarActiveSection.KONTAK
+                                    coroutineScope.launch {
+                                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                                        landingScroll.animateScrollTo(targetY)
+                                    }
+                                },
                                 onSolusiPositioned = { y -> solusiOffsetY = y },
                                 onProdukPositioned = { y -> produkOffsetY = y },
                                 onKontakPositioned = { y -> kontakOffsetY = y }
@@ -136,6 +179,26 @@ fun App() {
                                 onRequestAuth = { onSuccess ->
                                     pendingAction = onSuccess
                                     showAuthGateDialog = true
+                                }
+                            )
+                        }
+                    }
+                    Screen.ProductDetails -> {
+                        val productDetailsScroll = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(productDetailsScroll)
+                        ) {
+                            com.sekota.screens.ProductDetailsScreen(
+                                productCode = selectedProductCode,
+                                onNavigateBack = {
+                                    currentScreen = Screen.Landing
+                                    pendingLandingSection = NavbarActiveSection.PRODUK
+                                },
+                                onConsultationClick = {
+                                    currentScreen = Screen.Landing
+                                    pendingLandingSection = NavbarActiveSection.KONTAK
                                 }
                             )
                         }
@@ -201,35 +264,51 @@ fun App() {
                     .zIndex(10f),
                 onNavigate = { screen -> currentScreen = screen },
                 onSolusiClick = {
-                    currentScreen = Screen.Landing
                     activeLandingSection = NavbarActiveSection.SOLUSI
-                    coroutineScope.launch {
-                        val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
-                        landingScroll.animateScrollTo(targetY)
+                    if (currentScreen != Screen.Landing) {
+                        pendingLandingSection = NavbarActiveSection.SOLUSI
+                        currentScreen = Screen.Landing
+                    } else {
+                        coroutineScope.launch {
+                            val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
+                            landingScroll.animateScrollTo(targetY)
+                        }
                     }
                 },
                 onProdukClick = {
-                    currentScreen = Screen.Landing
                     activeLandingSection = NavbarActiveSection.PRODUK
-                    coroutineScope.launch {
-                        val targetY = if (produkOffsetY > 0) produkOffsetY else 1200
-                        landingScroll.animateScrollTo(targetY)
+                    if (currentScreen != Screen.Landing) {
+                        pendingLandingSection = NavbarActiveSection.PRODUK
+                        currentScreen = Screen.Landing
+                    } else {
+                        coroutineScope.launch {
+                            val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
+                            landingScroll.animateScrollTo(targetY)
+                        }
                     }
                 },
                 onKontakClick = {
-                    currentScreen = Screen.Landing
                     activeLandingSection = NavbarActiveSection.KONTAK
-                    coroutineScope.launch {
-                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                        landingScroll.animateScrollTo(targetY)
+                    if (currentScreen != Screen.Landing) {
+                        pendingLandingSection = NavbarActiveSection.KONTAK
+                        currentScreen = Screen.Landing
+                    } else {
+                        coroutineScope.launch {
+                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                            landingScroll.animateScrollTo(targetY)
+                        }
                     }
                 },
                 onConsultationClick = {
-                    currentScreen = Screen.Landing
                     activeLandingSection = NavbarActiveSection.KONTAK
-                    coroutineScope.launch {
-                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                        landingScroll.animateScrollTo(targetY)
+                    if (currentScreen != Screen.Landing) {
+                        pendingLandingSection = NavbarActiveSection.KONTAK
+                        currentScreen = Screen.Landing
+                    } else {
+                        coroutineScope.launch {
+                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                            landingScroll.animateScrollTo(targetY)
+                        }
                     }
                 }
             )

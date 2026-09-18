@@ -32,6 +32,7 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.ui.WindowWidth
 import com.sekota.ui.windowWidthOf
@@ -54,10 +55,12 @@ fun AdminDashboardScreen(
     val deleteMerchUseCase = remember { DeleteAdminMerchUseCase(repository) }
     val getLiveMetricsUseCase = remember { GetAdminLiveMetricsUseCase(repository) }
     val saveLiveMetricsUseCase = remember { SaveAdminLiveMetricsUseCase(repository) }
+    val getInquiriesUseCase = remember { GetAdminInquiriesUseCase(repository) }
+    val deleteInquiryUseCase = remember { DeleteAdminInquiryUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics")
-    val icons = listOf("📝", "🛠", "🛒", "ℹ️")
+    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Client Inquiries")
+    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "📩")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
@@ -106,6 +109,7 @@ fun AdminDashboardScreen(
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
+                        4 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
 
@@ -210,6 +214,7 @@ fun AdminDashboardScreen(
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
+                        4 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
             }
@@ -1300,6 +1305,170 @@ fun MetricCardEditor(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Update Metrik", fontFamily = getDmSansFontFamily(), fontSize = 13.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun ClientInquiriesTab(
+    getInquiriesUseCase: GetAdminInquiriesUseCase,
+    deleteInquiryUseCase: DeleteAdminInquiryUseCase,
+    windowWidth: WindowWidth
+) {
+    val scope = rememberCoroutineScope()
+    var inquiries by remember { mutableStateOf<List<ClientInquiry>>(emptyList()) }
+    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var selectedInquiry by remember { mutableStateOf<ClientInquiry?>(null) }
+
+    LaunchedEffect(Unit) {
+        inquiries = getInquiriesUseCase()
+        com.sekota.syncService.syncEventFlow.collect {
+            inquiries = getInquiriesUseCase()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        WorkbenchHeader(
+            title = "Client Inquiries",
+            subtitle = "Kelola konsultasi strategis dan pesan kemitraan yang masuk dari portal publik Sekota.",
+            windowWidth = windowWidth
+        )
+
+        statusFeedback?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    fontFamily = getDmSansFontFamily(),
+                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (inquiries.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(Color.White, RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "📩", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Belum ada pesan konsultasi masuk.",
+                        fontFamily = getDmSansFontFamily(),
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(inquiries, key = { it.id }) { inquiry ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Surface(
+                                        color = BrandTeal.copy(alpha = 0.15f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            text = inquiry.status.uppercase(),
+                                            fontFamily = getDmSansFontFamily(),
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            color = BrandTeal,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = inquiry.timestamp,
+                                        fontFamily = getDmSansFontFamily(),
+                                        color = Color.Gray,
+                                        fontSize = 13.sp
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            val res = deleteInquiryUseCase(inquiry.id)
+                                            if (res.isSuccess) {
+                                                inquiries = getInquiriesUseCase()
+                                                statusFeedback = "✅ Pesan dari ${inquiry.name} berhasil dihapus"
+                                            } else {
+                                                statusFeedback = "❌ Gagal menghapus pesan"
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Text("🗑️", fontSize = 16.sp)
+                                }
+                            }
+
+                            Text(
+                                text = inquiry.name,
+                                fontFamily = getMontserratFontFamily(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = InkNavy
+                            )
+
+                            Text(
+                                text = inquiry.email,
+                                fontFamily = getDmSansFontFamily(),
+                                color = BrandTeal,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp
+                            )
+
+                            Surface(
+                                color = Color(0xFFF8FAFC),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = inquiry.message,
+                                    fontFamily = getDmSansFontFamily(),
+                                    color = Color(0xFF334155),
+                                    fontSize = 14.sp,
+                                    lineHeight = 22.sp,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
