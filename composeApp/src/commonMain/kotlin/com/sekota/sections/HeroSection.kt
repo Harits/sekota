@@ -32,8 +32,13 @@ import com.sekota.syncService
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import com.sekota.components.SekotaIconMark
 
@@ -49,6 +54,7 @@ fun HeroSection(
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
     var liveMetrics by remember { mutableStateOf(AdminLiveMetrics()) }
     var productCount by remember { mutableStateOf(4) }
+    var activeCardIndex by remember { mutableStateOf(0) } // 0 = Live Metrics front, 1 = Intelligence Suite front
 
     LaunchedEffect(Unit) {
         liveMetrics = getLiveMetricsUseCase()
@@ -209,7 +215,13 @@ fun HeroSection(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    MetricsGraphic(liveMetrics = liveMetrics, productCount = productCount, isCompact = true)
+                    MetricsGraphic(
+                        liveMetrics = liveMetrics,
+                        productCount = productCount,
+                        isCompact = true,
+                        activeCardIndex = activeCardIndex,
+                        onActiveCardChange = { activeCardIndex = it }
+                    )
                 }
             }
         } else {
@@ -336,7 +348,13 @@ fun HeroSection(
                     modifier = Modifier.weight(0.9f),
                     contentAlignment = Alignment.Center
                 ) {
-                    MetricsGraphic(liveMetrics = liveMetrics, productCount = productCount, isCompact = false)
+                    MetricsGraphic(
+                        liveMetrics = liveMetrics,
+                        productCount = productCount,
+                        isCompact = false,
+                        activeCardIndex = activeCardIndex,
+                        onActiveCardChange = { activeCardIndex = it }
+                    )
                 }
             }
         }
@@ -344,8 +362,13 @@ fun HeroSection(
 }
 
 @Composable
-fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: Boolean) {
-    var activeCardIndex by remember { mutableStateOf(0) } // 0 = Live Metrics front, 1 = Intelligence Suite front
+fun MetricsGraphic(
+    liveMetrics: AdminLiveMetrics,
+    productCount: Int,
+    isCompact: Boolean,
+    activeCardIndex: Int = 0,
+    onActiveCardChange: (Int) -> Unit = {}
+) {
 
     val boxWidth = if (isCompact) 320.dp else 500.dp
     val boxHeight = if (isCompact) 350.dp else 450.dp
@@ -402,7 +425,25 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
     Box(
         modifier = Modifier
             .width(boxWidth)
-            .height(boxHeight),
+            .height(boxHeight)
+            .pointerInput(Unit) {
+                var totalDragX = 0f
+                detectDragGestures(
+                    onDragStart = { totalDragX = 0f },
+                    onDragEnd = {
+                        if (totalDragX < -30f) {
+                            onActiveCardChange(1)
+                        } else if (totalDragX > 30f) {
+                            onActiveCardChange(0)
+                        }
+                    },
+                    onDragCancel = { totalDragX = 0f },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        totalDragX += dragAmount.x
+                    }
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         // Intelligence Suite Box (Product Count Card)
@@ -431,7 +472,13 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                     ),
                     RoundedCornerShape(32.dp)
                 )
-                .clickable { activeCardIndex = 1 }
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onActiveCardChange(if (activeCardIndex == 1) 0 else 1)
+                }
                 .padding(if (isCompact) 22.dp else 28.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -461,7 +508,8 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                         // Selected Card Indicator dots on Suite Card
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -470,7 +518,10 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                                         if (activeCardIndex == 0) Color.White else Color.White.copy(alpha = 0.45f),
                                         CircleShape
                                     )
-                                    .clickable { activeCardIndex = 0 }
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { onActiveCardChange(0) }
                             )
                             Box(
                                 modifier = Modifier
@@ -479,7 +530,10 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                                         if (activeCardIndex == 1) Color.White else Color.White.copy(alpha = 0.45f),
                                         CircleShape
                                     )
-                                    .clickable { activeCardIndex = 1 }
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { onActiveCardChange(1) }
                             )
                         }
 
@@ -528,7 +582,13 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                     spotColor = Color.Black.copy(alpha = 0.12f)
                 )
                 .background(Color.White, shape = RoundedCornerShape(24.dp))
-                .clickable { activeCardIndex = 0 }
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onActiveCardChange(if (activeCardIndex == 0) 1 else 0)
+                }
                 .padding(if (isCompact) 20.dp else 28.dp)
                 .width(cardWidth)
         ) {
@@ -549,7 +609,8 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                     // Clickable indicator dots to switch card
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                     ) {
                         Box(
                             modifier = Modifier
@@ -558,7 +619,10 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                                     if (activeCardIndex == 0) Color(0xFF02B6CF) else Color(0xFF02B6CF).copy(alpha = 0.35f),
                                     CircleShape
                                 )
-                                .clickable { activeCardIndex = 0 }
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { onActiveCardChange(0) }
                         )
                         Box(
                             modifier = Modifier
@@ -567,7 +631,10 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
                                     if (activeCardIndex == 1) Color(0xFF60BD65) else Color(0xFF60BD65).copy(alpha = 0.35f),
                                     CircleShape
                                 )
-                                .clickable { activeCardIndex = 1 }
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { onActiveCardChange(1) }
                         )
                     }
                 }
