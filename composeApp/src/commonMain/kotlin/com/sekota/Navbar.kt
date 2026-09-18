@@ -47,11 +47,8 @@ fun SekotaBrandLogo(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
-        Image(
-            painter = painterResource(Res.drawable.icon_sekota),
-            contentDescription = "Sekota Icon",
-            modifier = Modifier.size(iconSize),
-            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+        com.sekota.components.SekotaIconMark(
+            size = iconSize
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -93,25 +90,26 @@ fun Navbar(
     // Rule 10: Interactive state hoisted outside nested BoxWithConstraints for Wasm canvas determinism
     var isMobileMenuOpen by remember { mutableStateOf(false) }
 
-    // Rule 10: Use onSizeChanged to derive isCompact instead of BoxWithConstraints.
-    // BoxWithConstraints content lambda has unreliable recomposition in Skiko Wasm.
-    var isCompact by remember { mutableStateOf(true) }
-    val density = androidx.compose.ui.platform.LocalDensity.current
-
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
-            .onSizeChanged { size ->
-                val widthDp = with(density) { size.width.toDp() }
-                isCompact = widthDp < 840.dp
-            }
     ) {
+        val isCompact = maxWidth < 840.dp
 
-        if (isCompact) {
-            // Mobile Compact Navbar (< 840dp) with M3 App Bar, live sync indicator, and Hamburger menu
-            Row(
-                modifier = Modifier
+        LaunchedEffect(isCompact) {
+            if (!isCompact) {
+                isMobileMenuOpen = false
+            }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (isCompact) {
+                // Mobile Compact Navbar (< 840dp) with M3 App Bar, live sync indicator, and Hamburger menu
+                Row(
+                    modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp)
                     .padding(horizontal = 16.dp),
@@ -481,6 +479,8 @@ fun Navbar(
         }
     }
 }
+}
+
 
 @Composable
 private fun DesktopNavItem(

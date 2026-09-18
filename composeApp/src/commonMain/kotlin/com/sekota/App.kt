@@ -79,20 +79,13 @@ fun App() {
         syncService.connect(coroutineScope)
     }
     
-    // Rule 10: window width derived via onSizeChanged rather than BoxWithConstraints,
-    // so the sticky-navbar offset recomposes deterministically on the Skiko Wasm canvas.
-    var windowWidth by remember { mutableStateOf(WindowWidth.Compact) }
-    val density = LocalDensity.current
-
     MaterialTheme {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFFAFAFA))
-                .onSizeChanged { size ->
-                    windowWidth = windowWidthOf(with(density) { size.width.toDp() })
-                }
         ) {
+            val windowWidth = windowWidthOf(maxWidth)
             // Screen Content Container
             Box(
                 modifier = Modifier

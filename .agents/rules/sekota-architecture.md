@@ -58,7 +58,8 @@ trigger: always_on
 
 10. **Compose Multiplatform Wasm Rendering & State Safeguards**:
     - **Interactive State Hoisting**: State interaktif seperti toggle menu drawer, dialogs, atau expanding sheets DILARANG didefinisikan di dalam nested layout constraints (`BoxWithConstraints`). Wajib di-hoist ke level fungsi Composable teratas atau state holder untuk menjamin determinisme recomposition pada Skiko Wasm canvas.
-    - **Vector Graphic & Clip-Path Invariant**: Hindari penggunaan Vector XML yang memiliki tag `<clip-path>` kompleks dan gradien linear bersudut di Skiko Wasm untuk logo utama. Gunakan icon mark sederhana (`icon_sekota.xml`) dipadukan dengan tipografi native Compose (`Text` dengan font Montserrat & DM Sans) agar brand rendering tampil konsisten tanpa glitch di Wasm, Desktop, dan Mobile.
+    - **Synchronous Breakpoint Measurement**: Gunakan `BoxWithConstraints` di level layout teratas untuk mengukur breakpoint responsif (`isCompact`, `WindowWidth`) secara sinkron pada frame pertama (Frame 0). DILARANG menggunakan fallback `onSizeChanged` dengan initial state dummy (seperti `isCompact = true`), karena memicu 1-frame flash layout mobile pada layar desktop.
+    - **Zero-Latency In-Memory Brand Vector Rendering**: Untuk elemen identitas visual utama yang berada di *above-the-fold* (seperti logo icon Sekota pada top app bar), HINDARI ketergantungan pada `painterResource` asinkron melalui jaringan Wasm HTTP. Wajib menggunakan render vektor native Compose berbasis `Canvas` dan `PathParser` in-memory (`SekotaIconMark`) agar brand mark tampil instan pada frame pertama tanpa delay jaringan dan bebas dari bug repaint/invalidation Skiko Wasm.
 
 11. **CMS Workbench Adaptive Layout Standards**:
     - Grid kartu di CMS Workbench (misal `IntelligenceSuiteTab`, `MerchandiseTab`) DILARANG menggunakan `GridCells.Fixed` yang kaku.
