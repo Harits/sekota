@@ -33,7 +33,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.zIndex
+import com.sekota.components.SekotaIconMark
 
 private val InkNavy = Color(0xFF0D1F2D)
 
@@ -353,297 +355,297 @@ fun MetricsGraphic(liveMetrics: AdminLiveMetrics, productCount: Int, isCompact: 
 
     val cardWidth = if (isCompact) 280.dp else 320.dp
 
-    // Smooth animated transitions for card positions, elevations, and scale
-    val metricsZIndex by animateFloatAsState(targetValue = if (activeCardIndex == 0) 2f else 1f, animationSpec = tween(400))
-    val suiteZIndex by animateFloatAsState(targetValue = if (activeCardIndex == 1) 2f else 1f, animationSpec = tween(400))
+    // Smooth animated transitions for card positions, scale, rotation, and elevation (deck shuffle feel)
+    val metricsZIndex by animateFloatAsState(targetValue = if (activeCardIndex == 0) 3f else 1f, animationSpec = tween(450))
+    val suiteZIndex by animateFloatAsState(targetValue = if (activeCardIndex == 1) 3f else 1f, animationSpec = tween(450))
 
-    val metricsScale by animateFloatAsState(targetValue = if (activeCardIndex == 0) 1.0f else 0.94f, animationSpec = tween(400))
-    val suiteScale by animateFloatAsState(targetValue = if (activeCardIndex == 1) 1.0f else 0.94f, animationSpec = tween(400))
+    val metricsScale by animateFloatAsState(targetValue = if (activeCardIndex == 0) 1.0f else 0.93f, animationSpec = tween(450))
+    val suiteScale by animateFloatAsState(targetValue = if (activeCardIndex == 1) 1.0f else 0.93f, animationSpec = tween(450))
+
+    val metricsRotation by animateFloatAsState(targetValue = if (activeCardIndex == 0) 0f else 2.5f, animationSpec = tween(450))
+    val suiteRotation by animateFloatAsState(targetValue = if (activeCardIndex == 1) 0f else -2.5f, animationSpec = tween(450))
 
     val metricsOffsetX by animateFloatAsState(
         targetValue = if (activeCardIndex == 0) {
-            if (isCompact) 20f else -10f
+            if (isCompact) 16f else -10f
         } else {
-            if (isCompact) -10f else 40f
+            if (isCompact) 36f else 50f
         },
-        animationSpec = tween(400)
+        animationSpec = tween(450)
     )
     val metricsOffsetY by animateFloatAsState(
         targetValue = if (activeCardIndex == 0) {
-            if (isCompact) 40f else 20f
+            if (isCompact) 40f else 30f
         } else {
-            if (isCompact) -30f else -50f
+            if (isCompact) -10f else -40f
         },
-        animationSpec = tween(400)
+        animationSpec = tween(450)
     )
 
     val suiteOffsetX by animateFloatAsState(
         targetValue = if (activeCardIndex == 1) {
-            if (isCompact) 20f else 10f
+            if (isCompact) 20f else 20f
         } else {
-            if (isCompact) 0f else 20f
+            if (isCompact) -10f else 0f
         },
-        animationSpec = tween(400)
+        animationSpec = tween(450)
     )
     val suiteOffsetY by animateFloatAsState(
         targetValue = if (activeCardIndex == 1) {
-            if (isCompact) 30f else 20f
+            if (isCompact) 40f else 30f
         } else {
-            if (isCompact) -40f else -60f
+            if (isCompact) -20f else -40f
         },
-        animationSpec = tween(400)
+        animationSpec = tween(450)
     )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    Box(
+        modifier = Modifier
+            .width(boxWidth)
+            .height(boxHeight),
+        contentAlignment = Alignment.Center
     ) {
+        // Intelligence Suite Box (Product Count Card)
         Box(
             modifier = Modifier
-                .width(boxWidth)
-                .height(boxHeight)
+                .align(if (isCompact) Alignment.TopStart else Alignment.BottomStart)
+                .offset(x = suiteOffsetX.dp, y = suiteOffsetY.dp)
+                .zIndex(suiteZIndex)
+                .graphicsLayer {
+                    scaleX = suiteScale
+                    scaleY = suiteScale
+                    rotationZ = suiteRotation
+                }
+                .size(width = suiteBoxWidth, height = suiteBoxHeight)
+                .shadow(
+                    elevation = if (activeCardIndex == 1) 24.dp else 6.dp,
+                    shape = RoundedCornerShape(32.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.15f),
+                    spotColor = Color.Black.copy(alpha = 0.15f)
+                )
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65)),
+                        start = Offset(0f, 0f),
+                        end = Offset.Infinite
+                    ),
+                    RoundedCornerShape(32.dp)
+                )
+                .clickable { activeCardIndex = 1 }
+                .padding(if (isCompact) 22.dp else 28.dp),
+            contentAlignment = Alignment.CenterStart
         ) {
-            // Intelligence Suite Box (Product Count Card)
-            Box(
-                modifier = Modifier
-                    .align(if (isCompact) Alignment.TopStart else Alignment.BottomStart)
-                    .offset(x = suiteOffsetX.dp, y = suiteOffsetY.dp)
-                    .zIndex(suiteZIndex)
-                    .size(width = suiteBoxWidth, height = suiteBoxHeight)
-                    .shadow(
-                        elevation = if (activeCardIndex == 1) 24.dp else 8.dp,
-                        shape = RoundedCornerShape(32.dp),
-                        ambientColor = Color.Black.copy(alpha = 0.1f),
-                        spotColor = Color.Black.copy(alpha = 0.1f)
-                    )
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65)),
-                            start = Offset(0f, 0f),
-                            end = Offset.Infinite
-                        ),
-                        RoundedCornerShape(32.dp)
-                    )
-                    .clickable { activeCardIndex = 1 }
-                    .padding(if (isCompact) 24.dp else 32.dp),
-                contentAlignment = Alignment.CenterStart
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(if (isCompact) 8.dp else 16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "$productCount",
-                            color = Color.White,
-                            fontSize = if (isCompact) 56.sp else 76.sp,
-                            lineHeight = if (isCompact) 56.sp else 76.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = getMontserratFontFamily()
-                        )
-                        // Mini interactive flip hint icon
-                        Surface(
-                            color = Color.White.copy(alpha = 0.2f),
-                            shape = CircleShape,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("⇄", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
+                // Header row with product count, Sekota brand mark, and card switcher indicator dots
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
                     Text(
-                        "INTELLIGENCE SUITE\nPRODUCTS",
+                        "$productCount",
                         color = Color.White,
-                        fontSize = if (isCompact) 14.sp else 16.sp,
-                        lineHeight = if (isCompact) 18.sp else 20.sp,
+                        fontSize = if (isCompact) 54.sp else 72.sp,
+                        lineHeight = if (isCompact) 54.sp else 72.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = getMontserratFontFamily()
                     )
-                }
-            }
 
-            // Live Metrics Card bound to AdminLiveMetrics
-            Box(
-                modifier = Modifier
-                    .align(if (isCompact) Alignment.BottomEnd else Alignment.CenterEnd)
-                    .offset(x = metricsOffsetX.dp, y = metricsOffsetY.dp)
-                    .zIndex(metricsZIndex)
-                    .shadow(
-                        elevation = if (activeCardIndex == 0) 30.dp else 8.dp,
-                        shape = RoundedCornerShape(24.dp),
-                        ambientColor = Color.Black.copy(alpha = 0.08f),
-                        spotColor = Color.Black.copy(alpha = 0.08f)
-                    )
-                    .background(Color.White, shape = RoundedCornerShape(24.dp))
-                    .clickable { activeCardIndex = 0 }
-                    .padding(if (isCompact) 20.dp else 28.dp)
-                    .width(cardWidth)
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(if (isCompact) 16.dp else 20.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            "LIVE METRICS",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Gray,
-                            fontFamily = getMontserratFontFamily(),
-                            letterSpacing = 1.sp
-                        )
-                        // Clickable indicator dots to switch card
+                        // Selected Card Indicator dots on Suite Card
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(if (activeCardIndex == 0) 10.dp else 8.dp)
+                                    .size(if (activeCardIndex == 0) 10.dp else 7.dp)
                                     .background(
-                                        if (activeCardIndex == 0) Color(0xFF02B6CF) else Color(0xFF02B6CF).copy(alpha = 0.35f),
+                                        if (activeCardIndex == 0) Color.White else Color.White.copy(alpha = 0.45f),
                                         CircleShape
                                     )
                                     .clickable { activeCardIndex = 0 }
                             )
                             Box(
                                 modifier = Modifier
-                                    .size(if (activeCardIndex == 1) 10.dp else 8.dp)
+                                    .size(if (activeCardIndex == 1) 10.dp else 7.dp)
                                     .background(
-                                        if (activeCardIndex == 1) Color(0xFF60BD65) else Color(0xFF60BD65).copy(alpha = 0.35f),
+                                        if (activeCardIndex == 1) Color.White else Color.White.copy(alpha = 0.45f),
                                         CircleShape
                                     )
                                     .clickable { activeCardIndex = 1 }
                             )
                         }
-                    }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        // Sekota Icon Mark inside frosted pill badge
+                        Surface(
+                            color = Color.White.copy(alpha = 0.25f),
+                            shape = CircleShape,
+                            modifier = Modifier.size(if (isCompact) 36.dp else 42.dp)
                         ) {
-                            Text(
-                                "Data Accuracy",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                fontFamily = getMontserratFontFamily()
-                            )
-                            Text(
-                                liveMetrics.dataAccuracy,
-                                color = Color(0xFF60BD65),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                fontFamily = getMontserratFontFamily()
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(8.dp)
-                                .background(Color(0xFFF3F4F6), RoundedCornerShape(4.dp))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(0.998f)
-                                    .fillMaxHeight()
-                                    .background(
-                                        Brush.linearGradient(listOf(Color(0xFF02B6CF), Color(0xFF60BD65))),
-                                        RoundedCornerShape(4.dp)
-                                    )
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                liveMetrics.totalClients,
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = if (isCompact) 20.sp else 24.sp,
-                                fontFamily = getMontserratFontFamily(),
-                                color = Color(0xFF111827)
-                            )
-                            Text(
-                                "KLIEN & MITRA",
-                                fontSize = 10.sp,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = getMontserratFontFamily()
-                            )
-                        }
-                        Column {
-                            Text(
-                                liveMetrics.establishedYear,
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = if (isCompact) 20.sp else 24.sp,
-                                fontFamily = getMontserratFontFamily(),
-                                color = Color(0xFF111827)
-                            )
-                            Text(
-                                "TAHUN BERDIRI",
-                                fontSize = 10.sp,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = getMontserratFontFamily()
-                            )
+                            Box(contentAlignment = Alignment.Center) {
+                                SekotaIconMark(
+                                    size = if (isCompact) 20.dp else 24.dp,
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 }
+
+                Text(
+                    "INTELLIGENCE SUITE\nPRODUCTS",
+                    color = Color.White,
+                    fontSize = if (isCompact) 13.sp else 15.sp,
+                    lineHeight = if (isCompact) 17.sp else 19.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = getMontserratFontFamily()
+                )
             }
         }
 
-        // Dedicated switcher pills under graphic
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                color = if (activeCardIndex == 0) InkNavy else Color(0xFFE2E8F0),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.clickable { activeCardIndex = 0 }
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.size(6.dp).background(if (activeCardIndex == 0) Color(0xFF02B6CF) else Color.Gray, CircleShape))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        "Live Metrics",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (activeCardIndex == 0) Color.White else Color(0xFF475569),
-                        fontFamily = getDmSansFontFamily()
-                    )
+        // Live Metrics Card bound to AdminLiveMetrics
+        Box(
+            modifier = Modifier
+                .align(if (isCompact) Alignment.BottomEnd else Alignment.CenterEnd)
+                .offset(x = metricsOffsetX.dp, y = metricsOffsetY.dp)
+                .zIndex(metricsZIndex)
+                .graphicsLayer {
+                    scaleX = metricsScale
+                    scaleY = metricsScale
+                    rotationZ = metricsRotation
                 }
-            }
-
-            Surface(
-                color = if (activeCardIndex == 1) InkNavy else Color(0xFFE2E8F0),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.clickable { activeCardIndex = 1 }
-            ) {
+                .shadow(
+                    elevation = if (activeCardIndex == 0) 30.dp else 6.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.12f),
+                    spotColor = Color.Black.copy(alpha = 0.12f)
+                )
+                .background(Color.White, shape = RoundedCornerShape(24.dp))
+                .clickable { activeCardIndex = 0 }
+                .padding(if (isCompact) 20.dp else 28.dp)
+                .width(cardWidth)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(if (isCompact) 16.dp else 20.dp)) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.size(6.dp).background(if (activeCardIndex == 1) Color(0xFF60BD65) else Color.Gray, CircleShape))
-                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Intelligence Suite",
-                        fontSize = 11.sp,
+                        "LIVE METRICS",
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (activeCardIndex == 1) Color.White else Color(0xFF475569),
-                        fontFamily = getDmSansFontFamily()
+                        color = Color.Gray,
+                        fontFamily = getMontserratFontFamily(),
+                        letterSpacing = 1.sp
                     )
+                    // Clickable indicator dots to switch card
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(if (activeCardIndex == 0) 10.dp else 7.dp)
+                                .background(
+                                    if (activeCardIndex == 0) Color(0xFF02B6CF) else Color(0xFF02B6CF).copy(alpha = 0.35f),
+                                    CircleShape
+                                )
+                                .clickable { activeCardIndex = 0 }
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(if (activeCardIndex == 1) 10.dp else 7.dp)
+                                .background(
+                                    if (activeCardIndex == 1) Color(0xFF60BD65) else Color(0xFF60BD65).copy(alpha = 0.35f),
+                                    CircleShape
+                                )
+                                .clickable { activeCardIndex = 1 }
+                        )
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Data Accuracy",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            fontFamily = getMontserratFontFamily()
+                        )
+                        Text(
+                            liveMetrics.dataAccuracy,
+                            color = Color(0xFF60BD65),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            fontFamily = getMontserratFontFamily()
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .background(Color(0xFFF3F4F6), RoundedCornerShape(4.dp))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.998f)
+                                .fillMaxHeight()
+                                .background(
+                                    Brush.linearGradient(listOf(Color(0xFF02B6CF), Color(0xFF60BD65))),
+                                    RoundedCornerShape(4.dp)
+                                )
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            liveMetrics.totalClients,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = if (isCompact) 20.sp else 24.sp,
+                            fontFamily = getMontserratFontFamily(),
+                            color = Color(0xFF111827)
+                        )
+                        Text(
+                            "KLIEN & MITRA",
+                            fontSize = 10.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = getMontserratFontFamily()
+                        )
+                    }
+                    Column {
+                        Text(
+                            liveMetrics.establishedYear,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = if (isCompact) 20.sp else 24.sp,
+                            fontFamily = getMontserratFontFamily(),
+                            color = Color(0xFF111827)
+                        )
+                        Text(
+                            "TAHUN BERDIRI",
+                            fontSize = 10.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = getMontserratFontFamily()
+                        )
+                    }
                 }
             }
         }

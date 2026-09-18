@@ -20,6 +20,7 @@ private val BrandTeal = Color(0xFF02B6CF)
 @Composable
 fun SekotaIconMark(
     size: Dp = 34.dp,
+    tint: Color? = null,
     modifier: Modifier = Modifier
 ) {
     val paths = remember {
@@ -63,7 +64,11 @@ fun SekotaIconMark(
         val scaleFactor = this.size.minDimension / 147f
         scale(scaleFactor, pivot = Offset.Zero) {
             for ((path, brush) in paths) {
-                drawPath(path, brush = brush)
+                if (tint != null) {
+                    drawPath(path, color = tint)
+                } else {
+                    drawPath(path, brush = brush)
+                }
             }
         }
     }
