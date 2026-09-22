@@ -17,7 +17,7 @@ import com.sekota.*
 import com.sekota.sections.*
 
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 
 @Composable
 fun LandingScreen(

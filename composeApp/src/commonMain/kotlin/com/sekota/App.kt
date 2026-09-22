@@ -72,7 +72,14 @@ fun App() {
         if (currentScreen == Screen.Landing && pendingLandingSection != null) {
             val section = pendingLandingSection
             pendingLandingSection = null
-            kotlinx.coroutines.delay(100) // Brief frame delay for layout measurement
+            // Wait for layout measurement to settle on Skiko canvas
+            var attempts = 0
+            while (attempts < 15 && ((section == NavbarActiveSection.KONTAK && kontakOffsetY == 0) ||
+                                     (section == NavbarActiveSection.PRODUK && produkOffsetY == 0) ||
+                                     (section == NavbarActiveSection.SOLUSI && solusiOffsetY == 0))) {
+                kotlinx.coroutines.delay(50)
+                attempts++
+            }
             when (section) {
                 NavbarActiveSection.SOLUSI -> {
                     val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
@@ -83,7 +90,11 @@ fun App() {
                     landingScroll.animateScrollTo(targetY)
                 }
                 NavbarActiveSection.KONTAK -> {
-                    val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                    val targetY = when {
+                        kontakOffsetY > 0 -> kontakOffsetY
+                        landingScroll.maxValue > 0 -> landingScroll.maxValue
+                        else -> 3800
+                    }
                     landingScroll.animateScrollTo(targetY)
                 }
                 NavbarActiveSection.NONE, null -> {}

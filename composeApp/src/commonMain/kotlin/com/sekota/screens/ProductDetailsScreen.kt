@@ -247,26 +247,20 @@ fun ProductDetailsScreen(
                                     .fillMaxWidth()
                                     .height(52.dp)
                                     .pointerHoverIcon(PointerIcon.Hand)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            brush = Brush.linearGradient(
-                                                colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
-                                            ),
-                                            shape = RoundedCornerShape(12.dp)
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
                                         ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "Konsultasikan Solusi",
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = getDmSansFontFamily(),
-                                        fontSize = 15.sp
+                                        shape = RoundedCornerShape(12.dp)
                                     )
-                                }
+                            ) {
+                                Text(
+                                    text = "Konsultasikan Solusi",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 15.sp
+                                )
                             }
                         }
                     } else {
@@ -296,31 +290,24 @@ fun ProductDetailsScreen(
                                 onClick = onConsultationClick,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                contentPadding = PaddingValues(),
+                                contentPadding = PaddingValues(horizontal = 32.dp),
                                 modifier = Modifier
                                     .height(52.dp)
                                     .pointerHoverIcon(PointerIcon.Hand)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .background(
-                                            brush = Brush.linearGradient(
-                                                colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
-                                            ),
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                        .padding(horizontal = 32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "Konsultasikan Solusi",
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = getDmSansFontFamily(),
-                                        fontSize = 15.sp
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            colors = listOf(Color(0xFF02B6CF), Color(0xFF60BD65))
+                                        ),
+                                        shape = RoundedCornerShape(12.dp)
                                     )
-                                }
+                            ) {
+                                Text(
+                                    text = "Konsultasikan Solusi",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 15.sp
+                                )
                             }
                         }
                     }
