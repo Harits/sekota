@@ -70,3 +70,10 @@ This file contains the high-level roadmap, user stories, and architectural bound
   - *Description*: Visual CMS workbench with **Web Metadata Enrichment Dialog** (`✏️ Kelola Tampilan Web`), master catalog sync with `bookinteractiontool`, image upload file picker, Live Metrics editor, and inquiry reviewer.
 - [x] **WP-027: UC-CMS-04 - Products, Merchandise & Live Sync Integration** (OpenProject ID: 22403)
   - *Description*: Intelligence Suite CRUD, Merchandise store with image picker, dynamic Web Catalog to Book Details navigation, and real-time cross-platform sync.
+- [x] **WP-028: [WEB-04-01] - Web Sekota UX/UI Responsive, Navigation & Consultation Pipeline** (OpenProject ID: 22413)
+  - *Description*: Implementasi eksplorasi interaktif Hero, navigasi mulus antar section & konsultasi, pipeline ClientInquiry CMS Workbench, dan multi-state Compose Previews komprehensif.
+  - *Child Tasks*:
+    - `#22435` [WEB-04-01-01] Refactor Hero Exploration CTA & M3 Action Buttons
+    - `#22436` [WEB-04-01-02] Cross-Screen Consultation Navigation & Scroll Targeting
+    - `#22437` [WEB-04-01-03] Full-Stack Client Inquiries Pipeline & CMS Inquiries Suite
+    - `#22438` [WEB-04-01-04] Author Comprehensive Multi-State Desktop & Mobile Compose Previews
