@@ -168,3 +168,67 @@ fun ProductCardPreview() {
         ) {}
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductCardZeroRatingPreview() {
+    MaterialTheme {
+        ProductCard(
+            title = "Katalog Publikasi Riset Maritim 2026",
+            authorOrSubtitle = "SEKOTA RESEARCH INSTITUTE",
+            rating = 0.0,
+            buttonText = "Baca Sekarang"
+        ) {}
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductCardCustomButtonPreview() {
+    MaterialTheme {
+        ProductCard(
+            title = "Sekota Ceramic Mug - Edition 01",
+            authorOrSubtitle = "LIMITED MERCHANDISE",
+            rating = 5.0,
+            buttonText = "Order Now",
+            imageUrlOrBase64 = "☕"
+        ) {}
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFF0D1F2D)
+@Composable
+fun ProductCardDarkBackgroundPreview() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier
+                .background(Color(0xFF0D1F2D))
+                .padding(24.dp)
+        ) {
+            ProductCard(
+                title = "Sekota Signature Hoodie",
+                authorOrSubtitle = "APPAREL & MERCH",
+                rating = 4.7,
+                buttonText = "View Details",
+                imageUrlOrBase64 = "👕"
+            ) {}
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductCardCompactPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(260.dp).padding(16.dp)) {
+            ProductCard(
+                title = "White Notebook A5",
+                authorOrSubtitle = "STATIONERY",
+                rating = 4.5,
+                cardHeight = 440.dp,
+                coverHeight = 260.dp,
+                buttonText = "View Details"
+            ) {}
+        }
+    }
+}

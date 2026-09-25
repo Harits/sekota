@@ -737,5 +737,88 @@ fun MetricsGraphic(
 @Preview(backgroundColor = 0xffffffff, showBackground = true, device = DESKTOP)
 @Composable
 fun HeroSectionPreview() {
-    HeroSection()
+    androidx.compose.material3.MaterialTheme {
+        HeroSection()
+    }
 }
+
+@Preview(backgroundColor = 0xffffffff, showBackground = true, device = DESKTOP)
+@Composable
+fun HeroSectionDesktopPreview() {
+    androidx.compose.material3.MaterialTheme {
+        HeroSection()
+    }
+}
+
+@Preview(backgroundColor = 0xffffffff, showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+fun HeroSectionCompactPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Box(modifier = Modifier.width(390.dp)) {
+            HeroSection()
+        }
+    }
+}
+
+@Preview(backgroundColor = 0xffffffff, showBackground = true, device = DESKTOP)
+@Composable
+fun HeroMetricsGraphicPreview() {
+    androidx.compose.material3.MaterialTheme {
+        val sampleMetrics = AdminLiveMetrics(
+            dataAccuracy = "99.8%",
+            totalClients = "40+",
+            establishedYear = "2024"
+        )
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+            Text(
+                "Active Card Index 0 (Live Metrics Front)",
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                MetricsGraphic(
+                    liveMetrics = sampleMetrics,
+                    productCount = 4,
+                    isCompact = false,
+                    activeCardIndex = 0
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Active Card Index 1 (Intelligence Suite Front)",
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                MetricsGraphic(
+                    liveMetrics = sampleMetrics,
+                    productCount = 4,
+                    isCompact = false,
+                    activeCardIndex = 1
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Active Card Index 2 / Compact Variant",
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                MetricsGraphic(
+                    liveMetrics = sampleMetrics,
+                    productCount = 4,
+                    isCompact = true,
+                    activeCardIndex = 0
+                )
+            }
+        }
+    }
+}
+

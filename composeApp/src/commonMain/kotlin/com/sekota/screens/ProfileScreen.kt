@@ -476,3 +476,20 @@ fun ProfileScreenPreview() {
         )
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProfileScreenErrorPreview() {
+    MaterialTheme {
+        ProfileScreen(
+            getProfileUseCase = GetProfileUseCase(object : ProfileRepository {
+                override suspend fun getProfile(): Result<UserProfile> =
+                    Result.failure(Exception("Sesi login telah kedaluwarsa. Silakan masuk kembali."))
+                override suspend fun updateProfile(profile: UserProfile): Result<UserProfile> =
+                    Result.failure(Exception("Gagal"))
+            }),
+            updateProfileUseCase = UpdateProfileUseCase(DummyProfileRepository()),
+            onLogout = {}
+        )
+    }
+}

@@ -207,5 +207,46 @@ fun FeatureCard(
 @Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFFF8FAFB)
 @Composable
 fun FeatureGridPreview() {
-    FeatureGrid()
+    androidx.compose.material3.MaterialTheme {
+        FeatureGrid()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFFF8FAFB)
+@Composable
+fun FeatureCardPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            FeatureCard(
+                title = "Data Tidak Terintegrasi",
+                description = "Silo data antar departemen dan sistem yang tidak terhubung menghasilkan insight yang fragmentaris dan tidak dapat diandalkan untuk keputusan level eksekutif.",
+                icon = Res.drawable.icon,
+                iconBgColor = Color(0xFFFEE2E2),
+                iconTintColor = Color(0xFFE24B4A),
+                modifier = Modifier.weight(1f)
+            )
+            FeatureCard(
+                title = "AI Tanpa Transparansi",
+                description = "Penggunaan AI yang tidak dapat dijelaskan (black-box) memicu krisis kepercayaan internal dan eksternal, serta risiko kepatuhan regulasi yang semakin ketat.",
+                icon = Res.drawable.icon_1,
+                iconBgColor = Color(0xFFFEF3C7),
+                iconTintColor = Color(0xFFEF9F27),
+                modifier = Modifier.weight(1f)
+            )
+            FeatureCard(
+                title = "ESG Hanya Beban Administratif",
+                description = "Pelaporan ESG yang terpisah dari operasional bisnis menjadikannya beban birokrasi, bukan kompas strategis yang mendorong nilai jangka panjang.",
+                icon = Res.drawable.icon_2,
+                iconBgColor = Color(0xFFDBEAFE),
+                iconTintColor = Color(0xFF378ADD),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+

@@ -194,7 +194,7 @@ fun AdminLoginScreen(
     }
 }
 
-@Preview(device = DESKTOP)
+@Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun AdminLoginScreenPreview() {
     MaterialTheme {
@@ -205,6 +205,27 @@ fun AdminLoginScreenPreview() {
                 )
                 override suspend fun signup(request: AuthRequest) = Result.success(
                     com.sekota.features.auth.domain.model.AuthResponse("dummy", "u1", "ADMIN")
+                )
+                override fun getToken(): String? = null
+                override fun saveToken(token: String) {}
+                override fun clearToken() {}
+            }),
+            onLoginSuccess = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun AdminLoginScreenErrorPreview() {
+    MaterialTheme {
+        AdminLoginScreen(
+            loginUseCase = LoginUseCase(object : com.sekota.features.auth.domain.repository.AuthRepository {
+                override suspend fun login(request: AuthRequest) = Result.failure<com.sekota.features.auth.domain.model.AuthResponse>(
+                    Exception("Kredensial tidak valid. Silakan periksa email dan kata sandi Anda.")
+                )
+                override suspend fun signup(request: AuthRequest) = Result.failure<com.sekota.features.auth.domain.model.AuthResponse>(
+                    Exception("Gagal")
                 )
                 override fun getToken(): String? = null
                 override fun saveToken(token: String) {}

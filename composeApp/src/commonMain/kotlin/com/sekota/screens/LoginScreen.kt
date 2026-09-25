@@ -67,145 +67,172 @@ fun LoginScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = if (isMobile) 0.dp else 2.dp),
             border = if (isMobile) androidx.compose.foundation.BorderStroke(1.dp, Color(0x1A0D1F2D)) else null
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(cardPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Sign In",
-                    fontFamily = getMontserratFontFamily(),
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = if (isMobile) 28.sp else 36.sp,
-                    color = Color(0xFF0D1F2D), // Ink Navy
-                    letterSpacing = (-1).sp,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Text(
-                    text = "Access Trusted Intelligence.",
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Normal,
-                    fontSize = if (isMobile) 14.sp else 16.sp,
-                    color = Color(0x99143244), // Ink Secondary
-                    modifier = Modifier.padding(bottom = if (isMobile) 32.dp else 40.dp)
-                )
-
-                // Email Input
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)) {
-                    Text(
-                        text = "EMAIL ADDRESS",
-                        fontFamily = getDmSansFontFamily(),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFF0D1F2D)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    TextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("reader@sekota.com", color = Color(0x330D1F2D)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF7FAFB),
-                            unfocusedContainerColor = Color(0xFFF7FAFB),
-                            focusedIndicatorColor = Color(0xFF00B5C8), // Brand Teal
-                            unfocusedIndicatorColor = Color(0x1A0D1F2D) // Whisper Hairline
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = getDmSansFontFamily(), fontSize = 15.sp, color = Color(0xFF0D1F2D))
-                    )
-                }
-
-                // Password Input
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)) {
-                    Text(
-                        text = "PASSWORD",
-                        fontFamily = getDmSansFontFamily(),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFF0D1F2D)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    TextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        placeholder = { Text("Enter your password", color = Color(0x330D1F2D)) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF7FAFB),
-                            unfocusedContainerColor = Color(0xFFF7FAFB),
-                            focusedIndicatorColor = Color(0xFF00B5C8), // Brand Teal
-                            unfocusedIndicatorColor = Color(0x1A0D1F2D)
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        singleLine = true,
-                        textStyle = androidx.compose.ui.text.TextStyle(fontFamily = getDmSansFontFamily(), fontSize = 15.sp, color = Color(0xFF0D1F2D))
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        scope.launch {
-                            isLoading = true
-                            errorMessage = null
-                            val result = loginUseCase(AuthRequest(email.trim(), password))
-                            isLoading = false
-                            if (result.isSuccess) {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: "Authentication failed"
-                            }
+            LoginCardContent(
+                email = email,
+                onEmailChange = { email = it },
+                password = password,
+                onPasswordChange = { password = it },
+                isLoading = isLoading,
+                errorMessage = errorMessage,
+                isMobile = isMobile,
+                cardPadding = cardPadding,
+                onSubmit = {
+                    scope.launch {
+                        isLoading = true
+                        errorMessage = null
+                        val result = loginUseCase(AuthRequest(email.trim(), password))
+                        isLoading = false
+                        if (result.isSuccess) {
+                            onLoginSuccess()
+                        } else {
+                            errorMessage = result.exceptionOrNull()?.message ?: "Authentication failed"
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(9999.dp), // Pill Button
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)), // Ink Navy
-                    enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(
-                            "Sign In",
-                            fontFamily = getDmSansFontFamily(),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = Color.White
-                        )
                     }
-                }
-                
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage!!,
-                        color = Color.Red,
-                        fontFamily = getDmSansFontFamily(),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                }
+                },
+                onNavigateToSignup = onNavigateToSignup
+            )
+        }
+    }
+}
 
-                TextButton(
-                    onClick = onNavigateToSignup,
-                    modifier = Modifier.padding(top = 20.dp)
-                ) {
-                    Text(
-                        "Don't have an account? Sign Up",
-                        fontFamily = getDmSansFontFamily(),
-                        color = Color(0xFF00B5C8), // Brand Teal
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
-                    )
-                }
+@Composable
+fun LoginCardContent(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    isMobile: Boolean = false,
+    cardPadding: androidx.compose.ui.unit.Dp = 48.dp,
+    onSubmit: () -> Unit,
+    onNavigateToSignup: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(cardPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Sign In",
+            fontFamily = getMontserratFontFamily(),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = if (isMobile) 28.sp else 36.sp,
+            color = Color(0xFF0D1F2D), // Ink Navy
+            letterSpacing = (-1).sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Text(
+            text = "Access Trusted Intelligence.",
+            fontFamily = getDmSansFontFamily(),
+            fontWeight = FontWeight.Normal,
+            fontSize = if (isMobile) 14.sp else 16.sp,
+            color = Color(0x99143244), // Ink Secondary
+            modifier = Modifier.padding(bottom = if (isMobile) 32.dp else 40.dp)
+        )
+
+        // Email Input
+        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)) {
+            Text(
+                text = "EMAIL ADDRESS",
+                fontFamily = getDmSansFontFamily(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp,
+                letterSpacing = 1.sp,
+                color = Color(0xFF0D1F2D)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            TextField(
+                value = email,
+                onValueChange = onEmailChange,
+                placeholder = { Text("reader@sekota.com", color = Color(0x330D1F2D)) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFF7FAFB),
+                    unfocusedContainerColor = Color(0xFFF7FAFB),
+                    focusedIndicatorColor = Color(0xFF00B5C8), // Brand Teal
+                    unfocusedIndicatorColor = Color(0x1A0D1F2D) // Whisper Hairline
+                ),
+                shape = RoundedCornerShape(8.dp),
+                singleLine = true,
+                textStyle = androidx.compose.ui.text.TextStyle(fontFamily = getDmSansFontFamily(), fontSize = 15.sp, color = Color(0xFF0D1F2D))
+            )
+        }
+
+        // Password Input
+        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)) {
+            Text(
+                text = "PASSWORD",
+                fontFamily = getDmSansFontFamily(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp,
+                letterSpacing = 1.sp,
+                color = Color(0xFF0D1F2D)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            TextField(
+                value = password,
+                onValueChange = onPasswordChange,
+                placeholder = { Text("Enter your password", color = Color(0x330D1F2D)) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFF7FAFB),
+                    unfocusedContainerColor = Color(0xFFF7FAFB),
+                    focusedIndicatorColor = Color(0xFF00B5C8), // Brand Teal
+                    unfocusedIndicatorColor = Color(0x1A0D1F2D)
+                ),
+                shape = RoundedCornerShape(8.dp),
+                singleLine = true,
+                textStyle = androidx.compose.ui.text.TextStyle(fontFamily = getDmSansFontFamily(), fontSize = 15.sp, color = Color(0xFF0D1F2D))
+            )
+        }
+
+        Button(
+            onClick = onSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(9999.dp), // Pill Button
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1F2D)), // Ink Navy
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            } else {
+                Text(
+                    "Sign In",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
             }
+        }
+        
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontFamily = getDmSansFontFamily(),
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
+
+        TextButton(
+            onClick = onNavigateToSignup,
+            modifier = Modifier.padding(top = 20.dp)
+        ) {
+            Text(
+                "Don't have an account? Sign Up",
+                fontFamily = getDmSansFontFamily(),
+                color = Color(0xFF00B5C8), // Brand Teal
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -229,5 +256,92 @@ fun LoginScreenPreview() {
             onLoginSuccess = {},
             onNavigateToSignup = {}
         )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun LoginScreenFilledPreview() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color(0xFFF7FAFB)).padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.width(440.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                LoginCardContent(
+                    email = "reader@sekota.com",
+                    onEmailChange = {},
+                    password = "secretpassword123",
+                    onPasswordChange = {},
+                    isLoading = false,
+                    errorMessage = null,
+                    onSubmit = {},
+                    onNavigateToSignup = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun LoginScreenLoadingPreview() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color(0xFFF7FAFB)).padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.width(440.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                LoginCardContent(
+                    email = "reader@sekota.com",
+                    onEmailChange = {},
+                    password = "secretpassword123",
+                    onPasswordChange = {},
+                    isLoading = true,
+                    errorMessage = null,
+                    onSubmit = {},
+                    onNavigateToSignup = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun LoginScreenErrorPreview() {
+    MaterialTheme {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color(0xFFF7FAFB)).padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier.width(440.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                LoginCardContent(
+                    email = "wrong@sekota.com",
+                    onEmailChange = {},
+                    password = "wrongpassword",
+                    onPasswordChange = {},
+                    isLoading = false,
+                    errorMessage = "Kredensial tidak valid. Silakan periksa kembali email dan password.",
+                    onSubmit = {},
+                    onNavigateToSignup = {}
+                )
+            }
+        }
     }
 }

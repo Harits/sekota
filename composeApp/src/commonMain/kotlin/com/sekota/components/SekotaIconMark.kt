@@ -1,9 +1,15 @@
 package com.sekota.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -11,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.tooling.preview.Devices.DESKTOP
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -73,3 +81,42 @@ fun SekotaIconMark(
         }
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun SekotaIconMarkDefaultGradientPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier.padding(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SekotaIconMark(size = 34.dp)
+            SekotaIconMark(size = 64.dp)
+            SekotaIconMark(size = 120.dp)
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFF0D1F2D)
+@Composable
+fun SekotaIconMarkTintedPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier
+                .background(Color(0xFF0D1F2D))
+                .padding(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // White monochrome on dark surface
+            SekotaIconMark(size = 48.dp, tint = Color.White)
+            // Brand Teal tinted
+            SekotaIconMark(size = 48.dp, tint = BrandTeal)
+            // Brand Green tinted
+            SekotaIconMark(size = 48.dp, tint = BrandGreen)
+        }
+    }
+}
+
+

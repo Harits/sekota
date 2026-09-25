@@ -321,6 +321,40 @@ fun ProductDetailsScreen(
 @Composable
 fun ProductDetailsScreenPreview() {
     MaterialTheme {
-        ProductDetailsScreen()
+        ProductDetailsScreen(productCode = "VRD")
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun ProductDetailsAscendioPreview() {
+    MaterialTheme {
+        ProductDetailsScreen(productCode = "ASC")
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun ProductDetailsSociaraPreview() {
+    MaterialTheme {
+        ProductDetailsScreen(productCode = "SOC")
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun ProductDetailsEcoflowPreview() {
+    MaterialTheme {
+        ProductDetailsScreen(productCode = "ECO")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProductDetailsCompactPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(375.dp)) {
+            ProductDetailsScreen(productCode = "VRD")
+        }
     }
 }

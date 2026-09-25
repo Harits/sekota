@@ -378,15 +378,28 @@ fun PromoBox(
 @Composable
 fun FilterSectionPreview() {
     val options = listOf("All", "Self-Improvement", "Social-Improvement", "Sustainablity", "Other")
-    val selectedOptions = remember { mutableStateListOf("All") }
+    val selectedOptionsEmpty = remember { mutableStateListOf("All") }
+    val selectedOptionsActive = remember { mutableStateListOf("Self-Improvement", "Sustainablity") }
     MaterialTheme {
-        Surface(color = Color.Black) {
-            FilterSection(
-                title = "Genre",
-                options = options,
-                selectedOptions = selectedOptions,
-                modifier = Modifier.padding(16.dp)
-            )
+        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+            Column {
+                Text("Default / Empty Filter (All):", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                FilterSection(
+                    title = "Genre",
+                    options = options,
+                    selectedOptions = selectedOptionsEmpty,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            Column {
+                Text("Active Selections:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                FilterSection(
+                    title = "Genre",
+                    options = options,
+                    selectedOptions = selectedOptionsActive,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }
@@ -395,9 +408,18 @@ fun FilterSectionPreview() {
 @Composable
 fun SearchSectionPreview() {
     MaterialTheme {
-        Surface(color = Color.Black) {
+        Column(
+            modifier = Modifier.padding(16.dp).width(300.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Empty Query:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
             SearchSection(
                 query = "",
+                onQueryChange = {}
+            )
+            Text("Active Query:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            SearchSection(
+                query = "Smart City Governance",
                 onQueryChange = {}
             )
         }
@@ -408,7 +430,21 @@ fun SearchSectionPreview() {
 @Composable
 fun SortSectionPreview() {
     MaterialTheme {
-            SortSection()
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Column(modifier = Modifier.width(260.dp)) {
+                Text("Sort Closed (Newest):", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                SortSection(selectedSort = "Newest", onSortChange = {})
+            }
+            Column(modifier = Modifier.width(260.dp)) {
+                Text("Sort Closed (Rating Tertinggi):", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                SortSection(selectedSort = "Rating Tertinggi", onSortChange = {})
+            }
+        }
     }
 }
 
@@ -417,7 +453,21 @@ fun SortSectionPreview() {
 fun SidebarFilterPreview() {
     MaterialTheme {
         Row {
-            SidebarFilter(onNavigate = {}, isMerchandise = false)
+            SidebarFilter(
+                onNavigate = {},
+                isMerchandise = false,
+                searchQuery = "",
+                selectedSort = "Newest",
+                selectedOptions = listOf("All")
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            SidebarFilter(
+                onNavigate = {},
+                isMerchandise = false,
+                searchQuery = "ESG",
+                selectedSort = "Rating Tertinggi",
+                selectedOptions = listOf("ESG", "Urban Mobility")
+            )
             Spacer(modifier = Modifier.width(16.dp))
             SidebarFilter(onNavigate = {}, isMerchandise = true)
         }

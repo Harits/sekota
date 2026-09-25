@@ -234,8 +234,31 @@ fun FooterLogo() {
     )
 }
 
-@Preview(device = DESKTOP)
+@Preview(showBackground = true)
+@Composable
+fun FooterColumnPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            FooterColumn(
+                title = "PRODUK",
+                items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW")
+            )
+            FooterColumn(
+                title = "PERUSAHAAN",
+                items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak")
+            )
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun FooterPreview() {
-    Footer()
+    androidx.compose.material3.MaterialTheme {
+        Footer()
+    }
 }
+

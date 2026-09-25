@@ -368,5 +368,75 @@ fun EBookCard(
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun EBookPromoPreview() {
-    EBookPromo()
+    androidx.compose.material3.MaterialTheme {
+        EBookPromo()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun EBookCardPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                "EBookCard Variants (Categories: ESG, Smart City, Intelligence)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                EBookCard(
+                    book = AdminBook(
+                        id = "book-preview-1",
+                        title = "Strategi Integrasi ESG Berkelanjutan",
+                        author = "Tim Riset Sekota",
+                        isbn = "978-623-00-0001-1",
+                        category = "ESG",
+                        rating = 4.9,
+                        description = "Panduan taktis implementasi dan pengukuran metrik ESG pada korporasi modern.",
+                        coverImage = null
+                    ),
+                    color = Color(0xFF388E3C),
+                    modifier = Modifier.weight(1f)
+                )
+
+                EBookCard(
+                    book = AdminBook(
+                        id = "book-preview-2",
+                        title = "Arsitektur Data Smart City 2026",
+                        author = "Bappenas & Sekota",
+                        isbn = "978-623-00-0002-2",
+                        category = "Smart City",
+                        rating = 4.8,
+                        description = "Cetak blueprint transformasi digital dan infrastruktur data kota cerdas terintegrasi.",
+                        coverImage = null
+                    ),
+                    color = Color(0xFF1976D2),
+                    modifier = Modifier.weight(1f)
+                )
+
+                EBookCard(
+                    book = AdminBook(
+                        id = "book-preview-3",
+                        title = "Intelligence Suite: Predictive Governance",
+                        author = "Sekota AI Lab",
+                        isbn = "978-623-00-0003-3",
+                        category = "Intelligence",
+                        rating = 5.0,
+                        description = "Penerapan model analitik prediktif untuk manajemen risiko sosial dan reputasi.",
+                        coverImage = null
+                    ),
+                    color = Color(0xFF673AB7),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+

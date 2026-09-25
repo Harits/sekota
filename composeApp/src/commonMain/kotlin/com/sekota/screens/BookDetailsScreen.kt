@@ -660,3 +660,88 @@ fun BookDetailsScreenPreview() {
         BookDetailsScreen()
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun BookDetailsZeroRatingPreview() {
+    MaterialTheme {
+        BookDetailsScreen(bookId = "new-publication-zero")
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun WhatsInsideSectionPreview() {
+    val esgBook = AdminBook(
+        id = "esg-playbook",
+        title = "Panduan Praktis Dekarbonisasi",
+        author = "Sekota Sustainability",
+        isbn = "978-623-00001",
+        category = "ESG",
+        description = "Panduan transisi hijau untuk eksekutif korporasi.",
+        rating = 4.9,
+        ratingCount = 850,
+        readingTime = "4H 15M",
+        pages = 280
+    )
+    val smartCityBook = AdminBook(
+        id = "smart-city-playbook",
+        title = "Orkestrator Kota Cerdas",
+        author = "Tim Riset Sekota",
+        isbn = "978-623-00002",
+        category = "SMART CITY",
+        description = "Arsitektur integrasi data sensor dan mobilitas perkotaan.",
+        rating = 4.7,
+        ratingCount = 620,
+        readingTime = "3H 30M",
+        pages = 220
+    )
+    MaterialTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text("ESG Chapters Preview:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            WhatsInsideSection(book = esgBook, readingTime = esgBook.readingTime)
+            
+            Text("Smart City Chapters Preview:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            WhatsInsideSection(book = smartCityBook, readingTime = smartCityBook.readingTime)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BookCoverPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            BookCover(
+                title = "BLIND SPOT\nRADAR",
+                modifier = Modifier.width(200.dp).height(280.dp)
+            )
+            BookCover(
+                title = "ESG CORPORATE\nGOVERNANCE",
+                modifier = Modifier.width(200.dp).height(280.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MetadataItemPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier.padding(16.dp).background(Color(0xFFF1F4F7)).padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            MetadataItem(label = "PUBLISHED", value = "Nov 2025")
+            MetadataItem(label = "PAGES", value = "240")
+            MetadataItem(label = "LANGUAGE", value = "Indonesia")
+            MetadataItem(label = "FORMAT", value = "eBook, PDF")
+        }
+    }
+}

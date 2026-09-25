@@ -39,14 +39,16 @@ fun AuthGateDialog(
     subtitle: String = "Please sign in or create an identity to proceed.",
     loginUseCase: LoginUseCase,
     signupUseCase: SignupUseCase,
+    initialMode: AuthGateMode = AuthGateMode.SIGN_IN,
+    initialErrorMessage: String? = null,
     onDismissRequest: () -> Unit,
     onAuthSuccess: () -> Unit
 ) {
-    var mode by remember { mutableStateOf(AuthGateMode.SIGN_IN) }
+    var mode by remember { mutableStateOf(initialMode) }
     var emailOrUsername by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(initialErrorMessage) }
     val scope = rememberCoroutineScope()
 
     Dialog(
@@ -266,3 +268,78 @@ fun AuthGateDialog(
         }
     }
 }
+
+private class MockAuthRepository(private val shouldSucceed: Boolean = true) : com.sekota.features.auth.domain.repository.AuthRepository {
+    override suspend fun login(request: AuthRequest): Result<com.sekota.features.auth.domain.model.AuthResponse> {
+        return if (shouldSucceed) {
+            Result.success(com.sekota.features.auth.domain.model.AuthResponse(token = "mock-token", userId = "mock-user", role = "READER"))
+        } else {
+            Result.failure(Exception("Kombinasi email atau password salah."))
+        }
+    }
+
+    override suspend fun signup(request: AuthRequest): Result<com.sekota.features.auth.domain.model.AuthResponse> {
+        return if (shouldSucceed) {
+            Result.success(com.sekota.features.auth.domain.model.AuthResponse(token = "mock-token", userId = "mock-user", role = "READER"))
+        } else {
+            Result.failure(Exception("Username sudah terdaftar."))
+        }
+    }
+
+    override fun getToken(): String? = "mock-token"
+    override fun saveToken(token: String) {}
+    override fun clearToken() {}
+}
+
+@androidx.compose.ui.tooling.preview.Preview(device = androidx.compose.ui.tooling.preview.Devices.DESKTOP, showBackground = true)
+@Composable
+fun AuthGateDialogSignInPreview() {
+    val mockRepo = remember { MockAuthRepository() }
+    MaterialTheme {
+        AuthGateDialog(
+            title = "Akses Khusus Pembaca",
+            subtitle = "Masuk atau daftarkan identitas Anda untuk melanjutkan membaca buku ini.",
+            loginUseCase = LoginUseCase(mockRepo),
+            signupUseCase = SignupUseCase(mockRepo),
+            initialMode = AuthGateMode.SIGN_IN,
+            onDismissRequest = {},
+            onAuthSuccess = {}
+        )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(device = androidx.compose.ui.tooling.preview.Devices.DESKTOP, showBackground = true)
+@Composable
+fun AuthGateDialogRegisterPreview() {
+    val mockRepo = remember { MockAuthRepository() }
+    MaterialTheme {
+        AuthGateDialog(
+            title = "Buat Identitas Baru",
+            subtitle = "Daftarkan akun kolaborator untuk menyimpan progres bacaan dan catatan riset.",
+            loginUseCase = LoginUseCase(mockRepo),
+            signupUseCase = SignupUseCase(mockRepo),
+            initialMode = AuthGateMode.CREATE_IDENTITY,
+            onDismissRequest = {},
+            onAuthSuccess = {}
+        )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(device = androidx.compose.ui.tooling.preview.Devices.DESKTOP, showBackground = true)
+@Composable
+fun AuthGateDialogErrorStatePreview() {
+    val mockRepo = remember { MockAuthRepository(shouldSucceed = false) }
+    MaterialTheme {
+        AuthGateDialog(
+            title = "Authentication Required",
+            subtitle = "Please sign in or create an identity to proceed.",
+            loginUseCase = LoginUseCase(mockRepo),
+            signupUseCase = SignupUseCase(mockRepo),
+            initialMode = AuthGateMode.SIGN_IN,
+            initialErrorMessage = "Email atau password yang Anda masukkan tidak sesuai.",
+            onDismissRequest = {},
+            onAuthSuccess = {}
+        )
+    }
+}
+

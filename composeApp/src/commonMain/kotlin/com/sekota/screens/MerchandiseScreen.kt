@@ -271,3 +271,100 @@ fun MerchandiseScreenPreview() {
         MerchandiseScreen(onNavigate = {})
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun MerchandiseEmptyPreview() {
+    MaterialTheme {
+        MerchContent(
+            windowWidth = WindowWidth.Expanded,
+            merchList = emptyList(),
+            orderMessage = null,
+            onOrderMessageChange = {},
+            isLoggedIn = true,
+            onRequestAuth = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun MerchandiseLoadedPreview() {
+    val sampleMerch = listOf(
+        AdminMerch(
+            id = "m1",
+            title = "Sekota Executive Notebook",
+            category = "Notebook",
+            seriesName = "Urban Sinergy Edition",
+            price = 28.0,
+            rating = 4.9,
+            imageUrl = ""
+        ),
+        AdminMerch(
+            id = "m2",
+            title = "Ceramic Smart Mug 350ml",
+            category = "Drinkware",
+            seriesName = "Black Intelligence Line",
+            price = 35.0,
+            rating = 4.8,
+            imageUrl = ""
+        ),
+        AdminMerch(
+            id = "m3",
+            title = "Precision Metal Pen",
+            category = "Apparel & Accessories",
+            seriesName = "Minimalist Executive",
+            price = 18.0,
+            rating = 4.7,
+            imageUrl = ""
+        )
+    )
+    MaterialTheme {
+        MerchContent(
+            windowWidth = WindowWidth.Expanded,
+            merchList = sampleMerch,
+            orderMessage = "Order initiated for Sekota Executive Notebook. Our merchandising team will contact you.",
+            onOrderMessageChange = {},
+            isLoggedIn = true,
+            onRequestAuth = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun MerchandiseFilterActivePreview() {
+    val sampleMerch = listOf(
+        AdminMerch(
+            id = "m1",
+            title = "Sekota Executive Notebook",
+            category = "Notebook",
+            seriesName = "Urban Sinergy Edition",
+            price = 28.0,
+            rating = 4.9,
+            imageUrl = ""
+        )
+    )
+    MaterialTheme {
+        Row(modifier = Modifier.fillMaxWidth().height(800.dp)) {
+            Box(modifier = Modifier.width(280.dp).fillMaxHeight().background(Color.White)) {
+                SidebarFilter(
+                    onNavigate = {},
+                    isMerchandise = true,
+                    searchQuery = "Executive",
+                    selectedSort = "Newest"
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                MerchContent(
+                    windowWidth = WindowWidth.Expanded,
+                    merchList = sampleMerch,
+                    orderMessage = null,
+                    onOrderMessageChange = {},
+                    isLoggedIn = false,
+                    onRequestAuth = {}
+                )
+            }
+        }
+    }
+}

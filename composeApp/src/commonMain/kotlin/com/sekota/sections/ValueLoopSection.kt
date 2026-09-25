@@ -197,5 +197,41 @@ fun LoopDivider() {
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ValueLoopSectionPreview() {
-    ValueLoopSection()
+    androidx.compose.material3.MaterialTheme {
+        ValueLoopSection()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun LoopStepPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                "Strategic Value Loop Steps",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LoopSteps.forEachIndexed { index, (number, title, subtitle) ->
+                    if (index > 0) LoopDivider()
+                    LoopStep(
+                        number = number,
+                        title = title,
+                        subtitle = subtitle,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+

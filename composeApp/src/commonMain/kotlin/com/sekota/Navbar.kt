@@ -562,3 +562,126 @@ fun NavbarPreview() {
         Navbar(onNavigate = {})
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun NavbarDesktopPreview() {
+    MaterialTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            // BERANDA active
+            Navbar(
+                currentScreen = Screen.Landing,
+                activeLandingSection = NavbarActiveSection.NONE,
+                onNavigate = {}
+            )
+            // SOLUSI active
+            Navbar(
+                currentScreen = Screen.Landing,
+                activeLandingSection = NavbarActiveSection.SOLUSI,
+                onNavigate = {}
+            )
+            // PRODUK active
+            Navbar(
+                currentScreen = Screen.Landing,
+                activeLandingSection = NavbarActiveSection.PRODUK,
+                onNavigate = {}
+            )
+            // E-BOOK active
+            Navbar(
+                currentScreen = Screen.Catalog,
+                onNavigate = {}
+            )
+            // KONTAK active
+            Navbar(
+                currentScreen = Screen.Landing,
+                activeLandingSection = NavbarActiveSection.KONTAK,
+                onNavigate = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavbarMobilePreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(360.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                MobileNavItem(
+                    title = "Solusi",
+                    isSelected = true,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "Produk",
+                    isSelected = false,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "E-Book",
+                    isSelected = false,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "Merchandise",
+                    isSelected = false,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "Kontak",
+                    isSelected = false,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "Masuk / Login",
+                    isSelected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavItemPreview() {
+    MaterialTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Desktop Nav Items:", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                DesktopNavItem(
+                    title = "Selected Item",
+                    isSelected = true,
+                    onClick = {}
+                )
+                DesktopNavItem(
+                    title = "Unselected Item",
+                    isSelected = false,
+                    onClick = {}
+                )
+            }
+            Text("Mobile Nav Items:", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MobileNavItem(
+                    title = "Selected Mobile Item",
+                    isSelected = true,
+                    onClick = {}
+                )
+                MobileNavItem(
+                    title = "Unselected Mobile Item",
+                    isSelected = false,
+                    onClick = {}
+                )
+            }
+        }
+    }
+}

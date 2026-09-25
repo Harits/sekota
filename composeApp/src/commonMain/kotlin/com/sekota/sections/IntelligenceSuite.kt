@@ -342,5 +342,80 @@ fun SuiteCard(
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun IntelligenceSuitePreview() {
-    IntelligenceSuite()
+    androidx.compose.material3.MaterialTheme {
+        IntelligenceSuite()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun IntelligenceSuiteDefaultPreview() {
+    androidx.compose.material3.MaterialTheme {
+        IntelligenceSuite()
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun IntelligenceSuiteCardSelectedPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(
+            modifier = Modifier.padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                "SuiteCard Variants (Different Enterprise Tags & Accents)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily()
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                SuiteCard(
+                    category = "DECISION SIMULATION",
+                    title = "VERIDIA",
+                    description = "Platform simulasi skenario kebijakan dan prediksi dampak sosial multi-sektor.",
+                    features = listOf(
+                        "Dynamic Scenario Modeling",
+                        "Multi-variable Risk Assessment",
+                        "Cross-sector Impact Forecasting"
+                    ),
+                    logo = Res.drawable.icon_veridia,
+                    accentColor = Color(0xFF00BFA5),
+                    modifier = Modifier.weight(1f)
+                )
+
+                SuiteCard(
+                    category = "CORPORATE GOVERNANCE",
+                    title = "ASCENDIO",
+                    description = "Sistem pengukuran reputasi dan sentimen pemangku kepentingan real-time.",
+                    features = listOf(
+                        "Real-time Sentiment Engine",
+                        "Stakeholder Mapping Matrix",
+                        "Reputation Risk Radar"
+                    ),
+                    logo = Res.drawable.icon_acscendio,
+                    accentColor = Color(0xFF1976D2),
+                    modifier = Modifier.weight(1f)
+                )
+
+                SuiteCard(
+                    category = "SUSTAINABILITY & ESG",
+                    title = "ECOFLOW",
+                    description = "Automasi pelaporan ESG dan pemantauan jejak karbon berbasis standar global.",
+                    features = listOf(
+                        "GRI & ISSB Standard Alignment",
+                        "Carbon Footprint Tracker",
+                        "Automated Assurance Reports"
+                    ),
+                    logo = Res.drawable.icon_ecoflow,
+                    accentColor = Color(0xFF4CAF50),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+

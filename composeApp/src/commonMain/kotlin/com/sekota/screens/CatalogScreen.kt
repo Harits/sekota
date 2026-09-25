@@ -289,6 +289,108 @@ fun CatalogScreenPreview() {
 
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
+fun CatalogContentEmptyPreview() {
+    MaterialTheme {
+        CatalogContent(
+            windowWidth = WindowWidth.Expanded,
+            filteredBooks = emptyList(),
+            onBookClick = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun CatalogContentLoadedPreview() {
+    val sampleBooks = listOf(
+        AdminBook(
+            id = "b1",
+            title = "Blind Spot Radar",
+            author = "Putu Aan J.",
+            isbn = "978-623-99999-3-1",
+            category = "INTELLIGENCE",
+            description = "Thought leadership on strategic leadership intelligence.",
+            rating = 4.8,
+            ratingCount = 1240,
+            readingTime = "3H 45M",
+            pages = 240
+        ),
+        AdminBook(
+            id = "b2",
+            title = "Corporate ESG Playbook",
+            author = "Sekota Sustainability",
+            isbn = "978-623-99999-3-2",
+            category = "ESG",
+            description = "Panduan dekarbonisasi dan tata kelola emisi.",
+            rating = 4.9,
+            ratingCount = 980,
+            readingTime = "4H 10M",
+            pages = 280
+        ),
+        AdminBook(
+            id = "b3",
+            title = "Smart City Governance",
+            author = "Tim Urban Analytics",
+            isbn = "978-623-99999-3-3",
+            category = "SMART CITY",
+            description = "Arsitektur data tata kelola kota masa depan.",
+            rating = 4.7,
+            ratingCount = 650,
+            readingTime = "3H 15M",
+            pages = 210
+        )
+    )
+    MaterialTheme {
+        CatalogContent(
+            windowWidth = WindowWidth.Expanded,
+            filteredBooks = sampleBooks,
+            onBookClick = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun CatalogFilterActivePreview() {
+    val filteredBooks = listOf(
+        AdminBook(
+            id = "b2",
+            title = "Corporate ESG Playbook",
+            author = "Sekota Sustainability",
+            isbn = "978-623-99999-3-2",
+            category = "ESG",
+            description = "Panduan dekarbonisasi dan tata kelola emisi.",
+            rating = 4.9,
+            ratingCount = 980,
+            readingTime = "4H 10M",
+            pages = 280
+        )
+    )
+    MaterialTheme {
+        Row(modifier = Modifier.fillMaxWidth().height(800.dp)) {
+            Box(modifier = Modifier.width(280.dp).fillMaxHeight().background(Color.White)) {
+                SidebarFilter(
+                    onNavigate = {},
+                    isMerchandise = false,
+                    searchQuery = "ESG",
+                    selectedSort = "Rating Tertinggi",
+                    selectedOptions = listOf("ESG"),
+                    selectedYears = listOf("2025")
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                CatalogContent(
+                    windowWidth = WindowWidth.Expanded,
+                    filteredBooks = filteredBooks,
+                    onBookClick = {}
+                )
+            }
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
 fun PaginationPreview() {
     MaterialTheme {
         Box(modifier = Modifier.padding(16.dp)) {

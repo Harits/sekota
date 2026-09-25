@@ -125,7 +125,14 @@ fun ContactFormSection() {
 }
 
 @Composable
-fun ContactFormCard(isCompact: Boolean) {
+fun ContactFormCard(
+    isCompact: Boolean,
+    initialName: String = "",
+    initialEmail: String = "",
+    initialMessage: String = "",
+    initialValidationError: String? = null,
+    initialSuccess: Boolean = false
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(48.dp),
@@ -136,11 +143,11 @@ fun ContactFormCard(isCompact: Boolean) {
             modifier = Modifier.padding(if(isCompact) 32.dp else 64.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            var name by remember { mutableStateOf("") }
-            var email by remember { mutableStateOf("") }
-            var message by remember { mutableStateOf("") }
-            var submissionSuccess by remember { mutableStateOf(false) }
-            var validationError by remember { mutableStateOf<String?>(null) }
+            var name by remember { mutableStateOf(initialName) }
+            var email by remember { mutableStateOf(initialEmail) }
+            var message by remember { mutableStateOf(initialMessage) }
+            var submissionSuccess by remember { mutableStateOf(initialSuccess) }
+            var validationError by remember { mutableStateOf(initialValidationError) }
             val coroutineScope = rememberCoroutineScope()
 
             if (submissionSuccess) {
@@ -277,6 +284,7 @@ fun ContactFormCard(isCompact: Boolean) {
     }
 }
 
+
 @Composable
 fun ContactInfoItem(icon: org.jetbrains.compose.resources.DrawableResource, text: String) {
     Row(
@@ -359,5 +367,78 @@ fun FormTextField(
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ContactFormSectionPreview() {
-    ContactFormSection()
+    androidx.compose.material3.MaterialTheme {
+        ContactFormSection()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormCardStatesPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF8FAFB))
+                .padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(48.dp)
+        ) {
+            // State 1: Empty Form
+            Text(
+                "State 1: Form Kosong (Empty Form)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily(),
+                color = Color(0xFF0F172A)
+            )
+            ContactFormCard(
+                isCompact = false
+            )
+
+            // State 2: Filled Form
+            Text(
+                "State 2: Form Terisi (Filled Form)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily(),
+                color = Color(0xFF0F172A)
+            )
+            ContactFormCard(
+                isCompact = false,
+                initialName = "Dr. Raden Mas Arya",
+                initialEmail = "arya@bappenas.go.id",
+                initialMessage = "Kami memerlukan analisis simulasi kebijakan transisi energi dan evaluasi dampak sosial untuk program RPJMN 2025-2029."
+            )
+
+            // State 3: Validation Error State
+            Text(
+                "State 3: Error Validasi (Validation Error)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily(),
+                color = Color(0xFF0F172A)
+            )
+            ContactFormCard(
+                isCompact = false,
+                initialName = "Budi Santoso",
+                initialEmail = "invalid-email-format",
+                initialMessage = "",
+                initialValidationError = "Mohon isi email bisnis yang valid."
+            )
+
+            // State 4: Success Submission State
+            Text(
+                "State 4: Permintaan Terkirim (Submission Success)",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily(),
+                color = Color(0xFF0F172A)
+            )
+            ContactFormCard(
+                isCompact = false,
+                initialSuccess = true
+            )
+        }
+    }
+}
+

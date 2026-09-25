@@ -40,7 +40,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onSolusiPositioned(coordinates.positionInParent().y.toInt())
+                    onSolusiPositioned(coordinates.positionInRoot().y.toInt())
                 }
         ) {
             ValueLoopSection()
@@ -49,7 +49,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onProdukPositioned(coordinates.positionInParent().y.toInt())
+                    onProdukPositioned(coordinates.positionInRoot().y.toInt())
                 }
         ) {
             IntelligenceSuite(
@@ -69,7 +69,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onKontakPositioned(coordinates.positionInParent().y.toInt())
+                    onKontakPositioned(coordinates.positionInRoot().y.toInt())
                 }
         ) {
             ContactFormSection()

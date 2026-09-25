@@ -162,10 +162,11 @@ fun ValuePropCard(
     title: String,
     description: String,
     icon: DrawableResource,
+    modifier: Modifier = Modifier,
     contentPadding: androidx.compose.ui.unit.Dp = 40.dp
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color(0xFF111E26), shape = RoundedCornerShape(24.dp))
             .padding(contentPadding)
@@ -200,8 +201,49 @@ fun ValuePropCard(
     }
 }
 
-@Preview(device=DESKTOP)
+@Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ValuePropDarkPreview() {
-    ValuePropDark()
+    androidx.compose.material3.MaterialTheme {
+        ValuePropDark()
+    }
 }
+
+@Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFF0B141B)
+@Composable
+fun ValuePropCardPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(
+            modifier = Modifier
+                .background(Color(0xFF0B141B))
+                .padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                "ValuePropCard Preview",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = getMontserratFontFamily(),
+                color = Color.White
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                ValuePropCard(
+                    title = "Lebih Strategis dari Vendor IT",
+                    description = "Memberikan insight yang dapat langsung ditindaklanjuti untuk kebijakan.",
+                    icon = Res.drawable.icon_3,
+                    modifier = Modifier.weight(1f)
+                )
+                ValuePropCard(
+                    title = "Lebih Teknis dari Konsultan",
+                    description = "Implementasi data real-time, bukan sekadar slide deck rekomendasi.",
+                    icon = Res.drawable.icon_4,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
