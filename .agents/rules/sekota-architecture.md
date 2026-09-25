@@ -22,9 +22,15 @@ trigger: always_on
    - NEVER wrap `LazyColumn`, `LazyRow`, or `LazyVerticalGrid` inside a parent `Modifier.verticalScroll(...)` or `Modifier.horizontalScroll(...)`. This triggers fatal infinite measurement crashes.
    - In full-screen destinations or adaptive layouts, let lazy containers manage their own scrolling, or use fixed height / weight constraints (`Modifier.weight(1f)`).
 
-4. **Mandatory Desktop Previews**:
-   - Every top-level composable (Screen, Section, Component) MUST include an `@Preview(device = DESKTOP)`.
-   - Always wrap previews in `MaterialTheme` or appropriate theme container.
+4. **Mandatory Multi-State Desktop & Responsive Previews**:
+   - Whenever creating or modifying any Composable (Screen, Section, Component, or Dialog), you MUST author or update `@Preview(device = DESKTOP, showBackground = true)` composables covering key interaction states:
+     - **Default / Loaded State**: Standard display with complete data.
+     - **Empty / Zero State**: Empty list or zero-rating/new publication (`rating = 0.0` honestly displayed).
+     - **Loading / Progress State**: In-flight state with progress indicators active.
+     - **Error / Failure State**: Error banners, validation alerts, or network failure feedback.
+     - **Compact / Mobile Variant**: Constrained layout preview (e.g. mobile drawer, stacked card layout) where applicable.
+   - Always wrap previews in `MaterialTheme` or appropriate design system container.
+   - Never consider a UI task complete without verifying that all previews compile cleanly and reflect the newly authored states.
 
 5. **Design System & Typography**:
    - Colors: Ink Navy (`#0D1F2D`), Brand Teal (`#00B5C8`), Brand Green (`#60BD65`), Surface Pure (`#FFFFFF`), Surface Alt (`#F7FAFB`). Never use pure `#000000`.

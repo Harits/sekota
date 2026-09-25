@@ -70,8 +70,9 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
   - Use **Screaming Architecture**: Package by feature (e.g., `com.sekota.features.catalog`).
   - Use **Clean Architecture**: Maintain clear boundaries between Domain, Data, and Presentation.
 - **UI Development & Previews**: 
-  - Mandate the use of `@Preview(device = DESKTOP)` for all top-level Composables (screens, sections, and complex components).
-  - Ensure all UI files include a preview for rapid iteration.
+  - Mandate the use of `@Preview(device = DESKTOP, showBackground = true)` for all Composables (screens, sections, dialogs, and components).
+  - Every UI task MUST include comprehensive multi-state previews (default/loaded, empty, loading, error, and compact/responsive variants).
+  - Ensure all UI files include previews for rapid iteration and Skiko desktop visual inspection.
 - Ensure all network requests are handled gracefully with proper logging.
 
 ## ⚠️ Important Notes
