@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +20,10 @@ import com.sekota.sections.*
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun LandingScreen(
     onNavigate: (Screen) -> Unit = {},
@@ -28,7 +33,10 @@ fun LandingScreen(
     onExplorationClick: () -> Unit = {},
     onSolusiPositioned: (Int) -> Unit = {},
     onProdukPositioned: (Int) -> Unit = {},
-    onKontakPositioned: (Int) -> Unit = {}
+    onKontakPositioned: (Int) -> Unit = {},
+    solusiRequester: BringIntoViewRequester = remember { BringIntoViewRequester() },
+    produkRequester: BringIntoViewRequester = remember { BringIntoViewRequester() },
+    kontakRequester: BringIntoViewRequester = remember { BringIntoViewRequester() }
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeroSection(
@@ -39,6 +47,7 @@ fun LandingScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .bringIntoViewRequester(solusiRequester)
                 .onGloballyPositioned { coordinates ->
                     onSolusiPositioned(coordinates.positionInParent().y.toInt())
                 }
@@ -48,6 +57,7 @@ fun LandingScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .bringIntoViewRequester(produkRequester)
                 .onGloballyPositioned { coordinates ->
                     onProdukPositioned(coordinates.positionInParent().y.toInt())
                 }
@@ -68,6 +78,7 @@ fun LandingScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .bringIntoViewRequester(kontakRequester)
                 .onGloballyPositioned { coordinates ->
                     onKontakPositioned(coordinates.positionInParent().y.toInt())
                 }

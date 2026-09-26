@@ -31,7 +31,8 @@ import sekota.composeapp.generated.resources.caret_down
 fun MerchandiseScreen(
     onNavigate: (Screen) -> Unit,
     isLoggedIn: Boolean = false,
-    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
+    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {},
+    onConsultationClick: () -> Unit = {}
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getMerchUseCase = remember { GetAdminMerchUseCase(repository) }
@@ -57,7 +58,8 @@ fun MerchandiseScreen(
                         SidebarFilter(
                             modifier = Modifier.fillMaxWidth(),
                             onNavigate = onNavigate,
-                            isMerchandise = true
+                            isMerchandise = true,
+                            onConsultationClick = onConsultationClick
                         )
                     }
                     MerchContent(
@@ -72,7 +74,11 @@ fun MerchandiseScreen(
             } else {
                 Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
                     Box(modifier = Modifier.width(280.dp)) {
-                        SidebarFilter(onNavigate = onNavigate, isMerchandise = true)
+                        SidebarFilter(
+                            onNavigate = onNavigate,
+                            isMerchandise = true,
+                            onConsultationClick = onConsultationClick
+                        )
                     }
                     Box(modifier = Modifier.weight(1f)) {
                         MerchContent(
@@ -86,7 +92,10 @@ fun MerchandiseScreen(
                     }
                 }
             }
-            Footer()
+            Footer(
+                onNavigate = onNavigate,
+                onKontakClick = onConsultationClick
+            )
         }
     }
 }

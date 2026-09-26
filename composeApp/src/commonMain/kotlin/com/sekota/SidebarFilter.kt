@@ -36,6 +36,7 @@ fun SidebarFilter(
     onOptionsChange: (List<String>) -> Unit = {},
     selectedYears: List<String> = listOf("2025"),
     onYearsChange: (List<String>) -> Unit = {},
+    onConsultationClick: () -> Unit = {},
     modifier: Modifier = Modifier.width(280.dp).fillMaxHeight()
 ) {
     val filterTitle = if (isMerchandise) "Category" else "Genre"
@@ -84,7 +85,7 @@ fun SidebarFilter(
             description = "Hubungi kami untuk proposal khusus",
             buttonText = "Contact Us",
             buttonColor = Color(0xFF4DB6AC),
-            onClick = { /* TODO */ }
+            onClick = onConsultationClick
         )
 
         if (!isMerchandise) {

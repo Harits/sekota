@@ -34,8 +34,12 @@ import com.sekota.features.profile.data.repository.ProfileRepositoryImpl
 import com.sekota.features.profile.domain.usecase.GetProfileUseCase
 import com.sekota.features.profile.domain.usecase.UpdateProfileUseCase
 
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+
 // Global or DI injected instance for simplicity in this example
 val syncService = SyncService()
+
 val tokenStorage = TokenStorage()
 val authRepository = AuthRepositoryImpl(tokenStorage)
 val profileRepository = ProfileRepositoryImpl(tokenStorage)
@@ -46,6 +50,7 @@ val clearTokenUseCase = ClearTokenUseCase(authRepository)
 val getProfileUseCase = GetProfileUseCase(profileRepository)
 val updateProfileUseCase = UpdateProfileUseCase(profileRepository)
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun App() {
     var currentScreen by remember { mutableStateOf(Screen.Landing) }
@@ -63,39 +68,44 @@ fun App() {
     var produkOffsetY by remember { mutableStateOf(0) }
     var kontakOffsetY by remember { mutableStateOf(0) }
 
+    // Direct BringIntoViewRequester handles ("component tags")
+    val solusiRequester = remember { BringIntoViewRequester() }
+    val produkRequester = remember { BringIntoViewRequester() }
+    val kontakRequester = remember { BringIntoViewRequester() }
+
     var selectedProductCode by remember { mutableStateOf("VRD") }
     var pendingLandingSection by remember { mutableStateOf<NavbarActiveSection?>(null) }
 
     // Deferred scroll effect: When navigating to LandingScreen from other screens,
-    // wait for LandingScreen to mount and scroll smoothly to the target section.
+    // scroll directly to the tagged component using bringIntoView / animateScrollTo.
     LaunchedEffect(currentScreen, pendingLandingSection) {
         if (currentScreen == Screen.Landing && pendingLandingSection != null) {
             val section = pendingLandingSection
             pendingLandingSection = null
-            // Wait for layout measurement to settle on Skiko canvas
-            var attempts = 0
-            while (attempts < 15 && ((section == NavbarActiveSection.KONTAK && kontakOffsetY == 0) ||
-                                     (section == NavbarActiveSection.PRODUK && produkOffsetY == 0) ||
-                                     (section == NavbarActiveSection.SOLUSI && solusiOffsetY == 0))) {
-                kotlinx.coroutines.delay(50)
-                attempts++
-            }
+            // Give composition frame time to bind the component tags
+            kotlinx.coroutines.delay(100)
             when (section) {
                 NavbarActiveSection.SOLUSI -> {
-                    val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
-                    landingScroll.animateScrollTo(targetY)
+                    try {
+                        solusiRequester.bringIntoView()
+                    } catch (e: Exception) {
+                        landingScroll.animateScrollTo(solusiOffsetY.coerceAtLeast(0))
+                    }
                 }
                 NavbarActiveSection.PRODUK -> {
-                    val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
-                    landingScroll.animateScrollTo(targetY)
+                    try {
+                        produkRequester.bringIntoView()
+                    } catch (e: Exception) {
+                        landingScroll.animateScrollTo(if (produkOffsetY > 0) produkOffsetY else 1100)
+                    }
                 }
                 NavbarActiveSection.KONTAK -> {
-                    val targetY = when {
-                        kontakOffsetY > 0 -> kontakOffsetY
-                        landingScroll.maxValue > 0 -> landingScroll.maxValue
-                        else -> 3800
+                    try {
+                        kontakRequester.bringIntoView()
+                    } catch (e: Exception) {
+                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                        landingScroll.animateScrollTo(targetY)
                     }
-                    landingScroll.animateScrollTo(targetY)
                 }
                 NavbarActiveSection.NONE, null -> {}
             }
@@ -151,20 +161,31 @@ fun App() {
                                 onConsultationClick = {
                                     activeLandingSection = NavbarActiveSection.KONTAK
                                     coroutineScope.launch {
-                                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                                        landingScroll.animateScrollTo(targetY)
+                                        try {
+                                            kontakRequester.bringIntoView()
+                                        } catch (e: Exception) {
+                                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                                            landingScroll.animateScrollTo(targetY)
+                                        }
                                     }
                                 },
                                 onExplorationClick = {
                                     activeLandingSection = NavbarActiveSection.PRODUK
                                     coroutineScope.launch {
-                                        val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
-                                        landingScroll.animateScrollTo(targetY)
+                                        try {
+                                            produkRequester.bringIntoView()
+                                        } catch (e: Exception) {
+                                            val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
+                                            landingScroll.animateScrollTo(targetY)
+                                        }
                                     }
                                 },
                                 onSolusiPositioned = { y -> solusiOffsetY = y },
                                 onProdukPositioned = { y -> produkOffsetY = y },
-                                onKontakPositioned = { y -> kontakOffsetY = y }
+                                onKontakPositioned = { y -> kontakOffsetY = y },
+                                solusiRequester = solusiRequester,
+                                produkRequester = produkRequester,
+                                kontakRequester = kontakRequester
                             )
                         }
                     }
@@ -180,7 +201,11 @@ fun App() {
                                     selectedBookId = bookId
                                     currentScreen = Screen.Details
                                 },
-                                onNavigate = { currentScreen = it }
+                                onNavigate = { currentScreen = it },
+                                onConsultationClick = {
+                                    currentScreen = Screen.Landing
+                                    pendingLandingSection = NavbarActiveSection.KONTAK
+                                }
                             )
                         }
                     }
@@ -234,6 +259,10 @@ fun App() {
                                 onRequestAuth = { onSuccess ->
                                     pendingAction = onSuccess
                                     showAuthGateDialog = true
+                                },
+                                onConsultationClick = {
+                                    currentScreen = Screen.Landing
+                                    pendingLandingSection = NavbarActiveSection.KONTAK
                                 }
                             )
                         }
@@ -288,8 +317,12 @@ fun App() {
                         currentScreen = Screen.Landing
                     } else {
                         coroutineScope.launch {
-                            val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
-                            landingScroll.animateScrollTo(targetY)
+                            try {
+                                solusiRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
+                                landingScroll.animateScrollTo(targetY)
+                            }
                         }
                     }
                 },
@@ -300,8 +333,12 @@ fun App() {
                         currentScreen = Screen.Landing
                     } else {
                         coroutineScope.launch {
-                            val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
-                            landingScroll.animateScrollTo(targetY)
+                            try {
+                                produkRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
+                                landingScroll.animateScrollTo(targetY)
+                            }
                         }
                     }
                 },
@@ -312,8 +349,12 @@ fun App() {
                         currentScreen = Screen.Landing
                     } else {
                         coroutineScope.launch {
-                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                            landingScroll.animateScrollTo(targetY)
+                            try {
+                                kontakRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                                landingScroll.animateScrollTo(targetY)
+                            }
                         }
                     }
                 },
@@ -324,8 +365,12 @@ fun App() {
                         currentScreen = Screen.Landing
                     } else {
                         coroutineScope.launch {
-                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                            landingScroll.animateScrollTo(targetY)
+                            try {
+                                kontakRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                                landingScroll.animateScrollTo(targetY)
+                            }
                         }
                     }
                 }

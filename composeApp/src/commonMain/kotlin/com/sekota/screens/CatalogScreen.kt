@@ -27,7 +27,11 @@ import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.windowWidthOf
 
 @Composable
-fun CatalogScreen(onBookClick: (String) -> Unit = {}, onNavigate: (Screen) -> Unit = {}) {
+fun CatalogScreen(
+    onBookClick: (String) -> Unit = {},
+    onNavigate: (Screen) -> Unit = {},
+    onConsultationClick: () -> Unit = {}
+) {
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
@@ -89,7 +93,8 @@ fun CatalogScreen(onBookClick: (String) -> Unit = {}, onNavigate: (Screen) -> Un
                             selectedOptions = selectedOptions,
                             onOptionsChange = { selectedOptions = it },
                             selectedYears = selectedYears,
-                            onYearsChange = { selectedYears = it }
+                            onYearsChange = { selectedYears = it },
+                            onConsultationClick = onConsultationClick
                         )
                     }
                     CatalogContent(
@@ -111,7 +116,8 @@ fun CatalogScreen(onBookClick: (String) -> Unit = {}, onNavigate: (Screen) -> Un
                             selectedOptions = selectedOptions,
                             onOptionsChange = { selectedOptions = it },
                             selectedYears = selectedYears,
-                            onYearsChange = { selectedYears = it }
+                            onYearsChange = { selectedYears = it },
+                            onConsultationClick = onConsultationClick
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
@@ -123,7 +129,10 @@ fun CatalogScreen(onBookClick: (String) -> Unit = {}, onNavigate: (Screen) -> Un
                     }
                 }
             }
-            Footer()
+            Footer(
+                onNavigate = onNavigate,
+                onKontakClick = onConsultationClick
+            )
         }
     }
 }
