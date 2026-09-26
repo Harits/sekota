@@ -27,5 +27,8 @@ interface AdminRepository {
     suspend fun getInquiries(): List<ClientInquiry>
     suspend fun saveInquiry(inquiry: ClientInquiry): Result<ClientInquiry>
     suspend fun deleteInquiry(id: String): Result<Boolean>
+
+    suspend fun getValueLoop(): com.sekota.features.admin.domain.model.ValueLoopConfig
+    suspend fun saveValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig): Result<com.sekota.features.admin.domain.model.ValueLoopConfig>
 }
 

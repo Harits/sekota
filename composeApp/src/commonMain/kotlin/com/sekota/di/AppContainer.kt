@@ -33,5 +33,15 @@ class AppContainer(
     val getProfileUseCase: GetProfileUseCase by lazy { GetProfileUseCase(profileRepository) }
     val updateProfileUseCase: UpdateProfileUseCase by lazy { UpdateProfileUseCase(profileRepository) }
 
+    val adminRepository: com.sekota.features.admin.domain.repository.AdminRepository by lazy {
+        com.sekota.features.admin.data.repository.AdminRepositoryImpl()
+    }
+    val getValueLoopUseCase: com.sekota.features.admin.domain.usecase.GetAdminValueLoopUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.GetAdminValueLoopUseCase(adminRepository)
+    }
+    val saveValueLoopUseCase: com.sekota.features.admin.domain.usecase.SaveAdminValueLoopUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.SaveAdminValueLoopUseCase(adminRepository)
+    }
+
     val navigationCoordinator: NavigationCoordinator by lazy { NavigationCoordinator() }
 }

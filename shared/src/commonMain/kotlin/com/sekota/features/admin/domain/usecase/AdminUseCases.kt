@@ -121,3 +121,22 @@ class ValidateAdminRoleUseCase {
         return normalized == "ADMIN" || normalized == "BOD" || normalized == "SYSADMIN"
     }
 }
+
+class GetAdminValueLoopUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): com.sekota.features.admin.domain.model.ValueLoopConfig {
+        return repository.getValueLoop()
+    }
+}
+
+class SaveAdminValueLoopUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: com.sekota.features.admin.domain.model.ValueLoopConfig): Result<com.sekota.features.admin.domain.model.ValueLoopConfig> {
+        if (config.title.isBlank()) {
+            return Result.failure(IllegalArgumentException("Judul Strategic Value Loop tidak boleh kosong"))
+        }
+        if (config.steps.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Tahapan Value Loop minimal 1 langkah"))
+        }
+        return repository.saveValueLoop(config)
+    }
+}
+

@@ -57,6 +57,8 @@ val getTokenUseCase get() = defaultAppContainer.getTokenUseCase
 val clearTokenUseCase get() = defaultAppContainer.clearTokenUseCase
 val getProfileUseCase get() = defaultAppContainer.getProfileUseCase
 val updateProfileUseCase get() = defaultAppContainer.updateProfileUseCase
+val getValueLoopUseCase get() = defaultAppContainer.getValueLoopUseCase
+val saveValueLoopUseCase get() = defaultAppContainer.saveValueLoopUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable

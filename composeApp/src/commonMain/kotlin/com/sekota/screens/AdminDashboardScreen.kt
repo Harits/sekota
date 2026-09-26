@@ -57,10 +57,12 @@ fun AdminDashboardScreen(
     val saveLiveMetricsUseCase = remember { SaveAdminLiveMetricsUseCase(repository) }
     val getInquiriesUseCase = remember { GetAdminInquiriesUseCase(repository) }
     val deleteInquiryUseCase = remember { DeleteAdminInquiryUseCase(repository) }
+    val getValueLoopUseCase = remember { GetAdminValueLoopUseCase(repository) }
+    val saveValueLoopUseCase = remember { SaveAdminValueLoopUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Client Inquiries")
-    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "📩")
+    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Client Inquiries")
+    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "🔄", "📩")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
@@ -109,7 +111,8 @@ fun AdminDashboardScreen(
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
-                        4 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
+                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
+                        5 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
 
@@ -214,7 +217,8 @@ fun AdminDashboardScreen(
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
-                        4 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
+                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
+                        5 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
             }
@@ -1464,13 +1468,261 @@ fun ClientInquiriesTab(
                                     fontSize = 14.sp,
                                     lineHeight = 22.sp,
                                     modifier = Modifier.padding(16.dp)
+                                 )
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+     }
+ }
+
+@Composable
+fun ValueLoopTab(
+    getValueLoopUseCase: GetAdminValueLoopUseCase,
+    saveValueLoopUseCase: SaveAdminValueLoopUseCase,
+    windowWidth: WindowWidth
+) {
+    val scope = rememberCoroutineScope()
+    var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.ValueLoopConfig()) }
+    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var isSaving by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        config = getValueLoopUseCase()
+        com.sekota.syncService.syncEventFlow.collect {
+            config = getValueLoopUseCase()
+        }
+    }
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        WorkbenchHeader(
+            title = "Strategic Value Loop",
+            subtitle = "Kelola judul, deskripsi, dan tahapan siklus tertutup 01-05 Solusi Kami di portal publik Sekota.",
+            windowWidth = windowWidth
+        )
+
+        statusFeedback?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    fontFamily = getDmSansFontFamily(),
+                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Header Editor Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Pengaturan Header Section",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+
+                OutlinedTextField(
+                    value = config.sectionEyebrow,
+                    onValueChange = {
+                        config = config.copy(sectionEyebrow = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Eyebrow (Label Kecil Atas)", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = config.title,
+                    onValueChange = {
+                        config = config.copy(title = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Judul Utama Section", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = config.description,
+                    onValueChange = {
+                        config = config.copy(description = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Deskripsi / Subjudul", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Steps Editor Section
+        Text(
+            text = "Langkah-Langkah Siklus (01 - 05)",
+            fontFamily = getMontserratFontFamily(),
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            color = InkNavy
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        @OptIn(ExperimentalLayoutApi::class)
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            config.steps.forEachIndexed { index, step ->
+                Card(
+                    modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier.widthIn(min = 280.dp, max = 340.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                color = BrandTeal,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    text = step.stepNumber,
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    fontSize = 13.sp,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                 )
                             }
+                            Text(
+                                text = "Langkah ${index + 1}",
+                                fontFamily = getMontserratFontFamily(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = InkNavy
+                            )
                         }
+
+                        OutlinedTextField(
+                            value = step.title,
+                            onValueChange = { newTitle ->
+                                val updatedSteps = config.steps.toMutableList()
+                                updatedSteps[index] = step.copy(title = newTitle)
+                                config = config.copy(steps = updatedSteps)
+                                statusFeedback = null
+                            },
+                            label = { Text("Judul Tahap (e.g. INTENT)", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
+                        OutlinedTextField(
+                            value = step.subtitle,
+                            onValueChange = { newSubtitle ->
+                                val updatedSteps = config.steps.toMutableList()
+                                updatedSteps[index] = step.copy(subtitle = newSubtitle)
+                                config = config.copy(steps = updatedSteps)
+                                statusFeedback = null
+                            },
+                            label = { Text("Subjudul Tahap (e.g. Definisi Strategis)", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
                     }
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Action Buttons Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        isSaving = true
+                        val result = saveValueLoopUseCase(config)
+                        isSaving = false
+                        if (result.isSuccess) {
+                            statusFeedback = "✅ Strategic Value Loop berhasil diperbarui dan disinkronkan!"
+                        } else {
+                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                shape = RoundedCornerShape(100.dp),
+                enabled = !isSaving,
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    config = com.sekota.features.admin.domain.model.ValueLoopConfig()
+                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                },
+                shape = RoundedCornerShape(100.dp),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = "↺ Reset Bawaan",
+                    fontFamily = getDmSansFontFamily(),
+                    color = InkNavy
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }
 
@@ -1481,3 +1733,17 @@ fun AdminDashboardPreview() {
         AdminDashboardScreen()
     }
 }
+
+@Preview(device = DESKTOP)
+@Composable
+fun ValueLoopTabPreview() {
+    MaterialTheme {
+        val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
+        ValueLoopTab(
+            getValueLoopUseCase = remember { GetAdminValueLoopUseCase(repo) },
+            saveValueLoopUseCase = remember { SaveAdminValueLoopUseCase(repo) },
+            windowWidth = WindowWidth.Expanded
+        )
+    }
+}
+

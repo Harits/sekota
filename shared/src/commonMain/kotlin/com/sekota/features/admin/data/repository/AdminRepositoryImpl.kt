@@ -573,5 +573,26 @@ class AdminRepositoryImpl(
         }
         return Result.success(removed)
     }
+
+    override suspend fun getValueLoop(): com.sekota.features.admin.domain.model.ValueLoopConfig {
+        val storedJson = dataStorage.getValueLoopJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<com.sekota.features.admin.domain.model.ValueLoopConfig>(storedJson)
+            } catch (_: Exception) {}
+        }
+        val defaultConfig = com.sekota.features.admin.domain.model.ValueLoopConfig()
+        persistValueLoop(defaultConfig)
+        return defaultConfig
+    }
+
+    override suspend fun saveValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig): Result<com.sekota.features.admin.domain.model.ValueLoopConfig> {
+        persistValueLoop(config)
+        return Result.success(config)
+    }
+
+    private fun persistValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig) {
+        dataStorage.saveValueLoopJson(json.encodeToString(config))
+    }
 }
 

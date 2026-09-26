@@ -15,5 +15,8 @@ expect class AdminDataStorage() {
 
     fun saveInquiriesJson(json: String)
     fun getInquiriesJson(): String?
+
+    fun saveValueLoopJson(json: String)
+    fun getValueLoopJson(): String?
 }
 

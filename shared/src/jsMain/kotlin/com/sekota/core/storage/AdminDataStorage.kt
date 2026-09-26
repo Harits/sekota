@@ -42,5 +42,13 @@ actual class AdminDataStorage actual constructor() {
     actual fun getInquiriesJson(): String? {
         return window.localStorage.getItem("admin_inquiries_json")
     }
+
+    actual fun saveValueLoopJson(json: String) {
+        window.localStorage.setItem("admin_valueloop_json", json)
+    }
+
+    actual fun getValueLoopJson(): String? {
+        return window.localStorage.getItem("admin_valueloop_json")
+    }
 }
 

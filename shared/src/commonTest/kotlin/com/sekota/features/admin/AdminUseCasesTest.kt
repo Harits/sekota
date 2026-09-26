@@ -69,6 +69,13 @@ class FakeAdminRepository : AdminRepository {
         val removed = inquiries.removeAll { it.id == id }
         return Result.success(removed)
     }
+
+    var valueLoop = com.sekota.features.admin.domain.model.ValueLoopConfig()
+    override suspend fun getValueLoop(): com.sekota.features.admin.domain.model.ValueLoopConfig = valueLoop
+    override suspend fun saveValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig): Result<com.sekota.features.admin.domain.model.ValueLoopConfig> {
+        valueLoop = config
+        return Result.success(config)
+    }
 }
 
 class AdminUseCasesTest {
@@ -163,6 +170,38 @@ class AdminUseCasesTest {
         kotlin.test.assertFalse(validateRole("CLIENT"))
         kotlin.test.assertFalse(validateRole(""))
         kotlin.test.assertFalse(validateRole(null))
+    }
+
+    @Test
+    fun testValueLoopUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getUseCase = GetAdminValueLoopUseCase(repo)
+        val saveUseCase = SaveAdminValueLoopUseCase(repo)
+
+        val initial = getUseCase()
+        assertEquals("Strategic Value Loop", initial.title)
+        assertEquals(5, initial.steps.size)
+
+        val updated = initial.copy(
+            title = "Updated Value Loop",
+            steps = listOf(
+                com.sekota.features.admin.domain.model.AdminValueLoopStep("01", "DISCOVERY", "Analisis Awal")
+            )
+        )
+        val saveResult = saveUseCase(updated)
+        assertTrue(saveResult.isSuccess)
+
+        val fetched = getUseCase()
+        assertEquals("Updated Value Loop", fetched.title)
+        assertEquals(1, fetched.steps.size)
+        assertEquals("DISCOVERY", fetched.steps.first().title)
+
+        // Validation failures
+        val emptyTitleResult = saveUseCase(updated.copy(title = "   "))
+        assertTrue(emptyTitleResult.isFailure)
+
+        val emptyStepsResult = saveUseCase(updated.copy(steps = emptyList()))
+        assertTrue(emptyStepsResult.isFailure)
     }
 }
 
