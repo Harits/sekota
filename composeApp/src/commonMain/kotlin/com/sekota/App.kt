@@ -37,33 +37,40 @@ import com.sekota.features.profile.domain.usecase.UpdateProfileUseCase
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 
-// Global or DI injected instance for simplicity in this example
-val syncService = SyncService()
+import com.sekota.di.AppContainer
+import com.sekota.navigation.NavigationCoordinator
+import com.sekota.navigation.NavigationEffect
+import com.sekota.navigation.NavigationIntent
+import com.sekota.navigation.NavigationState
 
-val tokenStorage = TokenStorage()
-val authRepository = AuthRepositoryImpl(tokenStorage)
-val profileRepository = ProfileRepositoryImpl(tokenStorage)
-val loginUseCase = LoginUseCase(authRepository)
-val signupUseCase = SignupUseCase(authRepository)
-val getTokenUseCase = GetTokenUseCase(authRepository)
-val clearTokenUseCase = ClearTokenUseCase(authRepository)
-val getProfileUseCase = GetProfileUseCase(profileRepository)
-val updateProfileUseCase = UpdateProfileUseCase(profileRepository)
+// Default AppContainer singleton instance
+val defaultAppContainer by lazy { AppContainer() }
+
+// Backward compatibility references for preview functions and outer callers
+val syncService get() = defaultAppContainer.syncService
+val tokenStorage get() = defaultAppContainer.tokenStorage
+val authRepository get() = defaultAppContainer.authRepository
+val profileRepository get() = defaultAppContainer.profileRepository
+val loginUseCase get() = defaultAppContainer.loginUseCase
+val signupUseCase get() = defaultAppContainer.signupUseCase
+val getTokenUseCase get() = defaultAppContainer.getTokenUseCase
+val clearTokenUseCase get() = defaultAppContainer.clearTokenUseCase
+val getProfileUseCase get() = defaultAppContainer.getProfileUseCase
+val updateProfileUseCase get() = defaultAppContainer.updateProfileUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-fun App() {
-    var currentScreen by remember { mutableStateOf(Screen.Landing) }
+fun App(
+    container: AppContainer = remember { defaultAppContainer }
+) {
     val coroutineScope = rememberCoroutineScope()
-    val syncState by syncService.syncState.collectAsState()
-    var selectedBookId by remember { mutableStateOf<String?>("blind-spot-radar") }
+    val syncState by container.syncService.syncState.collectAsState()
     
-    var isLoggedIn by remember { mutableStateOf(getTokenUseCase() != null) }
-    var showAuthGateDialog by remember { mutableStateOf(false) }
-    var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    // MVI State Collection
+    val navState by container.navigationCoordinator.state.collectAsState()
+    var isLoggedIn by remember { mutableStateOf(container.getTokenUseCase() != null) }
 
     val landingScroll = rememberScrollState()
-    var activeLandingSection by remember { mutableStateOf(NavbarActiveSection.SOLUSI) }
     var solusiOffsetY by remember { mutableStateOf(0) }
     var produkOffsetY by remember { mutableStateOf(0) }
     var kontakOffsetY by remember { mutableStateOf(0) }
@@ -73,59 +80,59 @@ fun App() {
     val produkRequester = remember { BringIntoViewRequester() }
     val kontakRequester = remember { BringIntoViewRequester() }
 
-    var selectedProductCode by remember { mutableStateOf("VRD") }
-    var pendingLandingSection by remember { mutableStateOf<NavbarActiveSection?>(null) }
-
-    // Deferred scroll effect: When navigating to LandingScreen from other screens,
-    // scroll directly to the tagged component using bringIntoView / animateScrollTo.
-    LaunchedEffect(currentScreen, pendingLandingSection) {
-        if (currentScreen == Screen.Landing && pendingLandingSection != null) {
-            val section = pendingLandingSection
-            pendingLandingSection = null
-            // Give composition frame time to bind the component tags
-            kotlinx.coroutines.delay(100)
-            when (section) {
-                NavbarActiveSection.SOLUSI -> {
-                    try {
-                        solusiRequester.bringIntoView()
-                    } catch (e: Exception) {
-                        landingScroll.animateScrollTo(solusiOffsetY.coerceAtLeast(0))
+    // MVI One-off Side Effect Processing (Single source of truth for scrolling to component tags)
+    LaunchedEffect(container.navigationCoordinator) {
+        container.navigationCoordinator.effects.collect { effect ->
+            when (effect) {
+                is NavigationEffect.BringSectionIntoView -> {
+                    // Allow UI layout frame to bind and settle
+                    kotlinx.coroutines.delay(100)
+                    when (effect.section) {
+                        NavbarActiveSection.SOLUSI -> {
+                            try {
+                                solusiRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                landingScroll.animateScrollTo(solusiOffsetY.coerceAtLeast(0))
+                            }
+                        }
+                        NavbarActiveSection.PRODUK -> {
+                            try {
+                                produkRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val target = if (produkOffsetY > 0) produkOffsetY else 1100
+                                landingScroll.animateScrollTo(target)
+                            }
+                        }
+                        NavbarActiveSection.KONTAK -> {
+                            try {
+                                kontakRequester.bringIntoView()
+                            } catch (e: Exception) {
+                                val target = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
+                                landingScroll.animateScrollTo(target)
+                            }
+                        }
+                        NavbarActiveSection.NONE -> {}
                     }
                 }
-                NavbarActiveSection.PRODUK -> {
-                    try {
-                        produkRequester.bringIntoView()
-                    } catch (e: Exception) {
-                        landingScroll.animateScrollTo(if (produkOffsetY > 0) produkOffsetY else 1100)
-                    }
-                }
-                NavbarActiveSection.KONTAK -> {
-                    try {
-                        kontakRequester.bringIntoView()
-                    } catch (e: Exception) {
-                        val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                        landingScroll.animateScrollTo(targetY)
-                    }
-                }
-                NavbarActiveSection.NONE, null -> {}
             }
         }
     }
 
     // Synchronize active nav pill based on scroll position while on LandingScreen
-    LaunchedEffect(landingScroll.value, currentScreen) {
-        if (currentScreen == Screen.Landing) {
-            val scrollY = landingScroll.value
-            activeLandingSection = when {
-                kontakOffsetY > 0 && scrollY >= kontakOffsetY - 250 -> NavbarActiveSection.KONTAK
-                produkOffsetY > 0 && scrollY >= produkOffsetY - 250 -> NavbarActiveSection.PRODUK
-                else -> NavbarActiveSection.SOLUSI
-            }
+    LaunchedEffect(landingScroll.value, navState.currentScreen) {
+        if (navState.currentScreen == Screen.Landing) {
+            container.navigationCoordinator.processIntent(
+                NavigationIntent.ScrollPositionChanged(
+                    scrollY = landingScroll.value,
+                    produkOffsetY = produkOffsetY,
+                    kontakOffsetY = kontakOffsetY
+                )
+            )
         }
     }
 
     LaunchedEffect(Unit) {
-        syncService.connect(coroutineScope)
+        container.syncService.connect(coroutineScope)
     }
     
     MaterialTheme {
@@ -141,7 +148,7 @@ fun App() {
                     .fillMaxSize()
                     .padding(top = windowWidth.navbarHeight) // Offset for sticky navbar
             ) {
-                when (currentScreen) {
+                when (navState.currentScreen) {
                     Screen.Landing -> {
                         Column(
                             modifier = Modifier
@@ -149,36 +156,22 @@ fun App() {
                                 .verticalScroll(landingScroll)
                         ) {
                             LandingScreen(
-                                onNavigate = { screen -> currentScreen = screen },
+                                onNavigate = { screen ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                                },
                                 onProductClick = { code ->
-                                    selectedProductCode = code
-                                    currentScreen = Screen.ProductDetails
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
                                 },
                                 onBookClick = { bookId ->
-                                    selectedBookId = bookId
-                                    currentScreen = Screen.Details
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectBook(bookId))
                                 },
                                 onConsultationClick = {
-                                    activeLandingSection = NavbarActiveSection.KONTAK
-                                    coroutineScope.launch {
-                                        try {
-                                            kontakRequester.bringIntoView()
-                                        } catch (e: Exception) {
-                                            val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                                            landingScroll.animateScrollTo(targetY)
-                                        }
-                                    }
+                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
                                 },
                                 onExplorationClick = {
-                                    activeLandingSection = NavbarActiveSection.PRODUK
-                                    coroutineScope.launch {
-                                        try {
-                                            produkRequester.bringIntoView()
-                                        } catch (e: Exception) {
-                                            val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
-                                            landingScroll.animateScrollTo(targetY)
-                                        }
-                                    }
+                                    container.navigationCoordinator.processIntent(
+                                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
+                                    )
                                 },
                                 onSolusiPositioned = { y -> solusiOffsetY = y },
                                 onProdukPositioned = { y -> produkOffsetY = y },
@@ -198,13 +191,13 @@ fun App() {
                         ) {
                             CatalogScreen(
                                 onBookClick = { bookId ->
-                                    selectedBookId = bookId
-                                    currentScreen = Screen.Details
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectBook(bookId))
                                 },
-                                onNavigate = { currentScreen = it },
+                                onNavigate = { screen ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                                },
                                 onConsultationClick = {
-                                    currentScreen = Screen.Landing
-                                    pendingLandingSection = NavbarActiveSection.KONTAK
+                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
                                 }
                             )
                         }
@@ -217,11 +210,10 @@ fun App() {
                                 .verticalScroll(detailsScroll)
                         ) {
                             BookDetailsScreen(
-                                bookId = selectedBookId,
+                                bookId = navState.selectedBookId,
                                 isLoggedIn = isLoggedIn,
                                 onRequestAuth = { onSuccess ->
-                                    pendingAction = onSuccess
-                                    showAuthGateDialog = true
+                                    container.navigationCoordinator.processIntent(NavigationIntent.OpenAuthGate(onSuccess))
                                 }
                             )
                         }
@@ -234,14 +226,14 @@ fun App() {
                                 .verticalScroll(productDetailsScroll)
                         ) {
                             com.sekota.screens.ProductDetailsScreen(
-                                productCode = selectedProductCode,
+                                productCode = navState.selectedProductCode,
                                 onNavigateBack = {
-                                    currentScreen = Screen.Landing
-                                    pendingLandingSection = NavbarActiveSection.PRODUK
+                                    container.navigationCoordinator.processIntent(
+                                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
+                                    )
                                 },
                                 onConsultationClick = {
-                                    currentScreen = Screen.Landing
-                                    pendingLandingSection = NavbarActiveSection.KONTAK
+                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
                                 }
                             )
                         }
@@ -254,15 +246,15 @@ fun App() {
                                 .verticalScroll(merchScroll)
                         ) {
                             MerchandiseScreen(
-                                onNavigate = { currentScreen = it },
+                                onNavigate = { screen ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                                },
                                 isLoggedIn = isLoggedIn,
                                 onRequestAuth = { onSuccess ->
-                                    pendingAction = onSuccess
-                                    showAuthGateDialog = true
+                                    container.navigationCoordinator.processIntent(NavigationIntent.OpenAuthGate(onSuccess))
                                 },
                                 onConsultationClick = {
-                                    currentScreen = Screen.Landing
-                                    pendingLandingSection = NavbarActiveSection.KONTAK
+                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
                                 }
                             )
                         }
@@ -271,18 +263,22 @@ fun App() {
                         loginUseCase = loginUseCase,
                         onLoginSuccess = { 
                             isLoggedIn = true
-                            currentScreen = Screen.Catalog 
+                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Catalog))
                         },
-                        onNavigateToSignup = { currentScreen = Screen.Signup }
+                        onNavigateToSignup = {
+                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Signup))
+                        }
                     )
                     Screen.Signup -> SignupScreen(
                         signupUseCase = signupUseCase,
                         updateProfileUseCase = updateProfileUseCase,
                         onSignupSuccess = { 
                             isLoggedIn = true
-                            currentScreen = Screen.Catalog 
+                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Catalog))
                         },
-                        onNavigateToLogin = { currentScreen = Screen.Login }
+                        onNavigateToLogin = {
+                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Login))
+                        }
                     )
                     Screen.Profile -> ProfileScreen(
                         getProfileUseCase = getProfileUseCase,
@@ -290,7 +286,7 @@ fun App() {
                         onLogout = {
                             clearTokenUseCase()
                             isLoggedIn = false
-                            currentScreen = Screen.Landing
+                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Landing))
                         }
                     )
                     Screen.Admin -> {
@@ -301,95 +297,50 @@ fun App() {
 
             // Sticky Navbar (Material Design 3 with integrated status pill)
             Navbar(
-                currentScreen = currentScreen,
-                activeLandingSection = activeLandingSection,
+                currentScreen = navState.currentScreen,
+                activeLandingSection = navState.activeLandingSection,
                 isLoggedIn = isLoggedIn,
                 syncState = syncState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
                     .zIndex(10f),
-                onNavigate = { screen -> currentScreen = screen },
+                onNavigate = { screen ->
+                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                },
                 onSolusiClick = {
-                    activeLandingSection = NavbarActiveSection.SOLUSI
-                    if (currentScreen != Screen.Landing) {
-                        pendingLandingSection = NavbarActiveSection.SOLUSI
-                        currentScreen = Screen.Landing
-                    } else {
-                        coroutineScope.launch {
-                            try {
-                                solusiRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val targetY = if (solusiOffsetY > 0) solusiOffsetY else 0
-                                landingScroll.animateScrollTo(targetY)
-                            }
-                        }
-                    }
+                    container.navigationCoordinator.processIntent(
+                        NavigationIntent.TargetLandingSection(NavbarActiveSection.SOLUSI)
+                    )
                 },
                 onProdukClick = {
-                    activeLandingSection = NavbarActiveSection.PRODUK
-                    if (currentScreen != Screen.Landing) {
-                        pendingLandingSection = NavbarActiveSection.PRODUK
-                        currentScreen = Screen.Landing
-                    } else {
-                        coroutineScope.launch {
-                            try {
-                                produkRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val targetY = if (produkOffsetY > 0) produkOffsetY else 1100
-                                landingScroll.animateScrollTo(targetY)
-                            }
-                        }
-                    }
+                    container.navigationCoordinator.processIntent(
+                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
+                    )
                 },
                 onKontakClick = {
-                    activeLandingSection = NavbarActiveSection.KONTAK
-                    if (currentScreen != Screen.Landing) {
-                        pendingLandingSection = NavbarActiveSection.KONTAK
-                        currentScreen = Screen.Landing
-                    } else {
-                        coroutineScope.launch {
-                            try {
-                                kontakRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                                landingScroll.animateScrollTo(targetY)
-                            }
-                        }
-                    }
+                    container.navigationCoordinator.processIntent(
+                        NavigationIntent.TargetLandingSection(NavbarActiveSection.KONTAK)
+                    )
                 },
                 onConsultationClick = {
-                    activeLandingSection = NavbarActiveSection.KONTAK
-                    if (currentScreen != Screen.Landing) {
-                        pendingLandingSection = NavbarActiveSection.KONTAK
-                        currentScreen = Screen.Landing
-                    } else {
-                        coroutineScope.launch {
-                            try {
-                                kontakRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val targetY = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                                landingScroll.animateScrollTo(targetY)
-                            }
-                        }
-                    }
+                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
                 }
             )
 
             // UC-GATE-01: Inline Auth-Gating Modal Dialog
-            if (showAuthGateDialog) {
+            if (navState.isAuthGateOpen) {
                 com.sekota.components.AuthGateDialog(
                     loginUseCase = loginUseCase,
                     signupUseCase = signupUseCase,
                     onDismissRequest = {
-                        showAuthGateDialog = false
-                        pendingAction = null
+                        container.navigationCoordinator.processIntent(NavigationIntent.CloseAuthGate)
                     },
                     onAuthSuccess = {
                         isLoggedIn = true
-                        showAuthGateDialog = false
-                        pendingAction?.invoke()
-                        pendingAction = null
+                        val pending = navState.pendingAction
+                        container.navigationCoordinator.processIntent(NavigationIntent.CloseAuthGate)
+                        pending?.invoke()
                     }
                 )
             }
