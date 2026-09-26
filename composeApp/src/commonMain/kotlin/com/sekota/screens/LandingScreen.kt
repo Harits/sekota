@@ -17,7 +17,7 @@ import com.sekota.*
 import com.sekota.sections.*
 
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
 
 @Composable
 fun LandingScreen(
@@ -40,7 +40,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onSolusiPositioned(coordinates.positionInRoot().y.toInt())
+                    onSolusiPositioned(coordinates.positionInParent().y.toInt())
                 }
         ) {
             ValueLoopSection()
@@ -49,7 +49,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onProdukPositioned(coordinates.positionInRoot().y.toInt())
+                    onProdukPositioned(coordinates.positionInParent().y.toInt())
                 }
         ) {
             IntelligenceSuite(
@@ -69,7 +69,7 @@ fun LandingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    onKontakPositioned(coordinates.positionInRoot().y.toInt())
+                    onKontakPositioned(coordinates.positionInParent().y.toInt())
                 }
         ) {
             ContactFormSection()
