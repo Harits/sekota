@@ -55,6 +55,7 @@ trigger: always_on
    - **Section & Cross-Screen Navigation**:
      - Tombol section Landing Page (misal *Solusi*, *Produk*, *Kontak*) harus mendukung navigasi lintas layar (beralih ke `Screen.Landing` bila sedang di layar lain) dan melakukan smooth animated scroll ke posisi section yang dituju.
      - Indikator aktif (*active pill indicator*) harus responsif dan dinamis mencerminkan section atau rute yang aktif, bukan statis.
+     - **Component Tag Relocation**: Navigasi scroll ke section wajib memanfaatkan Compose `BringIntoViewRequester` yang di-tag langsung pada Composable target, bukan mengandalkan hardcoded pixel offset yang rentan meleset di berbagai breakpoint resolusi.
 
 9. **Wasm Development Compilation & Linking Invariant**:
    - Ketika memverifikasi perubahan kode pada target Web Wasm, `./gradlew :composeApp:compileKotlinWasmJs` HANYA mengkompilasi modul Kotlin.
@@ -70,5 +71,11 @@ trigger: always_on
 11. **CMS Workbench Adaptive Layout Standards**:
     - Grid kartu di CMS Workbench (misal `IntelligenceSuiteTab`, `MerchandiseTab`) DILARANG menggunakan `GridCells.Fixed` yang kaku.
     - Wajib menggunakan `GridCells.Adaptive(minSize = 280.dp .. 320.dp)` untuk mendukung multi-form factor (Desktop, Tablet, Mobile) tanpa pemotongan isi kartu atau horizontal overflow.
+
+12. **MVI Presentation Architecture & Idiomatic Pure KMP Dependency Injection**:
+    - **Single Source of Truth**: Seluruh state navigasi layar, pill aktif, target dialog auth, dan seleksi entitas wajib dikelola secara terpusat oleh MVI `NavigationCoordinator` via `StateFlow<NavigationState>`.
+    - **Intent-Driven UI Interactions**: Komponen UI dilarang melakukan mutasi state navigasi secara langsung. Setiap interaksi pengguna (klik navbar, CTA Hero, navigasi detail produk/buku, request konsultasi) wajib dipancarkan sebagai `NavigationIntent` melalui `NavigationCoordinator.processIntent(...)`.
+    - **Buffered Side-Effect Channel**: Efek samping navigasi satu kali jalan (seperti request scroll ke section tertentu saat berpindah layar) wajib dialirkan melalui `Channel<NavigationEffect>(Channel.BUFFERED)` untuk menjamin eksekusi deterministik setelah layar target selesai di-mount.
+    - **Lightweight Idiomatic DI Container**: Dependency injection pada level client KMP diimplementasikan menggunakan `AppContainer` murni berbasis `by lazy` instantiations untuk Service, Repository, UseCase, dan Coordinator. HINDARI overhead library DI eksternal yang menambah ukuran bundle Wasm.
 
 

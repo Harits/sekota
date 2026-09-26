@@ -69,6 +69,10 @@ Welcome! This repository is the hub for developing the **Sekota Web** platform. 
 - **Architecture**: Strictly follow the principles in [architecture.md](.requirements/core/architecture.md).
   - Use **Screaming Architecture**: Package by feature (e.g., `com.sekota.features.catalog`).
   - Use **Clean Architecture**: Maintain clear boundaries between Domain, Data, and Presentation.
+- **MVI Navigation & Pure KMP Dependency Injection**:
+  - Enforce MVI architecture for navigation and screen lifecycle: UI emits `NavigationIntent` -> `NavigationCoordinator` updates `StateFlow<NavigationState>` and dispatches one-off `NavigationEffect` channels.
+  - Target section scrolling must use native Compose `BringIntoViewRequester` component tags attached directly to section containers.
+  - Utilize `AppContainer` for lightweight, zero-overhead pure KMP dependency injection.
 - **UI Development & Previews**: 
   - Mandate the use of `@Preview(device = DESKTOP, showBackground = true)` for all Composables (screens, sections, dialogs, and components).
   - Every UI task MUST include comprehensive multi-state previews (default/loaded, empty, loading, error, and compact/responsive variants).
