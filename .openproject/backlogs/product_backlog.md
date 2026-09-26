@@ -77,3 +77,15 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22436` [WEB-04-01-02] Cross-Screen Consultation Navigation & Scroll Targeting
     - `#22437` [WEB-04-01-03] Full-Stack Client Inquiries Pipeline & CMS Inquiries Suite
     - `#22438` [WEB-04-01-04] Author Comprehensive Multi-State Desktop & Mobile Compose Previews
+
+---
+
+## 🔄 Phase 2 Refinement: Dynamic Content & Ecosystem Orchestration (Sprint 5 - In Progress)
+- [ ] **WP-029: [CMS-05-01] - Strategic Value Loop Dynamic Content Management & Cross-Sync** (OpenProject ID: 22439)
+  - *Description*: Sebagai Administrator Sekota CMS, Saya ingin Mengelola dan memperbarui teks, judul, subjudul, dan tahapan Strategic Value Loop (01 Intent, 02 Execution, 03 Value, 04 Measurement, 05 Learning) melalui tab khusus di CMS Workbench, Sehingga Pesan metodologi solusi Sekota di portal publik dapat diperbarui secara dinamis dan real-time tanpa perlu deployment ulang kode.
+  - *Child Tasks*:
+    - `#22440` [CMS-05-01-01] Implement Shared Domain Model, UseCases & Multiplatform Storage for Value Loop Steps
+    - `#22441` [CMS-05-01-02] Build Desktop JVM & Android CMS Workbench Tab & Card Editor for Value Loop
+    - `#22442` [CMS-05-01-03] Integrate CmsSyncServer & SyncService Real-Time WebSocket/Polling for Value Loop
+    - `#22443` [CMS-05-01-04] Bind ValueLoopSection to Dynamic Repository with Mandatory Multi-State Desktop Previews
+
