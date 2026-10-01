@@ -5,13 +5,19 @@ description: Procedures for OpenProject task synchronization, Jules AI coding se
 
 # Sekota Project Workflow & Toolchain Runbook
 
-## 1. OpenProject Optimistic Lock Sync
-When updating work packages in OpenProject:
-1. Always fetch the latest lockVersion:
+## 1. OpenProject Optimistic Lock, Status Transition & Hierarchy Sync
+When updating or creating work packages in OpenProject:
+1. **Check Allowed Status Transitions**:
+   - Query the form schema to verify permitted statuses for the user's role:
+     ```bash
+     POST /api/v3/work_packages/{id}/form
+     ```
+   - Note: For `User story` types under standard Member/Observer roles, direct transition to `Closed` (12) may be prohibited. Move to `In testing` (ID: 9) with 100% progress when children are closed.
+2. **Always fetch the latest lockVersion**:
    ```bash
    GET /api/v3/work_packages/{id}
    ```
-2. Send PATCH payload including the retrieved lockVersion:
+3. **Send PATCH payload including the retrieved lockVersion**:
    ```json
    {
      "lockVersion": <latest_version>,
@@ -19,7 +25,23 @@ When updating work packages in OpenProject:
      "comment": { "raw": "Completed implementation sub-task." }
    }
    ```
-3. Update `.openproject/backlogs/sprint_*.json` with the new lockVersion.
+4. **Provision Sprint Version If Missing**:
+   - Check available versions with `GET /api/v3/projects/{id}/versions`.
+   - If the sprint version does not exist, create it:
+     ```json
+     POST /api/v3/versions
+     {
+       "name": "Sprint N: <Name>",
+       "startDate": "<YYYY-MM-DD>",
+       "endDate": "<YYYY-MM-DD>",
+       "status": "open",
+       "_links": { "definingProject": { "href": "/api/v3/projects/<id>" } }
+     }
+     ```
+5. **Parent-Child Linking**:
+   - Link child tasks to the parent User Story using `_links.parent = { "href": "/api/v3/work_packages/<parent_id>" }`.
+6. **Update Local Backlog**:
+   - Update `.openproject/backlogs/sprint_*.json` with official OpenProject IDs and commit changes.
 
 ## 2. Web & Container Deployment Routine
 When building or deploying container images:
