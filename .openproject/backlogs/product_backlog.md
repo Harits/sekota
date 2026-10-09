@@ -88,4 +88,12 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22441` [CMS-05-01-02] Build Desktop JVM & Android CMS Workbench Tab & Card Editor for Value Loop
     - `#22442` [CMS-05-01-03] Integrate CmsSyncServer & SyncService Real-Time WebSocket/Polling for Value Loop
     - `#22443` [CMS-05-01-04] Bind ValueLoopSection to Dynamic Repository with Mandatory Multi-State Desktop Previews
+- [x] **WP-030: [CMS-05-02] - Dynamic Image, Custom Icon & Accent Customization for Intelligence Suite**
+  - *Description*: Sebagai Administrator Sekota CMS, Saya ingin Mengunggah logo/ikon kustom dan menentukan kode warna aksen heksadesimal untuk masing-masing produk Intelligence Suite melalui dialog edit modul, Sehingga Modul produk baru maupun yang diperbarui dapat menampilkan identitas visual ikon kustomnya secara dinamis dan real-time di portal Web Sekota serta Product Details Screen (atau tidak menampilkan ikon bila tidak disediakan di CMS).
+  - *Child Tasks*:
+    - [CMS-05-02-01] Shared Domain Model & Storage Enrichment for Product Icons & Accents
+    - [CMS-05-02-02] CMS Workbench Image Picker & In-Memory Preview Dialog
+    - [CMS-05-02-03] Dynamic Web Bitmap Rendering for IntelligenceSuite & ProductDetailsScreen (Hide Icon When Not Provided)
+    - [CMS-05-02-04] Author Multi-State Compose Previews and Verify Desktop & Wasm Compilations
+
 
