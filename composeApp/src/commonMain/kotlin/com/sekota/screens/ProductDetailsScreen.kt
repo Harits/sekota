@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailsScreen(
     productCode: String? = "VRD",
@@ -150,19 +151,41 @@ fun ProductDetailsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Surface(
-                            color = accentColor.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = {
+                                PlainTooltip(
+                                    shape = RoundedCornerShape(8.dp),
+                                    containerColor = Color(0xFF0F172A),
+                                    contentColor = Color.White
+                                ) {
+                                    Text(
+                                        text = product.categoryEyebrow.uppercase(),
+                                        fontSize = 12.sp,
+                                        fontFamily = getDmSansFontFamily(),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            },
+                            state = androidx.compose.material3.rememberTooltipState(),
+                            modifier = Modifier.weight(1f, fill = false).padding(end = 16.dp)
                         ) {
-                            Text(
-                                text = product.categoryEyebrow.uppercase(),
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = accentColor,
-                                fontFamily = getDmSansFontFamily(),
-                                letterSpacing = 1.sp
-                            )
+                            Surface(
+                                color = accentColor.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    text = product.categoryEyebrow.uppercase(),
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accentColor,
+                                    fontFamily = getDmSansFontFamily(),
+                                    letterSpacing = 1.sp,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
+                            }
                         }
 
                         if (customBitmap != null) {

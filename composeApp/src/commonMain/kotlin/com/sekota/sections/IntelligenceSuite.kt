@@ -11,6 +11,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -184,6 +188,7 @@ private fun SuiteHeaderTitle(windowWidth: WindowWidth) {
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun SuiteCard(
     category: String,
@@ -235,20 +240,41 @@ fun SuiteCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        color = accentColor.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(8.dp),
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip(
+                                shape = RoundedCornerShape(8.dp),
+                                containerColor = Color(0xFF0F172A),
+                                contentColor = Color.White
+                            ) {
+                                Text(
+                                    text = category,
+                                    fontSize = 12.sp,
+                                    fontFamily = getDmSansFontFamily(),
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        },
+                        state = androidx.compose.material3.rememberTooltipState(),
                         modifier = Modifier.weight(1f, fill = false).padding(end = 12.dp)
                     ) {
-                        Text(
-                            text = category,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = accentColor,
-                            fontFamily = getDmSansFontFamily(),
-                            letterSpacing = 1.sp,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                        )
+                        Surface(
+                            color = accentColor.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = category,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = accentColor,
+                                fontFamily = getDmSansFontFamily(),
+                                letterSpacing = 1.sp,
+                                maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            )
+                        }
                     }
 
                     if (customBitmap != null) {
@@ -451,7 +477,7 @@ fun IntelligenceSuiteCustomIconCardPreview() {
     androidx.compose.material3.MaterialTheme {
         Box(modifier = Modifier.padding(32.dp).width(360.dp)) {
             SuiteCard(
-                category = "URBAN AI SUITE",
+                category = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                 title = "CYBER PULSE",
                 description = "Pemantauan anomali lalu lintas perkotaan dan respons otomatis tanggap darurat.",
                 features = listOf(
