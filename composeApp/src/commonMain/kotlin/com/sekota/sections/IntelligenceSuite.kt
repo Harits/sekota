@@ -240,40 +240,41 @@ fun SuiteCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip(
-                                shape = RoundedCornerShape(8.dp),
-                                containerColor = Color(0xFF0F172A),
-                                contentColor = Color.White
+                    Box(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = {
+                                PlainTooltip(
+                                    shape = RoundedCornerShape(8.dp),
+                                    containerColor = Color(0xFF0F172A),
+                                    contentColor = Color.White
+                                ) {
+                                    Text(
+                                        text = category,
+                                        fontSize = 12.sp,
+                                        fontFamily = getDmSansFontFamily(),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            },
+                            state = androidx.compose.material3.rememberTooltipState()
+                        ) {
+                            Surface(
+                                color = accentColor.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
                                     text = category,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = accentColor,
                                     fontFamily = getDmSansFontFamily(),
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    letterSpacing = 1.sp,
+                                    maxLines = 2,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                 )
                             }
-                        },
-                        state = androidx.compose.material3.rememberTooltipState(),
-                        modifier = Modifier.weight(1f, fill = false).padding(end = 12.dp)
-                    ) {
-                        Surface(
-                            color = accentColor.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = category,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = accentColor,
-                                fontFamily = getDmSansFontFamily(),
-                                letterSpacing = 1.sp,
-                                maxLines = 2,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                            )
                         }
                     }
 
