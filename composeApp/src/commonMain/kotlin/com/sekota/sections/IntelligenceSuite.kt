@@ -240,7 +240,11 @@ fun SuiteCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .padding(end = if (customBitmap != null) 12.dp else 0.dp)
+                    ) {
                         TooltipBox(
                             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                             tooltip = {
@@ -282,12 +286,6 @@ fun SuiteCard(
                         Image(
                             bitmap = customBitmap,
                             contentDescription = "$title Custom Logo",
-                            modifier = Modifier.size(44.dp)
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(logo),
-                            contentDescription = "$title Logo",
                             modifier = Modifier.size(44.dp)
                         )
                     }

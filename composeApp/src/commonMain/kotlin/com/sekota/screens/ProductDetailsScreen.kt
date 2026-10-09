@@ -168,7 +168,9 @@ fun ProductDetailsScreen(
                                 }
                             },
                             state = androidx.compose.material3.rememberTooltipState(),
-                            modifier = Modifier.weight(1f, fill = false).padding(end = 16.dp)
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .padding(end = if (customBitmap != null) 16.dp else 0.dp)
                         ) {
                             Surface(
                                 color = accentColor.copy(alpha = 0.12f),
@@ -192,12 +194,6 @@ fun ProductDetailsScreen(
                             Image(
                                 bitmap = customBitmap,
                                 contentDescription = "${product.name} Custom Logo",
-                                modifier = Modifier.size(if (isCompact) 48.dp else 64.dp)
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(logo),
-                                contentDescription = "${product.name} Logo",
                                 modifier = Modifier.size(if (isCompact) 48.dp else 64.dp)
                             )
                         }
