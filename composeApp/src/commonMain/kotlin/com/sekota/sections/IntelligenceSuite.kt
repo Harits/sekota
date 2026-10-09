@@ -237,7 +237,8 @@ fun SuiteCard(
                 ) {
                     Surface(
                         color = accentColor.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f, fill = false).padding(end = 12.dp)
                     ) {
                         Text(
                             text = category,
@@ -399,7 +400,7 @@ fun IntelligenceSuiteCardSelectedPreview() {
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 SuiteCard(
-                    category = "DECISION SIMULATION",
+                    category = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse molestie dictum suscipit. Sed venenatis quam vitae justo pulvinar venenatis. Phasellus consequat lacus eu diam scelerisque, id maximus nunc efficitur. Sed condimentum rhoncus lectus. Quisque vitae erat eu massa volutpat porta. Suspendisse et orci ut tellus imperdiet laoreet. Duis lobortis mi sem, nec dictum turpis fringilla eget. Mauris varius faucibus lorem, eu lacinia est accumsan sed. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In condimentum dui metus, id imperdiet orci mollis in. Sed tempor volutpat pretium. In hac habitasse platea dictumst. Fusce sagittis nisl orci, ut malesuada felis tincidunt et. Ut at suscipit ante. Nunc egestas massa sed faucibus aliquam.",
                     title = "VERIDIA",
                     description = "Platform simulasi skenario kebijakan dan prediksi dampak sosial multi-sektor.",
                     features = listOf(
@@ -460,8 +461,8 @@ fun IntelligenceSuiteCustomIconCardPreview() {
                 ),
                 logo = Res.drawable.icon_veridia,
                 accentColor = Color(0xFF00B5C8),
-                // Example 1x1 transparent/cyan pixel base64 for previewing custom icon branch
-                customIconUrlOrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkWPjfDwAExwH09NkmvwAAAABJRU5ErkJggg==",
+                // Prominent 48x48 cyan shield icon Base64 for previewing custom icon branch
+                customIconUrlOrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAABUo+ClAAACjklEQVRoBe2YvWsUQRTGZ3fX3CRGoyEQbAwRsfcPxB+I2AkWqRRUUBG7FFQsoqDYW4iFpBAhhYUg2NgIaGvjBwiKqIka73bmXfa4vXv39mb3bm4P5jZvu/Pmff/ed2fmbm9nZ8a8q17Vq/7Fq37f/0080z3nE6/B18U+6fUf9qS+9T/t7X5p3zD0v+P40y+T/2eA+4V/Uo+yq78HwB0cAC60AAYD64HBwDpgcDYf4B7gD8K/4yD6Gge4V9i/D584v0z6Z7pP34u6nfsd0r9vWf/bE532R/yXG+/A/i7A7wH+0t2r7hU1D/B6YV4sFgv5fF5bW1va3Ny0/N3d3eq2tbX1f8eZ/p18ZwfAG4D/gL+K/S/3r0oB3N3dVXt7e3pwkMlkdPny5c8fL6A0G61qAGj8u/uH2H/r/qEUAMzW19d1f39fBwcHNT0ePnzoe4iG/fWPAQBg94O7R4UAgB8eHqrmF0Zra2t9r77e/w4AvB/cPTs/AMB2dnZi35m2tLRUfR8A3M/unhsfANzc3Gz6ztS5ubkBAHb3vLs3xweA6enp2Hd8bW1tzf8A3j539870+QDA6Oio7e/v2+jra3Fx8U+N/Z2x7p4bHwCwt7f32wGwtbU18L7x97y796fHB4DJycnYd3zNzMx8X21n/u+7+23qcwBwOzs7v913ZqempqrfA8DeC+5enj4fAEj08/q8e1QJgEQ/L3r7e3oA8OH+/gA93gJ48eJF4zU9NTVVffc8AHA7Ojq6f1QJgEQ/b27u71cCYPzly5e/7Ttzc3PVEwFw+/j4+O5RJQAS/bxvPj4BvHjxYsB94+/5+Pj44/kAAOPf3V1RAkCiP56u/oMv3d0/Z2Bf7r8FwD+xR/3r+v17AP4CSU0E+e8Qk2oAAAAASUVORK5CYRNOTEAAA==",
                 modifier = Modifier.fillMaxWidth()
             )
         }
