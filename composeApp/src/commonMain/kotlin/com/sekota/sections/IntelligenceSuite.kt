@@ -487,8 +487,8 @@ fun IntelligenceSuiteCustomIconCardPreview() {
                 ),
                 logo = Res.drawable.icon_veridia,
                 accentColor = Color(0xFF00B5C8),
-                // Prominent 48x48 cyan shield icon Base64 for previewing custom icon branch
-                customIconUrlOrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAABUo+ClAAACjklEQVRoBe2YvWsUQRTGZ3fX3CRGoyEQbAwRsfcPxB+I2AkWqRRUUBG7FFQsoqDYW4iFpBAhhYUg2NgIaGvjBwiKqIka73bmXfa4vXv39mb3bm4P5jZvu/Pmff/ed2fmbm9nZ8a8q17Vq/7Fq37f/0080z3nE6/B18U+6fUf9qS+9T/t7X5p3zD0v+P40y+T/2eA+4V/Uo+yq78HwB0cAC60AAYD64HBwDpgcDYf4B7gD8K/4yD6Gge4V9i/D584v0z6Z7pP34u6nfsd0r9vWf/bE532R/yXG+/A/i7A7wH+0t2r7hU1D/B6YV4sFgv5fF5bW1va3Ny0/N3d3eq2tbX1f8eZ/p18ZwfAG4D/gL+K/S/3r0oB3N3dVXt7e3pwkMlkdPny5c8fL6A0G61qAGj8u/uH2H/r/qEUAMzW19d1f39fBwcHNT0ePnzoe4iG/fWPAQBg94O7R4UAgB8eHqrmF0Zra2t9r77e/w4AvB/cPTs/AMB2dnZi35m2tLRUfR8A3M/unhsfANzc3Gz6ztS5ubkBAHb3vLs3xweA6enp2Hd8bW1tzf8A3j539870+QDA6Oio7e/v2+jra3Fx8U+N/Z2x7p4bHwCwt7f32wGwtbU18L7x97y796fHB4DJycnYd3zNzMx8X21n/u+7+23qcwBwOzs7v913ZqempqrfA8DeC+5enj4fAEj08/q8e1QJgEQ/L3r7e3oA8OH+/gA93gJ48eJF4zU9NTVVffc8AHA7Ojq6f1QJgEQ/b27u71cCYPzly5e/7Ttzc3PVEwFw+/j4+O5RJQAS/bxvPj4BvHjxYsB94+/5+Pj44/kAAOPf3V1RAkCiP56u/oMv3d0/Z2Bf7r8FwD+xR/3r+v17AP4CSU0E+e8Qk2oAAAAASUVORK5CYRNOTEAAA==",
+                // Valid 48x48 cyan circle emblem PNG Base64 for previewing custom icon branch
+                customIconUrlOrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAnUlEQVR4nO3P0Q2AMAwD0e6/DzuwFWyAWjnNJcWW/H9vDM8rtOt+pl9mK9GlMBHhGGRHfApiZ/h2SGZ8OIKID0OQ8TKCDpcRdLQEoIMlBB0qI+hICUAHygg67t8AOkxG0FEG0FEG0FEG0FEG0FEGdEF8jo4zoDpianSkDKiKWB4dLMUfAaiCkNc6nkSEr3V8FiRtreOjIWXWMtrT9gLql0xPRB0hOAAAAABJRU5ErkJggg==",
                 modifier = Modifier.fillMaxWidth()
             )
         }
