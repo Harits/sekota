@@ -75,13 +75,30 @@ fun ProductDetailsScreen(
         else -> Res.drawable.icon_veridia
     }
 
-    val accentColor = when (product.code.uppercase()) {
+    val customIcon = product.iconUrlOrBase64
+    val customBitmap = remember(customIcon) {
+        if (!customIcon.isNullOrBlank()) {
+            com.sekota.utils.decodeBase64ToBitmap(customIcon)
+        } else null
+    }
+
+    val defaultAccentColor = when (product.code.uppercase()) {
         "VRD" -> Color(0xFF00BFA5)
         "ASC" -> Color(0xFF1976D2)
         "SOC" -> Color(0xFF8BC34A)
         "ECO" -> Color(0xFF4CAF50)
         else -> Color(0xFF00B5C8)
     }
+
+    val customHex = product.accentColorHex
+    val accentColor = if (!customHex.isNullOrBlank()) {
+        try {
+            val cleanHex = customHex.removePrefix("#")
+            Color(cleanHex.toLong(16) or 0x00000000FF000000)
+        } catch (_: Exception) {
+            defaultAccentColor
+        }
+    } else defaultAccentColor
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth().background(Color(0xFFF8FAFB))) {
         val windowWidth = windowWidthOf(maxWidth)
@@ -148,11 +165,19 @@ fun ProductDetailsScreen(
                             )
                         }
 
-                        Image(
-                            painter = painterResource(logo),
-                            contentDescription = "${product.name} Logo",
-                            modifier = Modifier.size(if (isCompact) 48.dp else 64.dp)
-                        )
+                        if (customBitmap != null) {
+                            Image(
+                                bitmap = customBitmap,
+                                contentDescription = "${product.name} Custom Logo",
+                                modifier = Modifier.size(if (isCompact) 48.dp else 64.dp)
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(logo),
+                                contentDescription = "${product.name} Logo",
+                                modifier = Modifier.size(if (isCompact) 48.dp else 64.dp)
+                            )
+                        }
                     }
 
                     // Product Name

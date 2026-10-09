@@ -9,5 +9,7 @@ data class AdminProduct(
     val name: String,
     val categoryEyebrow: String,
     val description: String,
-    val features: List<String>
+    val features: List<String>,
+    val iconUrlOrBase64: String? = null,
+    val accentColorHex: String? = null
 )

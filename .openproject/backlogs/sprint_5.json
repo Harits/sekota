@@ -72,6 +72,75 @@
       "percentageDone": 100,
       "startDate": "2026-06-29",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-030",
+      "opId": null,
+      "subject": "[CMS-05-02] Dynamic Image, Custom Icon & Accent Customization for Intelligence Suite",
+      "type": "User story",
+      "status": "Developed",
+      "lockVersion": 1,
+      "description": "Sebagai Administrator Sekota CMS, Saya ingin Mengunggah logo/ikon kustom dan menentukan kode warna aksen heksadesimal untuk masing-masing produk Intelligence Suite melalui dialog edit modul, Sehingga Modul produk baru maupun yang diperbarui dapat menampilkan identitas visual ikon kustomnya secara dinamis dan real-time di portal Web Sekota serta Product Details Screen.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-26",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-030-1",
+      "opId": null,
+      "parentId": null,
+      "subject": "[CMS-05-02-01] Shared Domain Model & Storage Enrichment for Product Icons & Accents",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Memperluas AdminProduct dengan iconUrlOrBase64 dan accentColorHex serta menjamin serialisasi JSON backward compatible.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-26",
+      "dueDate": "2026-06-28"
+    },
+    {
+      "localId": "WP-030-2",
+      "opId": null,
+      "parentId": null,
+      "subject": "[CMS-05-02-02] CMS Workbench Image Picker & In-Memory Preview Dialog",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Menambahkan selectAndReadImageFile picker, thumbnail preview in-dialog, dan trigger real-time sync pada IntelligenceSuiteTab di AdminDashboardScreen.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-28",
+      "dueDate": "2026-06-30"
+    },
+    {
+      "localId": "WP-030-3",
+      "opId": null,
+      "parentId": null,
+      "subject": "[CMS-05-02-03] Dynamic Web Bitmap Rendering for IntelligenceSuite & ProductDetailsScreen",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Mengintegrasikan decodeBase64ToBitmap di SuiteCard dan ProductDetailsScreen dengan fallback ke resource drawable bawaan.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-06-30",
+      "dueDate": "2026-07-02"
+    },
+    {
+      "localId": "WP-030-4",
+      "opId": null,
+      "parentId": null,
+      "subject": "[CMS-05-02-04] Author Multi-State Compose Previews and Verify Desktop & Wasm Compilations",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Membuat preview multi-state lengkap mencakup custom icon loaded, fallback drawable, dan compact layout serta memverifikasi build kelulusan di desktop & Wasm.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-02",
+      "dueDate": "2026-07-04"
     }
   ]
 }

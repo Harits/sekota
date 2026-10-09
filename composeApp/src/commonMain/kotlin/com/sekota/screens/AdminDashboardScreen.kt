@@ -1,5 +1,7 @@
 package com.sekota.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +25,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
+import com.sekota.syncService
+import com.sekota.utils.selectAndReadImageFile
+import com.sekota.utils.decodeBase64ToBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sekota.getDmSansFontFamily
@@ -714,6 +719,8 @@ fun IntelligenceSuiteTab(
     var prodCategory by remember { mutableStateOf("Intelligence Suite") }
     var prodDesc by remember { mutableStateOf("") }
     var prodFeaturesText by remember { mutableStateOf("") }
+    var prodIconUrlOrBase64 by remember { mutableStateOf<String?>(null) }
+    var prodAccentColorHex by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -788,6 +795,93 @@ fun IntelligenceSuiteTab(
                         placeholder = { Text("e.g. Sentiment Analytics, ESG Metric Tracker") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    OutlinedTextField(
+                        value = prodAccentColorHex,
+                        onValueChange = { prodAccentColorHex = it; errorMessage = null },
+                        label = { Text("Warna Aksen Hex (opsional, contoh: #00BFA5)") },
+                        placeholder = { Text("#00BFA5") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Custom Icon / Logo Picker
+                    Text(
+                        text = "Ikon / Logo Produk",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        color = InkNavy
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                selectAndReadImageFile { base64Data ->
+                                    prodIconUrlOrBase64 = base64Data
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandTeal.copy(alpha = 0.15f))
+                        ) {
+                            Text(
+                                text = if (prodIconUrlOrBase64.isNullOrBlank()) "📁 Unggah Ikon / Logo" else "🔄 Ganti Ikon",
+                                color = BrandTeal,
+                                fontFamily = getDmSansFontFamily(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+
+                        if (!prodIconUrlOrBase64.isNullOrBlank()) {
+                            TextButton(
+                                onClick = { prodIconUrlOrBase64 = null }
+                            ) {
+                                Text("Hapus Ikon Kustom", color = Color(0xFFE53E3E), fontSize = 12.sp)
+                            }
+                        }
+                    }
+
+                    // Preview Icon
+                    if (!prodIconUrlOrBase64.isNullOrBlank()) {
+                        val customBitmap = remember(prodIconUrlOrBase64) {
+                            decodeBase64ToBitmap(prodIconUrlOrBase64!!)
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFF8FAFB),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                if (customBitmap != null) {
+                                    Image(
+                                        bitmap = customBitmap,
+                                        contentDescription = "Preview Ikon",
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier.size(48.dp).background(BrandTeal.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("🖼️", fontSize = 20.sp)
+                                    }
+                                }
+                                Column {
+                                    Text("Ikon Kustom Siap Ditampilkan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = InkNavy)
+                                    Text("Akan otomatis tersinkronisasi dan tampil di Web Sekota.", fontFamily = getDmSansFontFamily(), fontSize = 11.sp, color = Color.Gray)
+                                }
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
@@ -810,17 +904,22 @@ fun IntelligenceSuiteTab(
                                 name = prodName.trim(),
                                 categoryEyebrow = prodCategory.trim().ifBlank { "Intelligence Suite" },
                                 description = prodDesc.trim(),
-                                features = if (features.isNotEmpty()) features else listOf("Core Intelligence")
+                                features = if (features.isNotEmpty()) features else listOf("Core Intelligence"),
+                                iconUrlOrBase64 = prodIconUrlOrBase64,
+                                accentColorHex = prodAccentColorHex.trim().ifBlank { null }
                             )
                             val result = saveProductUseCase(productToSave)
                             if (result.isSuccess) {
                                 products = getProductsUseCase()
+                                syncService.triggerLocalUpdate()
                                 showDialog = false
                                 editingProduct = null
                                 prodCode = ""
                                 prodName = ""
                                 prodDesc = ""
                                 prodFeaturesText = ""
+                                prodIconUrlOrBase64 = null
+                                prodAccentColorHex = ""
                                 errorMessage = null
                             } else {
                                 errorMessage = result.exceptionOrNull()?.message
@@ -853,6 +952,8 @@ fun IntelligenceSuiteTab(
                 prodCategory = "Intelligence Suite"
                 prodDesc = ""
                 prodFeaturesText = ""
+                prodIconUrlOrBase64 = null
+                prodAccentColorHex = ""
                 errorMessage = null
                 showDialog = true
             }
@@ -910,6 +1011,8 @@ fun IntelligenceSuiteTab(
                                     prodCategory = prod.categoryEyebrow
                                     prodDesc = prod.description
                                     prodFeaturesText = prod.features.joinToString(", ")
+                                    prodIconUrlOrBase64 = prod.iconUrlOrBase64
+                                    prodAccentColorHex = prod.accentColorHex ?: ""
                                     errorMessage = null
                                     showDialog = true
                                 }
@@ -922,6 +1025,7 @@ fun IntelligenceSuiteTab(
                                     products = products.filter { it.id != prod.id }
                                     scope.launch {
                                         deleteProductUseCase(prod.id)
+                                        syncService.triggerLocalUpdate()
                                     }
                                 }
                             ) {

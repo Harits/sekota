@@ -122,13 +122,22 @@ fun IntelligenceSuite(
                             "ECO" -> Res.drawable.icon_ecoflow
                             else -> Res.drawable.icon_veridia
                         }
-                        val accentColor = when (product.code.uppercase()) {
+                        val defaultAccentColor = when (product.code.uppercase()) {
                             "VRD" -> Color(0xFF00BFA5)
                             "ASC" -> Color(0xFF1976D2)
                             "SOC" -> Color(0xFF8BC34A)
                             "ECO" -> Color(0xFF4CAF50)
                             else -> Color(0xFF00B5C8)
                         }
+                        val customHex = product.accentColorHex
+                        val accentColor = if (!customHex.isNullOrBlank()) {
+                            try {
+                                val cleanHex = customHex.removePrefix("#")
+                                Color(cleanHex.toLong(16) or 0x00000000FF000000)
+                            } catch (_: Exception) {
+                                defaultAccentColor
+                            }
+                        } else defaultAccentColor
 
                         SuiteCard(
                             category = product.categoryEyebrow.uppercase(),
@@ -137,6 +146,7 @@ fun IntelligenceSuite(
                             features = product.features,
                             logo = logo,
                             accentColor = accentColor,
+                            customIconUrlOrBase64 = product.iconUrlOrBase64,
                             compactPadding = windowWidth.isCompact,
                             minHeight = if (columns == 1) 0.dp else 480.dp,
                             modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -182,11 +192,18 @@ fun SuiteCard(
     features: List<String>,
     logo: DrawableResource,
     accentColor: Color,
+    customIconUrlOrBase64: String? = null,
     modifier: Modifier = Modifier,
     compactPadding: Boolean = false,
     minHeight: androidx.compose.ui.unit.Dp = 480.dp,
     onClick: () -> Unit = {}
 ) {
+    val customBitmap = remember(customIconUrlOrBase64) {
+        if (!customIconUrlOrBase64.isNullOrBlank()) {
+            com.sekota.utils.decodeBase64ToBitmap(customIconUrlOrBase64)
+        } else null
+    }
+
     Card(
         modifier = modifier
             .heightIn(min = minHeight)
@@ -233,11 +250,19 @@ fun SuiteCard(
                         )
                     }
 
-                    Image(
-                        painter = painterResource(logo),
-                        contentDescription = "$title Logo",
-                        modifier = Modifier.size(44.dp)
-                    )
+                    if (customBitmap != null) {
+                        Image(
+                            bitmap = customBitmap,
+                            contentDescription = "$title Custom Logo",
+                            modifier = Modifier.size(44.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(logo),
+                            contentDescription = "$title Logo",
+                            modifier = Modifier.size(44.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -415,6 +440,40 @@ fun IntelligenceSuiteCardSelectedPreview() {
                     modifier = Modifier.weight(1f)
                 )
             }
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun IntelligenceSuiteCustomIconCardPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Box(modifier = Modifier.padding(32.dp).width(360.dp)) {
+            SuiteCard(
+                category = "URBAN AI SUITE",
+                title = "CYBER PULSE",
+                description = "Pemantauan anomali lalu lintas perkotaan dan respons otomatis tanggap darurat.",
+                features = listOf(
+                    "Real-time Traffic Telemetry",
+                    "Predictive Incident Management",
+                    "Automated Dispatch Gateway"
+                ),
+                logo = Res.drawable.icon_veridia,
+                accentColor = Color(0xFF00B5C8),
+                // Example 1x1 transparent/cyan pixel base64 for previewing custom icon branch
+                customIconUrlOrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkWPjfDwAExwH09NkmvwAAAABJRU5ErkJggg==",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun IntelligenceSuiteCompactMobilePreview() {
+    androidx.compose.material3.MaterialTheme {
+        Box(modifier = Modifier.width(375.dp)) {
+            IntelligenceSuite()
         }
     }
 }
