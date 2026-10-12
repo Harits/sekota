@@ -311,16 +311,29 @@ private fun BookInfoContent(
             color = Color(0xFF0D1F2D),
             fontFamily = getDmSansFontFamily()
         )
-        if (!book.pdfUrl.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "📄 Digital Edition: Termasuk manuskrip PDF resolusi tinggi dan lisensi pembaca interaktif.",
-                fontSize = 14.sp,
-                color = Color(0xFF00796B),
-                fontFamily = getDmSansFontFamily(),
-                fontWeight = FontWeight.Medium
-            )
-        }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    color = Color(0xFF00796B).copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier.size(20.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "📖",
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Digital Edition: Termasuk manuskrip PDF resolusi tinggi dan lisensi pembaca interaktif.",
+                    fontSize = 14.sp,
+                    color = Color(0xFF00796B),
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Medium
+                )
+            }
         
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -482,26 +495,49 @@ fun WhatsInsideSection(
     // Two chapter tiles side by side need ~500dp of pane; below that they stack.
     stackChapters: Boolean = false
 ) {
-    val chapters = remember(book?.id, book?.category) {
-        when (book?.category?.uppercase()) {
-            "ESG" -> listOf(
-                Pair("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi."),
-                Pair("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi."),
-                Pair("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi."),
-                Pair("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.")
-            )
-            "SMART CITY" -> listOf(
-                Pair("Urban Data & Sensorik Cerdas", "Membangun arsitektur data kota berbasis sensor dan telemetri terpadu."),
-                Pair("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan."),
-                Pair("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga."),
-                Pair("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.")
-            )
-            else -> listOf(
-                Pair("The Attention Economy", "Understanding the mechanics behind digital distractions."),
-                Pair("Deep Work Protocols", "Actionable steps to enter flow state on command."),
-                Pair("Mindful Tech Integration", "Setting boundaries that stick without the guilt."),
-                Pair("Cognitive Recovery", "Restoring your mental energy after intense digital usage.")
-            )
+    data class DisplayChapter(
+        val title: String,
+        val subtitle: String,
+        val iconRes: org.jetbrains.compose.resources.DrawableResource
+    )
+
+    val chapters = remember(book?.id, book?.category, book?.whatsInside) {
+        val items = book?.whatsInside
+        if (!items.isNullOrEmpty()) {
+            items.map { item ->
+                val icon = when (item.iconName.lowercase()) {
+                    "frame" -> Res.drawable.icon_7
+                    "gear" -> Res.drawable.icon_8
+                    "leaf" -> Res.drawable.icon_5
+                    else -> Res.drawable.icon_6
+                }
+                DisplayChapter(item.title, item.description, icon)
+            }
+        } else {
+            val fallbackPairs = when (book?.category?.uppercase()) {
+                "ESG" -> listOf(
+                    Pair("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi."),
+                    Pair("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi."),
+                    Pair("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi."),
+                    Pair("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.")
+                )
+                "SMART CITY" -> listOf(
+                    Pair("Urban Data & Sensorik Cerdas", "Membangun arsitektur data kota berbasis sensor dan telemetri terpadu."),
+                    Pair("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan."),
+                    Pair("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga."),
+                    Pair("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.")
+                )
+                else -> listOf(
+                    Pair("The Attention Economy", "Understanding the mechanics behind digital distractions."),
+                    Pair("Deep Work Protocols", "Actionable steps to enter flow state on command."),
+                    Pair("Mindful Tech Integration", "Setting boundaries that stick without the guilt."),
+                    Pair("Cognitive Recovery", "Restoring your mental energy after intense digital usage.")
+                )
+            }
+            val defaultIcons = listOf(Res.drawable.icon_6, Res.drawable.icon_7, Res.drawable.icon_8, Res.drawable.icon_5)
+            fallbackPairs.mapIndexed { idx, pair ->
+                DisplayChapter(pair.first, pair.second, defaultIcons.getOrElse(idx % defaultIcons.size) { Res.drawable.icon_6 })
+            }
         }
     }
 
@@ -520,25 +556,19 @@ fun WhatsInsideSection(
             )
             Spacer(modifier = Modifier.height(32.dp))
             
-            val chapterIcons = listOf(
-                Res.drawable.icon_6,
-                Res.drawable.icon_7,
-                Res.drawable.icon_8,
-                Res.drawable.icon_5
-            )
             val chapterRows = if (stackChapters) 1 else 2
 
             Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                chapterIcons.withIndex().chunked(chapterRows).forEach { rowItems ->
+                chapters.chunked(chapterRows).forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(32.dp)
                     ) {
-                        rowItems.forEach { (index, icon) ->
+                        rowItems.forEach { chapter ->
                             InsideItem(
-                                icon = icon,
-                                title = chapters.getOrNull(index)?.first ?: "Chapter ${index + 1}",
-                                subtitle = chapters.getOrNull(index)?.second ?: "",
+                                icon = chapter.iconRes,
+                                title = chapter.title,
+                                subtitle = chapter.subtitle,
                                 modifier = Modifier.weight(1f)
                             )
                         }

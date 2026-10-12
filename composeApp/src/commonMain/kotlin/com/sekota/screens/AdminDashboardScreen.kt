@@ -343,6 +343,7 @@ fun BooksRegistryTab(
     var webYear by remember { mutableStateOf("") }
     var webLanguage by remember { mutableStateOf("") }
     var webPublishedDate by remember { mutableStateOf("") }
+    var webWhatsInside by remember { mutableStateOf<List<com.sekota.features.admin.domain.model.AdminWhatsInsideItem>>(emptyList()) }
     var webError by remember { mutableStateOf<String?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -549,6 +550,118 @@ fun BooksRegistryTab(
 
                     HorizontalDivider(color = Color(0xFFE2E8F0))
 
+                    // What's Inside CMS Editor (Scenario 2 AC)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "WHAT'S INSIDE (FITUR & MODUL)",
+                            fontFamily = getDmSansFontFamily(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            color = Color.Gray,
+                            letterSpacing = 1.sp
+                        )
+                        TextButton(
+                            onClick = {
+                                webWhatsInside = webWhatsInside + com.sekota.features.admin.domain.model.AdminWhatsInsideItem(
+                                    title = "Poin Analisis Baru",
+                                    description = "Deskripsi materi atau modul buku",
+                                    iconName = "sparkle"
+                                )
+                            },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text("+ Tambah Poin", fontFamily = getDmSansFontFamily(), fontSize = 12.sp, color = BrandTeal, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    webWhatsInside.forEachIndexed { itemIndex, item ->
+                        Surface(
+                            color = Color(0xFFF8FAFC),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        "Poin #${itemIndex + 1}",
+                                        fontFamily = getMontserratFontFamily(),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = InkNavy
+                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        // Icon selector chips
+                                        listOf("sparkle" to "✨", "frame" to "🔲", "gear" to "⚙️", "leaf" to "🌿").forEach { (icKey, icEmoji) ->
+                                            val isSel = item.iconName.equals(icKey, ignoreCase = true)
+                                            Surface(
+                                                color = if (isSel) BrandTeal.copy(alpha = 0.2f) else Color.Transparent,
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(1.dp, if (isSel) BrandTeal else Color(0xFFCBD5E1)),
+                                                modifier = Modifier.size(24.dp)
+                                            ) {
+                                                IconButton(
+                                                    onClick = {
+                                                        val list = webWhatsInside.toMutableList()
+                                                        list[itemIndex] = item.copy(iconName = icKey)
+                                                        webWhatsInside = list
+                                                    },
+                                                    modifier = Modifier.fillMaxSize()
+                                                ) {
+                                                    Text(icEmoji, fontSize = 11.sp)
+                                                }
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        IconButton(
+                                            onClick = {
+                                                val list = webWhatsInside.toMutableList()
+                                                list.removeAt(itemIndex)
+                                                webWhatsInside = list
+                                            },
+                                            modifier = Modifier.size(24.dp)
+                                        ) {
+                                            Text("✕", fontSize = 12.sp, color = Color(0xFFE53E3E), fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                                OutlinedTextField(
+                                    value = item.title,
+                                    onValueChange = { newT ->
+                                        val list = webWhatsInside.toMutableList()
+                                        list[itemIndex] = item.copy(title = newT)
+                                        webWhatsInside = list
+                                    },
+                                    label = { Text("Judul Poin", fontFamily = getDmSansFontFamily(), fontSize = 11.sp) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = item.description,
+                                    onValueChange = { newD ->
+                                        val list = webWhatsInside.toMutableList()
+                                        list[itemIndex] = item.copy(description = newD)
+                                        webWhatsInside = list
+                                    },
+                                    label = { Text("Deskripsi Poin", fontFamily = getDmSansFontFamily(), fontSize = 11.sp) },
+                                    minLines = 1,
+                                    maxLines = 3,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(color = Color(0xFFE2E8F0))
+
                     // Architecture rule 6: telemetry is engine-owned. Shown for
                     // context, deliberately not editable.
                     Text(
@@ -607,7 +720,8 @@ fun BooksRegistryTab(
                                 pages = pages ?: target.pages,
                                 year = webYear.trim().ifBlank { target.year },
                                 language = webLanguage.trim().ifBlank { target.language },
-                                publishedDate = webPublishedDate.trim().ifBlank { target.publishedDate }
+                                publishedDate = webPublishedDate.trim().ifBlank { target.publishedDate },
+                                whatsInside = webWhatsInside.filter { it.title.isNotBlank() }
                             )
                             val result = saveBookUseCase(updated)
                             if (result.isSuccess) {
@@ -731,6 +845,16 @@ fun BooksRegistryTab(
                                     webYear = book.year
                                     webLanguage = book.language
                                     webPublishedDate = book.publishedDate
+                                    webWhatsInside = if (book.whatsInside.isNotEmpty()) {
+                                        book.whatsInside
+                                    } else {
+                                        listOf(
+                                            com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Poin Analisis 1", "Deskripsi fitur dan modul buku", "sparkle"),
+                                            com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Poin Analisis 2", "Metodologi dan arsitektur bahasan", "frame"),
+                                            com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Poin Analisis 3", "Integrasi operasional dan eksekusi", "gear"),
+                                            com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Poin Analisis 4", "Rekomendasi implementasi terukur", "leaf")
+                                        )
+                                    }
                                     webError = null
                                     showWebDialog = true
                                 }

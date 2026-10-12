@@ -3,6 +3,13 @@ package com.sekota.features.admin.domain.model
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class AdminWhatsInsideItem(
+    val title: String,
+    val description: String,
+    val iconName: String = "sparkle" // sparkle, frame, gear, leaf
+)
+
+@Serializable
 data class AdminBook(
     val id: String,
     val title: String,
@@ -20,6 +27,7 @@ data class AdminBook(
     val publishedDate: String = "Nov 2025",
     val language: String = "Indonesia",
     val year: String = "2025",
-    val coverColorHex: String? = null
+    val coverColorHex: String? = null,
+    val whatsInside: List<AdminWhatsInsideItem> = emptyList()
 )
 

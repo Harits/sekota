@@ -89,7 +89,13 @@ class AdminRepositoryImpl(
             ratingCount = 890,
             pdfUrl = "https://sekota.id/assets/docs/manifesto-ekuitas-lahan.pdf",
             readingTime = "4H 15M",
-            pages = 280
+            pages = 280,
+            whatsInside = listOf(
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Urban Data & Sensorik Cerdas", "Membangun arsitektur data kota berbasis sensor dan telemetri terpadu.", "sparkle"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan.", "frame"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga.", "gear"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.", "leaf")
+            )
         ),
         AdminBook(
             id = "blind-spot-radar",
@@ -103,7 +109,13 @@ class AdminRepositoryImpl(
             ratingCount = 1240,
             pdfUrl = "https://sekota.id/assets/docs/blind-spot-radar.pdf",
             readingTime = "3H 45M",
-            pages = 240
+            pages = 240,
+            whatsInside = listOf(
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("The Attention Economy", "Understanding the mechanics behind digital distractions.", "sparkle"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Deep Work Protocols", "Actionable steps to enter flow state on command.", "frame"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mindful Tech Integration", "Setting boundaries that stick without the guilt.", "gear"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Cognitive Recovery", "Restoring your mental energy after intense digital usage.", "leaf")
+            )
         ),
         AdminBook(
             id = "csr-berdampak",
@@ -117,7 +129,13 @@ class AdminRepositoryImpl(
             ratingCount = 650,
             pdfUrl = "https://sekota.id/assets/docs/csr-berdampak.pdf",
             readingTime = "2H 30M",
-            pages = 180
+            pages = 180,
+            whatsInside = listOf(
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi.", "sparkle"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
+            )
         ),
         AdminBook(
             id = "esg-strategic-integration",
@@ -131,7 +149,13 @@ class AdminRepositoryImpl(
             ratingCount = 1020,
             pdfUrl = "https://sekota.id/assets/docs/esg-strategic-integration.pdf",
             readingTime = "5H 10M",
-            pages = 320
+            pages = 320,
+            whatsInside = listOf(
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi.", "sparkle"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
+                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
+            )
         )
     )
 
