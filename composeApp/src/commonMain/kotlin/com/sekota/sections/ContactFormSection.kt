@@ -160,7 +160,7 @@ fun ContactFormCard(
                         modifier = Modifier.padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("✓", fontSize = 24.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        com.sekota.components.SekotaCheckmarkVectorIcon(size = 24.dp, tint = Color(0xFF2E7D32))
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(

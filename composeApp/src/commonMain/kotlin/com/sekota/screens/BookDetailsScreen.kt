@@ -286,21 +286,27 @@ private fun BookInfoContent(
                     fontWeight = FontWeight.Medium
                 )
             } else if (book.interactions > 0) {
-                Text(
-                    text = "📊 ${book.interactions} Interaksi Pembaca Tercatat (E-Score dalam kalkulasi)",
-                    fontSize = 14.sp,
-                    color = Color(0xFF00B5C8),
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    com.sekota.components.SekotaAnalyticsVectorIcon(size = 15.dp, tint = Color(0xFF00B5C8))
+                    Text(
+                        text = "${book.interactions} Interaksi Pembaca Tercatat (E-Score dalam kalkulasi)",
+                        fontSize = 14.sp,
+                        color = Color(0xFF00B5C8),
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             } else {
-                Text(
-                    text = "📖 Publikasi Baru • Belum Ada Interaksi Pembaca",
-                    fontSize = 14.sp,
-                    color = Color(0xFF71717A),
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Medium
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    com.sekota.components.BookEditionVectorIcon(size = 15.dp, tint = Color(0xFF71717A))
+                    Text(
+                        text = "Publikasi Baru • Belum Ada Interaksi Pembaca",
+                        fontSize = 14.sp,
+                        color = Color(0xFF71717A),
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(24.dp))

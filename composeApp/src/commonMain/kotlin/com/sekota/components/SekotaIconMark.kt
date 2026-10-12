@@ -139,6 +139,46 @@ fun BookEditionVectorIcon(
     }
 }
 
+@Composable
+fun SekotaCheckmarkVectorIcon(
+    size: Dp = 20.dp,
+    tint: Color = Color(0xFF2E7D32),
+    modifier: Modifier = Modifier
+) {
+    val checkPath = remember {
+        PathParser().parsePathString(
+            "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        ).toPath()
+    }
+
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(checkPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaAnalyticsVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFF00B5C8),
+    modifier: Modifier = Modifier
+) {
+    val barPath = remember {
+        PathParser().parsePathString(
+            "M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"
+        ).toPath()
+    }
+
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(barPath, color = tint)
+        }
+    }
+}
+
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun BookEditionVectorIconPreview() {
@@ -151,8 +191,11 @@ fun BookEditionVectorIconPreview() {
             BookEditionVectorIcon(size = 16.dp)
             BookEditionVectorIcon(size = 24.dp)
             BookEditionVectorIcon(size = 32.dp, tint = Color(0xFF00B5C8))
+            SekotaCheckmarkVectorIcon(size = 24.dp)
+            SekotaAnalyticsVectorIcon(size = 24.dp)
         }
     }
 }
+
 
 

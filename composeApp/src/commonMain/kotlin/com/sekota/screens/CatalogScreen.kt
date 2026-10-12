@@ -191,9 +191,13 @@ fun CatalogContent(windowWidth: WindowWidth, filteredBooks: List<AdminBook>, onB
                     .padding(vertical = 48.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    com.sekota.components.BookEditionVectorIcon(size = 36.dp, tint = Color.Gray)
                     Text(
-                        text = "📖 Tidak ada e-book yang cocok dengan filter Anda.",
+                        text = "Tidak ada e-book yang cocok dengan filter Anda.",
                         fontFamily = getDmSansFontFamily(),
                         fontSize = 16.sp,
                         color = Color.Gray
