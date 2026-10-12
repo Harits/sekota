@@ -95,5 +95,14 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22464` [CMS-05-02-02] CMS Workbench Image Picker & In-Memory Preview Dialog
     - `#22465` [CMS-05-02-03] Dynamic Web Bitmap Rendering for IntelligenceSuite & ProductDetailsScreen (Hide Icon When Not Provided)
     - `#22466` [CMS-05-02-04] Author Multi-State Compose Previews and Verify Desktop & Wasm Compilations
+- [x] **WP-031: [CMS-05-03] - Dynamic Catalog Category Management (Add & Remove) & Unified Book Cover Background Styling** (OpenProject ID: 22467)
+  - *Description*: Sebagai Administrator Sekota CMS, Saya ingin Menambah kategori baru atau menghapus kategori buku langsung dari modal Kelola Tampilan Web dan memastikan warna latar belakang sampul buku konsisten di seluruh aplikasi (Perpustakaan Digital, E-Book Catalog, dan Book Details), Sehingga Taksonomi kategori buku dapat berkembang secara fleksibel dan tampilan sampul buku tampil harmonis serta profesional.
+  - *Child Tasks*:
+    - `#22468` [CMS-05-03-01] Shared Domain Model, Dynamic Categories & Synchronized Cover Color Repository
+    - `#22469` [CMS-05-03-02] CMS WebMetadataDialog: Add & Remove Category Chips UI and Sync Trigger
+    - `#22470` [CMS-05-03-03] Unified Book Cover Background & Dynamic Category Filtering Across Web Sekota
+    - `#22471` [CMS-05-03-04] Author Multi-State Compose Previews and Verify Desktop & Wasm Compilations
+
+---
 
 

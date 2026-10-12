@@ -92,9 +92,14 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val bookCoverColor = remember(book.id, book.title, book.coverColorHex) {
+                        com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
+                    }
+
                     BookCover(
                         title = book.title,
                         coverImage = book.coverImage,
+                        backgroundColor = bookCoverColor,
                         modifier = Modifier
                             .widthIn(max = 260.dp)
                             .fillMaxWidth()
@@ -137,9 +142,14 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                     horizontalArrangement = Arrangement.spacedBy(64.dp)
                 ) {
+                    val bookCoverColor = remember(book.id, book.title, book.coverColorHex) {
+                        com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
+                    }
+
                     BookCover(
                         title = book.title,
                         coverImage = book.coverImage,
+                        backgroundColor = bookCoverColor,
                         modifier = Modifier
                             .width(340.dp)
                             .height(480.dp)
@@ -403,13 +413,20 @@ private fun BookInfoContent(
 fun BookCover(
     title: String = "BLIND SPOT\nRADAR",
     coverImage: String? = null,
+    backgroundColor: Color = Color.Unspecified,
     modifier: Modifier = Modifier
 ) {
+    val effectiveColor = if (backgroundColor != Color.Unspecified) {
+        backgroundColor
+    } else {
+        com.sekota.utils.BookCoverColors.getColorForBook(title = title, bookId = "")
+    }
+
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 8.dp,
-        color = Color(0xFF121212)
+        color = effectiveColor
     ) {
         val bitmap = remember(coverImage) {
             if (!coverImage.isNullOrBlank()) decodeBase64ToBitmap(coverImage) else null
@@ -426,11 +443,7 @@ fun BookCover(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        androidx.compose.ui.graphics.Brush.verticalGradient(
-                            listOf(Color(0xFF1E293B), Color(0xFF0F172A), Color(0xFF0D1F2D))
-                        )
-                    )
+                    .background(effectiveColor)
                     .padding(24.dp)
             ) {
                 Text(

@@ -64,6 +64,9 @@ fun AdminDashboardScreen(
     val deleteInquiryUseCase = remember { DeleteAdminInquiryUseCase(repository) }
     val getValueLoopUseCase = remember { GetAdminValueLoopUseCase(repository) }
     val saveValueLoopUseCase = remember { SaveAdminValueLoopUseCase(repository) }
+    val getCategoriesUseCase = remember { GetAdminCategoriesUseCase(repository) }
+    val addCategoryUseCase = remember { AddAdminCategoryUseCase(repository) }
+    val deleteCategoryUseCase = remember { DeleteAdminCategoryUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Client Inquiries")
@@ -112,7 +115,7 @@ fun AdminDashboardScreen(
                         .padding(16.dp)
                 ) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, windowWidth)
+                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
@@ -218,7 +221,7 @@ fun AdminDashboardScreen(
 
                 Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp)) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, windowWidth)
+                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
                         1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
@@ -318,9 +321,14 @@ private fun WorkbenchHeader(
 fun BooksRegistryTab(
     getBooksUseCase: GetAdminBooksUseCase,
     saveBookUseCase: SaveAdminBookUseCase,
+    getCategoriesUseCase: GetAdminCategoriesUseCase = remember { GetAdminCategoriesUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
+    addCategoryUseCase: AddAdminCategoryUseCase = remember { AddAdminCategoryUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
+    deleteCategoryUseCase: DeleteAdminCategoryUseCase = remember { DeleteAdminCategoryUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
     windowWidth: WindowWidth = WindowWidth.Expanded
 ) {
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
+    var categories by remember { mutableStateOf<List<String>>(emptyList()) }
+    var newCategoryInput by remember { mutableStateOf("") }
 
     // UC-CMS-03 "Kelola Tampilan Web": operator-owned presentation metadata.
     // Book identity (title/author/ISBN/cover) and lifecycle (create/delete) are
@@ -341,6 +349,7 @@ fun BooksRegistryTab(
 
     LaunchedEffect(Unit) {
         books = getBooksUseCase()
+        categories = getCategoriesUseCase()
     }
 
     // UC-CMS-03 / WP-026: web presentation metadata editor.
@@ -384,20 +393,74 @@ fun BooksRegistryTab(
                         color = Color.Gray,
                         letterSpacing = 1.sp
                     )
-                    // Must match SidebarFilter's options or the book drops out of
-                    // every catalog filter on the public site.
                     @OptIn(ExperimentalLayoutApi::class)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("SMART CITY", "ESG", "INTELLIGENCE", "Other").forEach { cat ->
-                            FilterChip(
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        categories.forEach { cat ->
+                            InputChip(
                                 selected = webCategory.equals(cat, ignoreCase = true),
                                 onClick = { webCategory = cat; webError = null },
                                 label = { Text(cat, fontFamily = getDmSansFontFamily(), fontSize = 12.sp) },
-                                colors = FilterChipDefaults.filterChipColors(
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                val res = deleteCategoryUseCase(cat)
+                                                if (res.isSuccess) {
+                                                    categories = res.getOrDefault(categories)
+                                                    if (webCategory.equals(cat, ignoreCase = true)) {
+                                                        webCategory = categories.firstOrNull() ?: ""
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier.size(16.dp)
+                                    ) {
+                                        Text("\u2715", fontSize = 11.sp, color = Color.Gray)
+                                    }
+                                },
+                                colors = InputChipDefaults.inputChipColors(
+                                    containerColor = Color(0xFFF1F5F9),
+                                    labelColor = Color(0xFF334155),
                                     selectedContainerColor = BrandTeal.copy(alpha = 0.18f),
                                     selectedLabelColor = InkNavy
                                 )
                             )
+                        }
+                    }
+
+                    // Add Category Input Field
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = newCategoryInput,
+                            onValueChange = { newCategoryInput = it },
+                            placeholder = { Text("Tambah kategori baru...", fontSize = 12.sp, fontFamily = getDmSansFontFamily()) },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Button(
+                            onClick = {
+                                val trimmed = newCategoryInput.trim()
+                                if (trimmed.isNotBlank()) {
+                                    scope.launch {
+                                        val res = addCategoryUseCase(trimmed)
+                                        if (res.isSuccess) {
+                                            categories = res.getOrDefault(categories)
+                                            webCategory = trimmed
+                                            newCategoryInput = ""
+                                        }
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = newCategoryInput.isNotBlank()
+                        ) {
+                            Text("+ Tambah", fontFamily = getDmSansFontFamily(), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -1846,6 +1909,22 @@ fun ValueLoopTabPreview() {
         ValueLoopTab(
             getValueLoopUseCase = remember { GetAdminValueLoopUseCase(repo) },
             saveValueLoopUseCase = remember { SaveAdminValueLoopUseCase(repo) },
+            windowWidth = WindowWidth.Expanded
+        )
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun BooksRegistryTabPreview() {
+    MaterialTheme {
+        val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
+        BooksRegistryTab(
+            getBooksUseCase = remember { GetAdminBooksUseCase(repo) },
+            saveBookUseCase = remember { SaveAdminBookUseCase(repo) },
+            getCategoriesUseCase = remember { GetAdminCategoriesUseCase(repo) },
+            addCategoryUseCase = remember { AddAdminCategoryUseCase(repo) },
+            deleteCategoryUseCase = remember { DeleteAdminCategoryUseCase(repo) },
             windowWidth = WindowWidth.Expanded
         )
     }

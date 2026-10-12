@@ -54,5 +54,14 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_valueloop_json")
         return if (data == null) null else data
     }
+
+    actual fun saveCategoriesJson(json: String) {
+        setStorageItem("admin_categories_json", json)
+    }
+
+    actual fun getCategoriesJson(): String? {
+        val data = getStorageItem("admin_categories_json")
+        return if (data == null) null else data
+    }
 }
 

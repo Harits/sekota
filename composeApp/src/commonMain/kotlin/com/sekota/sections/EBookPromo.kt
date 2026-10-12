@@ -54,13 +54,17 @@ private fun EBookPromoContent(
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
+    val getCategoriesUseCase = remember { com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase(repository) }
     var allBooks by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
+    var dynamicCategories by remember { mutableStateOf<List<String>>(emptyList()) }
     var selectedFilter by remember { mutableStateOf("Semua") }
 
     LaunchedEffect(Unit) {
         allBooks = getBooksUseCase()
+        dynamicCategories = getCategoriesUseCase()
         syncService.syncEventFlow.collect {
             allBooks = getBooksUseCase()
+            dynamicCategories = getCategoriesUseCase()
         }
     }
 
@@ -71,15 +75,6 @@ private fun EBookPromoContent(
             allBooks.filter { it.category.contains(selectedFilter, ignoreCase = true) }
         }
     }
-
-    val palette = listOf(
-        Color(0xFF1976D2),
-        Color(0xFFBF360C),
-        Color(0xFF388E3C),
-        Color(0xFF673AB7),
-        Color(0xFF00838F),
-        Color(0xFF455A64)
-    )
 
     val isCompact = windowWidth.isCompact
 
@@ -101,8 +96,7 @@ private fun EBookPromoContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Title and Filters. The four pills need ~380dp; below Expanded they drop
-        // onto their own wrapping row instead of squeezing the headline.
+        // Title and Filters. The pills wrap dynamically based on categories.
         val title = @Composable {
             Text(
                 text = "E-Book & Panduan\nStrategis.",
@@ -112,6 +106,15 @@ private fun EBookPromoContent(
                 lineHeight = if (isCompact) 40.sp else 56.sp
             )
         }
+        val categoryList = remember(dynamicCategories) {
+            val list = mutableListOf("Semua")
+            if (dynamicCategories.isNotEmpty()) {
+                list.addAll(dynamicCategories.filter { !it.equals("All", ignoreCase = true) && !it.equals("Semua", ignoreCase = true) })
+            } else {
+                list.addAll(listOf("Smart City", "ESG", "Intelligence"))
+            }
+            list
+        }
         val filters = @Composable {
             FlowRow(
                 modifier = Modifier
@@ -120,7 +123,7 @@ private fun EBookPromoContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                listOf("Semua", "Smart City", "ESG", "Intelligence").forEach { filter ->
+                categoryList.forEach { filter ->
                     FilterPill(
                         text = filter,
                         active = selectedFilter.equals(filter, ignoreCase = true),
@@ -178,7 +181,7 @@ private fun EBookPromoContent(
                         horizontalArrangement = Arrangement.spacedBy(windowWidth.gridSpacing)
                     ) {
                         rowBooks.forEachIndexed { colIndex, book ->
-                            val color = palette[(rowIndex * columns + colIndex) % palette.size]
+                            val color = com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
                             com.sekota.components.ProductCard(
                                 title = book.title,
                                 authorOrSubtitle = "${book.author} • ${book.category}",

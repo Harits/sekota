@@ -76,6 +76,17 @@ class FakeAdminRepository : AdminRepository {
         valueLoop = config
         return Result.success(config)
     }
+
+    var categories = mutableListOf("SMART CITY", "ESG", "INTELLIGENCE", "Other")
+    override suspend fun getCategories(): List<String> = categories
+    override suspend fun addCategory(category: String): Result<List<String>> {
+        if (!categories.contains(category)) categories.add(category)
+        return Result.success(categories)
+    }
+    override suspend fun deleteCategory(category: String): Result<List<String>> {
+        categories.removeAll { it.equals(category, ignoreCase = true) }
+        return Result.success(categories)
+    }
 }
 
 class AdminUseCasesTest {
@@ -202,6 +213,43 @@ class AdminUseCasesTest {
 
         val emptyStepsResult = saveUseCase(updated.copy(steps = emptyList()))
         assertTrue(emptyStepsResult.isFailure)
+    }
+
+    @Test
+    fun testCategoryUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getCategoriesUseCase = GetAdminCategoriesUseCase(repo)
+        val addCategoryUseCase = AddAdminCategoryUseCase(repo)
+        val deleteCategoryUseCase = DeleteAdminCategoryUseCase(repo)
+
+        // 1. Initial categories
+        val initial = getCategoriesUseCase()
+        assertEquals(4, initial.size)
+        assertTrue(initial.contains("ESG"))
+
+        // 2. Add category
+        val addResult = addCategoryUseCase("ARTIFICIAL INTELLIGENCE")
+        assertTrue(addResult.isSuccess)
+        val updatedAfterAdd = getCategoriesUseCase()
+        assertEquals(5, updatedAfterAdd.size)
+        assertTrue(updatedAfterAdd.contains("ARTIFICIAL INTELLIGENCE"))
+
+        // 3. Add blank category validation failure
+        val blankResult = addCategoryUseCase("   ")
+        assertTrue(blankResult.isFailure)
+        assertEquals("Nama kategori tidak boleh kosong", blankResult.exceptionOrNull()?.message)
+
+        // 4. Delete category
+        val deleteResult = deleteCategoryUseCase("Other")
+        assertTrue(deleteResult.isSuccess)
+        val updatedAfterDelete = getCategoriesUseCase()
+        assertEquals(4, updatedAfterDelete.size)
+        kotlin.test.assertFalse(updatedAfterDelete.contains("Other"))
+
+        // 5. Delete blank category validation failure
+        val blankDeleteResult = deleteCategoryUseCase("")
+        assertTrue(blankDeleteResult.isFailure)
+        assertEquals("Nama kategori tidak valid", blankDeleteResult.exceptionOrNull()?.message)
     }
 }
 

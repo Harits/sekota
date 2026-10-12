@@ -30,5 +30,9 @@ interface AdminRepository {
 
     suspend fun getValueLoop(): com.sekota.features.admin.domain.model.ValueLoopConfig
     suspend fun saveValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig): Result<com.sekota.features.admin.domain.model.ValueLoopConfig>
+
+    suspend fun getCategories(): List<String>
+    suspend fun addCategory(category: String): Result<List<String>>
+    suspend fun deleteCategory(category: String): Result<List<String>>
 }
 

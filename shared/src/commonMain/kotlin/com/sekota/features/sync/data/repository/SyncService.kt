@@ -63,6 +63,7 @@ class SyncService(
                             dataStorage.saveMetricsJson(json.encodeToString(payload.metrics))
                             dataStorage.saveInquiriesJson(json.encodeToString(payload.inquiries))
                             dataStorage.saveValueLoopJson(json.encodeToString(payload.valueLoop))
+                            dataStorage.saveCategoriesJson(json.encodeToString(payload.categories))
                             _syncEventFlow.tryEmit(Unit)
                         }
                         _syncState.value = "Connected"

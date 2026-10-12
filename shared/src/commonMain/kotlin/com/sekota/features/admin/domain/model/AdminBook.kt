@@ -19,6 +19,7 @@ data class AdminBook(
     val pages: Int = 240,
     val publishedDate: String = "Nov 2025",
     val language: String = "Indonesia",
-    val year: String = "2025"
+    val year: String = "2025",
+    val coverColorHex: String? = null
 )
 

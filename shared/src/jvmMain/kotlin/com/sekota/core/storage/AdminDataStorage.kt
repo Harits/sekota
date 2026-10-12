@@ -81,4 +81,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getValueLoopJson(): String? {
         return read("valueloop_json")
     }
+
+    actual fun saveCategoriesJson(json: String) {
+        write("categories_json", json)
+    }
+
+    actual fun getCategoriesJson(): String? {
+        return read("categories_json")
+    }
 }

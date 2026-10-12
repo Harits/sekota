@@ -141,6 +141,75 @@
       "percentageDone": 100,
       "startDate": "2026-07-02",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-031",
+      "opId": 22467,
+      "subject": "[CMS-05-03] Dynamic Catalog Category Management (Add & Remove) & Unified Book Cover Background Styling",
+      "type": "User story",
+      "status": "In testing",
+      "lockVersion": 10,
+      "description": "Sebagai Administrator Sekota CMS, Saya ingin Menambah kategori baru atau menghapus kategori buku langsung dari modal Kelola Tampilan Web dan memastikan warna latar belakang sampul buku konsisten di seluruh aplikasi (Perpustakaan Digital, E-Book Catalog, dan Book Details), Sehingga Taksonomi kategori buku dapat berkembang secara fleksibel dan tampilan sampul buku tampil harmonis serta profesional.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-031-1",
+      "opId": 22468,
+      "parentId": 22467,
+      "subject": "[CMS-05-03-01] Shared Domain Model, Dynamic Categories & Synchronized Cover Color Repository",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Menambahkan getCategories, addCategory, deleteCategory pada AdminRepository & AdminDataStorage, serta properti coverColorHex pada AdminBook dan SyncDataPayload.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-031-2",
+      "opId": 22469,
+      "parentId": 22467,
+      "subject": "[CMS-05-03-02] CMS WebMetadataDialog: Add & Remove Category Chips UI and Sync Trigger",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Menambahkan input kategori baru dengan tombol '+ Tambah', action hapus pada InputChip di BooksRegistryTab CMS Workbench, dan integrasi auto-sync.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-031-3",
+      "opId": 22470,
+      "parentId": 22467,
+      "subject": "[CMS-05-03-03] Unified Book Cover Background & Dynamic Category Filtering Across Web Sekota",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Menyatukan palet warna background cover buku via BookCoverColors di EBookPromo, CatalogScreen, dan BookDetailsScreen, serta menghubungkan chips kategori dinamis.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-031-4",
+      "opId": 22471,
+      "parentId": 22467,
+      "subject": "[CMS-05-03-04] Author Multi-State Compose Previews and Verify Desktop & Wasm Compilations",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Membuat Desktop previews untuk BooksRegistryTab, EBookPromo, CatalogScreen, dan BookDetailsScreen, serta memverifikasi testing dan wasm sync linking.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

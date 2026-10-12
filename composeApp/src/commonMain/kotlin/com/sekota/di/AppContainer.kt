@@ -42,6 +42,15 @@ class AppContainer(
     val saveValueLoopUseCase: com.sekota.features.admin.domain.usecase.SaveAdminValueLoopUseCase by lazy {
         com.sekota.features.admin.domain.usecase.SaveAdminValueLoopUseCase(adminRepository)
     }
+    val getCategoriesUseCase: com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase(adminRepository)
+    }
+    val addCategoryUseCase: com.sekota.features.admin.domain.usecase.AddAdminCategoryUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.AddAdminCategoryUseCase(adminRepository)
+    }
+    val deleteCategoryUseCase: com.sekota.features.admin.domain.usecase.DeleteAdminCategoryUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.DeleteAdminCategoryUseCase(adminRepository)
+    }
 
     val navigationCoordinator: NavigationCoordinator by lazy { NavigationCoordinator() }
 }

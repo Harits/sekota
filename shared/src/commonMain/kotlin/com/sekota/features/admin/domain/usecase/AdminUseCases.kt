@@ -140,3 +140,29 @@ class SaveAdminValueLoopUseCase(private val repository: AdminRepository) {
     }
 }
 
+class GetAdminCategoriesUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): List<String> {
+        return repository.getCategories()
+    }
+}
+
+class AddAdminCategoryUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(category: String): Result<List<String>> {
+        val trimmed = category.trim()
+        if (trimmed.isBlank()) {
+            return Result.failure(IllegalArgumentException("Nama kategori tidak boleh kosong"))
+        }
+        return repository.addCategory(trimmed)
+    }
+}
+
+class DeleteAdminCategoryUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(category: String): Result<List<String>> {
+        val trimmed = category.trim()
+        if (trimmed.isBlank()) {
+            return Result.failure(IllegalArgumentException("Nama kategori tidak valid"))
+        }
+        return repository.deleteCategory(trimmed)
+    }
+}
+

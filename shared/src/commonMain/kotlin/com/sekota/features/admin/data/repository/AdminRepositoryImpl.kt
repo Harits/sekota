@@ -594,5 +594,47 @@ class AdminRepositoryImpl(
     private fun persistValueLoop(config: com.sekota.features.admin.domain.model.ValueLoopConfig) {
         dataStorage.saveValueLoopJson(json.encodeToString(config))
     }
+
+    private val defaultCanonicalCategories = listOf("SMART CITY", "ESG", "INTELLIGENCE", "Other")
+
+    override suspend fun getCategories(): List<String> {
+        val storedJson = dataStorage.getCategoriesJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                val list = json.decodeFromString<List<String>>(storedJson)
+                if (list.isNotEmpty()) return list
+            } catch (_: Exception) {}
+        }
+        persistCategories(defaultCanonicalCategories)
+        return defaultCanonicalCategories
+    }
+
+    override suspend fun addCategory(category: String): Result<List<String>> {
+        val trimmed = category.trim()
+        if (trimmed.isBlank()) {
+            return Result.failure(IllegalArgumentException("Nama kategori tidak boleh kosong"))
+        }
+        val current = getCategories().toMutableList()
+        val exists = current.any { it.equals(trimmed, ignoreCase = true) }
+        if (!exists) {
+            current.add(trimmed)
+            persistCategories(current)
+        }
+        return Result.success(current)
+    }
+
+    override suspend fun deleteCategory(category: String): Result<List<String>> {
+        val trimmed = category.trim()
+        val current = getCategories().toMutableList()
+        val removed = current.removeAll { it.equals(trimmed, ignoreCase = true) }
+        if (removed) {
+            persistCategories(current)
+        }
+        return Result.success(current)
+    }
+
+    private fun persistCategories(categories: List<String>) {
+        dataStorage.saveCategoriesJson(json.encodeToString(categories))
+    }
 }
 

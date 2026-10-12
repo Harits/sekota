@@ -15,5 +15,6 @@ data class SyncDataPayload(
     val metrics: AdminLiveMetrics = AdminLiveMetrics(),
     val inquiries: List<ClientInquiry> = emptyList(),
     val valueLoop: com.sekota.features.admin.domain.model.ValueLoopConfig = com.sekota.features.admin.domain.model.ValueLoopConfig(),
+    val categories: List<String> = emptyList(),
     val version: Long = 0L
 )

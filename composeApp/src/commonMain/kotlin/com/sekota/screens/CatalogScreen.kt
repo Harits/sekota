@@ -34,7 +34,9 @@ fun CatalogScreen(
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
+    val getCategoriesUseCase = remember { com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase(repository) }
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
+    var categories by remember { mutableStateOf<List<String>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedSort by remember { mutableStateOf("Newest") }
     var selectedOptions by remember { mutableStateOf(listOf("All")) }
@@ -42,8 +44,10 @@ fun CatalogScreen(
 
     LaunchedEffect(Unit) {
         books = getBooksUseCase()
+        categories = getCategoriesUseCase()
         syncService.syncEventFlow.collect {
             books = getBooksUseCase()
+            categories = getCategoriesUseCase()
         }
     }
 
@@ -94,6 +98,7 @@ fun CatalogScreen(
                             onOptionsChange = { selectedOptions = it },
                             selectedYears = selectedYears,
                             onYearsChange = { selectedYears = it },
+                            categoryOptions = categories,
                             onConsultationClick = onConsultationClick
                         )
                     }
@@ -117,6 +122,7 @@ fun CatalogScreen(
                             onOptionsChange = { selectedOptions = it },
                             selectedYears = selectedYears,
                             onYearsChange = { selectedYears = it },
+                            categoryOptions = categories,
                             onConsultationClick = onConsultationClick
                         )
                     }
@@ -202,7 +208,7 @@ fun CatalogContent(windowWidth: WindowWidth, filteredBooks: List<AdminBook>, onB
                         horizontalArrangement = Arrangement.spacedBy(spacing)
                     ) {
                         rowBooks.forEachIndexed { colIndex, book ->
-                            val color = palette[(rowIndex * columns + colIndex) % palette.size]
+                            val color = com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
                             ProductCard(
                                 title = book.title,
                                 authorOrSubtitle = "${book.author} • ${book.category}",

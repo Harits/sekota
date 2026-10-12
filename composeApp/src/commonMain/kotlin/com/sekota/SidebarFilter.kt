@@ -36,6 +36,7 @@ fun SidebarFilter(
     onOptionsChange: (List<String>) -> Unit = {},
     selectedYears: List<String> = listOf("2025"),
     onYearsChange: (List<String>) -> Unit = {},
+    categoryOptions: List<String> = emptyList(),
     onConsultationClick: () -> Unit = {},
     modifier: Modifier = Modifier.width(280.dp).fillMaxHeight()
 ) {
@@ -43,7 +44,11 @@ fun SidebarFilter(
     val options = if (isMerchandise) {
         listOf("All", "T-Shirt", "Pin", "Sticker", "Others")
     } else {
-        listOf("All", "SMART CITY", "ESG", "INTELLIGENCE", "Other")
+        if (categoryOptions.isNotEmpty()) {
+            listOf("All") + categoryOptions.filter { !it.equals("All", ignoreCase = true) }
+        } else {
+            listOf("All", "SMART CITY", "ESG", "INTELLIGENCE", "Other")
+        }
     }
     val years = listOf("2025", "2024", "2023")
 

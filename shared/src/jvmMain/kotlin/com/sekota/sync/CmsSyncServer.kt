@@ -51,6 +51,7 @@ object CmsSyncServer {
                                 metrics = repository.getLiveMetrics(),
                                 inquiries = repository.getInquiries(),
                                 valueLoop = repository.getValueLoop(),
+                                categories = repository.getCategories(),
                                 version = versionCounter.get()
                             )
                         }
@@ -71,6 +72,7 @@ object CmsSyncServer {
                             storage.saveMetricsJson(json.encodeToString(payload.metrics))
                             storage.saveInquiriesJson(json.encodeToString(payload.inquiries))
                             storage.saveValueLoopJson(json.encodeToString(payload.valueLoop))
+                            storage.saveCategoriesJson(json.encodeToString(payload.categories))
                             versionCounter.incrementAndGet()
                             exchange.sendResponseHeaders(200, -1)
                         } catch (e: Exception) {
