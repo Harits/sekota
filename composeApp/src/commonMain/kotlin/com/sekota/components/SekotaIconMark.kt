@@ -119,4 +119,40 @@ fun SekotaIconMarkTintedPreview() {
     }
 }
 
+@Composable
+fun BookEditionVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFF00796B),
+    modifier: Modifier = Modifier
+) {
+    val bookPath = remember {
+        PathParser().parsePathString(
+            "M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4zm12 16H6c-.55 0-1-.45-1-1s.45-1 1-1h12v2z"
+        ).toPath()
+    }
+
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(bookPath, color = tint)
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun BookEditionVectorIconPreview() {
+    MaterialTheme {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BookEditionVectorIcon(size = 16.dp)
+            BookEditionVectorIcon(size = 24.dp)
+            BookEditionVectorIcon(size = 32.dp, tint = Color(0xFF00B5C8))
+        }
+    }
+}
+
 

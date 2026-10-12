@@ -210,6 +210,19 @@
       "percentageDone": 100,
       "startDate": "2026-07-04",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-032",
+      "opId": 22472,
+      "subject": "[WEB-05-01] Dynamic Icon Asset Binding & Rendering Fix Across Platform",
+      "type": "User story",
+      "status": "In testing",
+      "lockVersion": 4,
+      "description": "Sebagai Pengunjung / Pengguna web Sekota, Saya ingin melihat semua ikon pada halaman atau modul ter-render dengan benar dari asset/resource yang valid dan relevan, Sehingga tampilan UI terlihat konsisten, informatif, dan tidak mengalami broken/blank icon akibat path atau mapping yang masih di-hardcode.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

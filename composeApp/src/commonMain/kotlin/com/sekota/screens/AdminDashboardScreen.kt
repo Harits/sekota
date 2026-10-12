@@ -41,6 +41,8 @@ import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.ui.WindowWidth
 import com.sekota.ui.windowWidthOf
+import sekota.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 
 val InkNavy = Color(0xFF0D1F2D)
 val BrandTeal = Color(0xFF00B5C8)
@@ -599,8 +601,13 @@ fun BooksRegistryTab(
                                         color = InkNavy
                                     )
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                        // Icon selector chips
-                                        listOf("sparkle" to "✨", "frame" to "🔲", "gear" to "⚙️", "leaf" to "🌿").forEach { (icKey, icEmoji) ->
+                                        // Icon selector chips with official Compose resources
+                                        listOf(
+                                            "sparkle" to painterResource(Res.drawable.icon_6),
+                                            "frame" to painterResource(Res.drawable.icon_7),
+                                            "gear" to painterResource(Res.drawable.icon_8),
+                                            "leaf" to painterResource(Res.drawable.icon_5)
+                                        ).forEach { (icKey, icPainter) ->
                                             val isSel = item.iconName.equals(icKey, ignoreCase = true)
                                             Surface(
                                                 color = if (isSel) BrandTeal.copy(alpha = 0.2f) else Color.Transparent,
@@ -614,9 +621,13 @@ fun BooksRegistryTab(
                                                         list[itemIndex] = item.copy(iconName = icKey)
                                                         webWhatsInside = list
                                                     },
-                                                    modifier = Modifier.fillMaxSize()
+                                                    modifier = Modifier.fillMaxSize().padding(2.dp)
                                                 ) {
-                                                    Text(icEmoji, fontSize = 11.sp)
+                                                    Image(
+                                                        painter = icPainter,
+                                                        contentDescription = icKey,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
                                                 }
                                             }
                                         }

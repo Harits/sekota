@@ -316,12 +316,12 @@ private fun BookInfoContent(
                 Surface(
                     color = Color(0xFF00796B).copy(alpha = 0.12f),
                     shape = RoundedCornerShape(4.dp),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(24.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "📖",
-                            fontSize = 11.sp
+                        com.sekota.components.BookEditionVectorIcon(
+                            size = 14.dp,
+                            tint = Color(0xFF00796B)
                         )
                     }
                 }
