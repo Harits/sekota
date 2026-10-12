@@ -4,6 +4,7 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
 
 class GetAdminBooksUseCase(private val repository: AdminRepository) {
@@ -163,6 +164,27 @@ class DeleteAdminCategoryUseCase(private val repository: AdminRepository) {
             return Result.failure(IllegalArgumentException("Nama kategori tidak valid"))
         }
         return repository.deleteCategory(trimmed)
+    }
+}
+
+class GetAdminWhySekotaUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): WhySekotaConfig {
+        return repository.getWhySekota()
+    }
+}
+
+class SaveAdminWhySekotaUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: WhySekotaConfig): Result<WhySekotaConfig> {
+        if (config.title.isBlank()) {
+            return Result.failure(IllegalArgumentException("Judul 'Why Sekota' tidak boleh kosong"))
+        }
+        if (config.cards.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Kartu 'Why Sekota' minimal 1 kartu"))
+        }
+        if (config.cards.any { it.title.isBlank() }) {
+            return Result.failure(IllegalArgumentException("Judul setiap kartu tidak boleh kosong"))
+        }
+        return repository.saveWhySekota(config)
     }
 }
 

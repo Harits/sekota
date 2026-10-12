@@ -21,5 +21,8 @@ expect class AdminDataStorage() {
 
     fun saveCategoriesJson(json: String)
     fun getCategoriesJson(): String?
+
+    fun saveWhySekotaJson(json: String)
+    fun getWhySekotaJson(): String?
 }
 

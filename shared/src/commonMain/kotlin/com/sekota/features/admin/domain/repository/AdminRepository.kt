@@ -6,6 +6,7 @@ import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.WhySekotaConfig
 
 interface AdminRepository {
     suspend fun getBooks(): List<AdminBook>
@@ -34,5 +35,8 @@ interface AdminRepository {
     suspend fun getCategories(): List<String>
     suspend fun addCategory(category: String): Result<List<String>>
     suspend fun deleteCategory(category: String): Result<List<String>>
+
+    suspend fun getWhySekota(): WhySekotaConfig
+    suspend fun saveWhySekota(config: WhySekotaConfig): Result<WhySekotaConfig>
 }
 

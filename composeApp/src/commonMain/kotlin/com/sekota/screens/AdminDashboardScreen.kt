@@ -38,6 +38,8 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.WhySekotaConfig
+import com.sekota.features.admin.domain.model.WhySekotaCard
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.ui.WindowWidth
 import com.sekota.ui.windowWidthOf
@@ -69,10 +71,12 @@ fun AdminDashboardScreen(
     val getCategoriesUseCase = remember { GetAdminCategoriesUseCase(repository) }
     val addCategoryUseCase = remember { AddAdminCategoryUseCase(repository) }
     val deleteCategoryUseCase = remember { DeleteAdminCategoryUseCase(repository) }
+    val getWhySekotaUseCase = remember { GetAdminWhySekotaUseCase(repository) }
+    val saveWhySekotaUseCase = remember { SaveAdminWhySekotaUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Client Inquiries")
-    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "🔄", "📩")
+    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries")
+    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "🔄", "💡", "📩")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
@@ -122,7 +126,8 @@ fun AdminDashboardScreen(
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
                         4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
-                        5 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
+                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
+                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
 
@@ -228,7 +233,8 @@ fun AdminDashboardScreen(
                         2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
                         3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
                         4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
-                        5 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
+                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
+                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, windowWidth)
                     }
                 }
             }
@@ -2028,6 +2034,415 @@ fun ValueLoopTab(
     }
 }
 
+@Composable
+fun WhySekotaTab(
+    getWhySekotaUseCase: GetAdminWhySekotaUseCase,
+    saveWhySekotaUseCase: SaveAdminWhySekotaUseCase,
+    windowWidth: WindowWidth
+) {
+    val scope = rememberCoroutineScope()
+    var config by remember { mutableStateOf(WhySekotaConfig()) }
+    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var isSaving by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        config = getWhySekotaUseCase()
+        com.sekota.syncService.syncEventFlow.collect {
+            config = getWhySekotaUseCase()
+        }
+    }
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        WorkbenchHeader(
+            title = "Why Sekota (Nilai Keunggulan)",
+            subtitle = "Kelola pre-title, headline, deskripsi, tombol CTA, serta daftar kartu pilar 'Mengapa Sekota' di portal publik.",
+            windowWidth = windowWidth
+        )
+
+        statusFeedback?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    fontFamily = getDmSansFontFamily(),
+                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Main Content / Header Editor Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Konten Utama Section",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+
+                OutlinedTextField(
+                    value = config.preTitle,
+                    onValueChange = {
+                        config = config.copy(preTitle = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Pre-title / Eyebrow (e.g. MENGAPA SEKOTA)", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = config.title,
+                    onValueChange = {
+                        config = config.copy(title = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Judul Utama / Headline", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
+
+                OutlinedTextField(
+                    value = config.description,
+                    onValueChange = {
+                        config = config.copy(description = it)
+                        statusFeedback = null
+                    },
+                    label = { Text("Deskripsi / Subjudul", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = config.ctaLabel,
+                        onValueChange = {
+                            config = config.copy(ctaLabel = it)
+                            statusFeedback = null
+                        },
+                        label = { Text("Label Tombol CTA", fontFamily = getDmSansFontFamily()) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+
+                    OutlinedTextField(
+                        value = config.ctaTarget,
+                        onValueChange = {
+                            config = config.copy(ctaTarget = it)
+                            statusFeedback = null
+                        },
+                        label = { Text("Target Link / Aksi CTA (e.g. #kontak)", fontFamily = getDmSansFontFamily()) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Pillar / Value Cards Management
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Kartu Pilar Keunggulan (${config.cards.size} kartu)",
+                fontFamily = getMontserratFontFamily(),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = InkNavy
+            )
+
+            Button(
+                onClick = {
+                    val nextNum = config.cards.size + 1
+                    val newCard = WhySekotaCard(
+                        id = "card_${kotlin.random.Random.nextInt(1000, 9999)}",
+                        title = "Keunggulan Baru #$nextNum",
+                        description = "Deskripsi nilai keunggulan atau dampak strategis bagi mitra.",
+                        iconName = "sparkle"
+                    )
+                    config = config.copy(cards = config.cards + newCard)
+                    statusFeedback = null
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                shape = RoundedCornerShape(100.dp)
+            ) {
+                Text(
+                    text = "➕ Tambah Kartu Pilar",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        val availableIcons = listOf("trending", "chip", "shield", "sparkle")
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            config.cards.forEachIndexed { index, card ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Surface(
+                                    color = BrandTeal,
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "#${index + 1}",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "Kartu Pilar ${index + 1}",
+                                    fontFamily = getMontserratFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    color = InkNavy
+                                )
+                            }
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                // Move Up Button
+                                IconButton(
+                                    onClick = {
+                                        if (index > 0) {
+                                            val mutable = config.cards.toMutableList()
+                                            val item = mutable.removeAt(index)
+                                            mutable.add(index - 1, item)
+                                            config = config.copy(cards = mutable)
+                                            statusFeedback = null
+                                        }
+                                    },
+                                    enabled = index > 0
+                                ) {
+                                    Text("⬆️", fontSize = 16.sp)
+                                }
+
+                                // Move Down Button
+                                IconButton(
+                                    onClick = {
+                                        if (index < config.cards.lastIndex) {
+                                            val mutable = config.cards.toMutableList()
+                                            val item = mutable.removeAt(index)
+                                            mutable.add(index + 1, item)
+                                            config = config.copy(cards = mutable)
+                                            statusFeedback = null
+                                        }
+                                    },
+                                    enabled = index < config.cards.lastIndex
+                                ) {
+                                    Text("⬇️", fontSize = 16.sp)
+                                }
+
+                                // Delete Button
+                                IconButton(
+                                    onClick = {
+                                        if (config.cards.size > 1) {
+                                            val mutable = config.cards.toMutableList()
+                                            mutable.removeAt(index)
+                                            config = config.copy(cards = mutable)
+                                            statusFeedback = null
+                                        } else {
+                                            statusFeedback = "❌ Minimal harus ada 1 kartu pilar 'Why Sekota'"
+                                        }
+                                    },
+                                    enabled = config.cards.size > 1
+                                ) {
+                                    Text("🗑️", fontSize = 16.sp)
+                                }
+                            }
+                        }
+
+                        // Icon Selector Chips
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                text = "Pilih Ikon Pilar:",
+                                fontFamily = getDmSansFontFamily(),
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                availableIcons.forEach { iconKey ->
+                                    val isSelected = card.iconName.equals(iconKey, ignoreCase = true)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            val mutable = config.cards.toMutableList()
+                                            mutable[index] = card.copy(iconName = iconKey)
+                                            config = config.copy(cards = mutable)
+                                            statusFeedback = null
+                                        },
+                                        label = {
+                                            Text(
+                                                text = when (iconKey) {
+                                                    "trending" -> "📈 Tren (icon_3)"
+                                                    "chip" -> "💾 Chip (icon_4)"
+                                                    "shield" -> "🛡️ Shield (icon_1)"
+                                                    "sparkle" -> "✨ Sparkle (icon_6)"
+                                                    else -> iconKey
+                                                },
+                                                fontFamily = getDmSansFontFamily(),
+                                                fontSize = 12.sp
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = card.title,
+                            onValueChange = { newTitle ->
+                                val mutable = config.cards.toMutableList()
+                                mutable[index] = card.copy(title = newTitle)
+                                config = config.copy(cards = mutable)
+                                statusFeedback = null
+                            },
+                            label = { Text("Judul Kartu Pilar", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
+                        OutlinedTextField(
+                            value = card.description,
+                            onValueChange = { newDesc ->
+                                val mutable = config.cards.toMutableList()
+                                mutable[index] = card.copy(description = newDesc)
+                                config = config.copy(cards = mutable)
+                                statusFeedback = null
+                            },
+                            label = { Text("Deskripsi Kartu", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 2,
+                            maxLines = 4
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Action Buttons Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    if (config.title.isBlank()) {
+                        statusFeedback = "❌ Judul Utama / Headline tidak boleh kosong"
+                        return@Button
+                    }
+                    if (config.cards.any { it.title.isBlank() }) {
+                        statusFeedback = "❌ Judul pada setiap kartu pilar tidak boleh kosong"
+                        return@Button
+                    }
+                    scope.launch {
+                        isSaving = true
+                        val result = saveWhySekotaUseCase(config)
+                        isSaving = false
+                        if (result.isSuccess) {
+                            statusFeedback = "✅ 'Why Sekota' berhasil diperbarui dan disinkronkan ke Web!"
+                        } else {
+                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                shape = RoundedCornerShape(100.dp),
+                enabled = !isSaving,
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    config = WhySekotaConfig()
+                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                },
+                shape = RoundedCornerShape(100.dp),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = "↺ Reset Bawaan",
+                    fontFamily = getDmSansFontFamily(),
+                    color = InkNavy
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
+    }
+}
+
 @Preview(device = DESKTOP)
 @Composable
 fun AdminDashboardPreview() {
@@ -2051,6 +2466,19 @@ fun ValueLoopTabPreview() {
 
 @Preview(device = DESKTOP)
 @Composable
+fun WhySekotaTabPreview() {
+    MaterialTheme {
+        val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
+        WhySekotaTab(
+            getWhySekotaUseCase = remember { GetAdminWhySekotaUseCase(repo) },
+            saveWhySekotaUseCase = remember { SaveAdminWhySekotaUseCase(repo) },
+            windowWidth = WindowWidth.Expanded
+        )
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
 fun BooksRegistryTabPreview() {
     MaterialTheme {
         val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
@@ -2064,4 +2492,5 @@ fun BooksRegistryTabPreview() {
         )
     }
 }
+
 

@@ -10,6 +10,7 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -659,6 +660,27 @@ class AdminRepositoryImpl(
 
     private fun persistCategories(categories: List<String>) {
         dataStorage.saveCategoriesJson(json.encodeToString(categories))
+    }
+
+    override suspend fun getWhySekota(): WhySekotaConfig {
+        val storedJson = dataStorage.getWhySekotaJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<WhySekotaConfig>(storedJson)
+            } catch (_: Exception) {}
+        }
+        val defaultConfig = WhySekotaConfig()
+        persistWhySekota(defaultConfig)
+        return defaultConfig
+    }
+
+    override suspend fun saveWhySekota(config: WhySekotaConfig): Result<WhySekotaConfig> {
+        persistWhySekota(config)
+        return Result.success(config)
+    }
+
+    private fun persistWhySekota(config: WhySekotaConfig) {
+        dataStorage.saveWhySekotaJson(json.encodeToString(config))
     }
 }
 

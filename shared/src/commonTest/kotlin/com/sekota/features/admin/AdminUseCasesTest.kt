@@ -5,6 +5,8 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.WhySekotaCard
+import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
 import com.sekota.features.admin.domain.usecase.*
 import kotlinx.coroutines.test.runTest
@@ -86,6 +88,13 @@ class FakeAdminRepository : AdminRepository {
     override suspend fun deleteCategory(category: String): Result<List<String>> {
         categories.removeAll { it.equals(category, ignoreCase = true) }
         return Result.success(categories)
+    }
+
+    var whySekota = WhySekotaConfig()
+    override suspend fun getWhySekota(): WhySekotaConfig = whySekota
+    override suspend fun saveWhySekota(config: WhySekotaConfig): Result<WhySekotaConfig> {
+        whySekota = config
+        return Result.success(config)
     }
 }
 
@@ -250,6 +259,52 @@ class AdminUseCasesTest {
         val blankDeleteResult = deleteCategoryUseCase("")
         assertTrue(blankDeleteResult.isFailure)
         assertEquals("Nama kategori tidak valid", blankDeleteResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testWhySekotaUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getUseCase = GetAdminWhySekotaUseCase(repo)
+        val saveUseCase = SaveAdminWhySekotaUseCase(repo)
+
+        // 1. Initial default state
+        val initial = getUseCase()
+        assertEquals("MENGAPA SEKOTA", initial.preTitle)
+        assertEquals("Sekota Bukan Sekadar Vendor, Bukan Sekadar Konsultan.", initial.title)
+        assertEquals(2, initial.cards.size)
+        assertEquals("c1", initial.cards[0].id)
+        assertEquals("trending", initial.cards[0].iconName)
+
+        // 2. Save valid updated config
+        val updated = initial.copy(
+            title = "Inovasi Berkelanjutan Sekota",
+            cards = listOf(
+                WhySekotaCard("c1", "Kemitraan Jangka Panjang", "Kolaborasi nyata berkesinambungan", "shield"),
+                WhySekotaCard("c2", "Kecepatan dan Skalabilitas", "Arsitektur cloud teruji", "sparkle")
+            )
+        )
+        val saveResult = saveUseCase(updated)
+        assertTrue(saveResult.isSuccess)
+
+        val fetched = getUseCase()
+        assertEquals("Inovasi Berkelanjutan Sekota", fetched.title)
+        assertEquals(2, fetched.cards.size)
+        assertEquals("shield", fetched.cards[0].iconName)
+
+        // 3. Validation failure: empty title
+        val blankTitleResult = saveUseCase(updated.copy(title = "   "))
+        assertTrue(blankTitleResult.isFailure)
+        assertEquals("Judul 'Why Sekota' tidak boleh kosong", blankTitleResult.exceptionOrNull()?.message)
+
+        // 4. Validation failure: empty cards
+        val emptyCardsResult = saveUseCase(updated.copy(cards = emptyList()))
+        assertTrue(emptyCardsResult.isFailure)
+        assertEquals("Kartu 'Why Sekota' minimal 1 kartu", emptyCardsResult.exceptionOrNull()?.message)
+
+        // 5. Validation failure: card with blank title
+        val blankCardTitleResult = saveUseCase(updated.copy(cards = listOf(WhySekotaCard("c1", "   ", "Deskripsi", "trending"))))
+        assertTrue(blankCardTitleResult.isFailure)
+        assertEquals("Judul setiap kartu tidak boleh kosong", blankCardTitleResult.exceptionOrNull()?.message)
     }
 }
 

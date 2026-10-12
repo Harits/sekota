@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.*
+import com.sekota.features.admin.domain.model.WhySekotaCard
+import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.WindowWidth
 import com.sekota.ui.cardPadding
@@ -32,16 +35,47 @@ import sekota.composeapp.generated.resources.*
 
 @Composable
 fun ValuePropDark(
+    config: WhySekotaConfig? = null,
     onConsultationClick: () -> Unit = {}
 ) {
+    var liveConfig by remember {
+        mutableStateOf(config ?: WhySekotaConfig())
+    }
+
+    LaunchedEffect(config) {
+        if (config != null) {
+            liveConfig = config
+        } else {
+            liveConfig = com.sekota.getWhySekotaUseCase()
+            com.sekota.syncService.syncEventFlow.collect {
+                liveConfig = com.sekota.getWhySekotaUseCase()
+            }
+        }
+    }
+
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        ValuePropDarkContent(windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth), onConsultationClick)
+        ValuePropDarkContent(liveConfig, windowWidthOf(maxWidth), contentHorizontalPadding(maxWidth), onConsultationClick)
+    }
+}
+
+private fun resolveCardIcon(iconName: String): DrawableResource {
+    return when (iconName.lowercase().trim()) {
+        "trending", "icon_3" -> Res.drawable.icon_3
+        "chip", "icon_4" -> Res.drawable.icon_4
+        "shield", "icon_1" -> Res.drawable.icon_1
+        "sparkle", "icon_6" -> Res.drawable.icon_6
+        else -> Res.drawable.icon_3
     }
 }
 
 @Composable
-private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp, onConsultationClick: () -> Unit) {
-    // The copy column and the two proof cards only fit side by side from Expanded;
+private fun ValuePropDarkContent(
+    config: WhySekotaConfig,
+    windowWidth: WindowWidth,
+    horizontalPadding: Dp,
+    onConsultationClick: () -> Unit
+) {
+    // The copy column and the proof cards only fit side by side from Expanded;
     // narrower than that the pair stacks beneath the headline.
     val stacked = windowWidth.isAtMostMedium
 
@@ -57,7 +91,7 @@ private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp
         val copy = @Composable { modifier: Modifier ->
             Column(modifier = modifier) {
                 Text(
-                    text = "MENGAPA SEKOTA",
+                    text = config.preTitle,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A99D),
@@ -66,17 +100,16 @@ private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = if (stacked) "Sekota Bukan Sekadar Vendor,\nBukan Sekadar Konsultan."
-                           else "Sekota Bukan\nSekadar Vendor,\nBukan Sekadar\nKonsultan.",
-                    fontSize = if (windowWidth.isCompact) 34.sp else 56.sp,
-                    lineHeight = if (windowWidth.isCompact) 42.sp else 64.sp,
+                    text = config.title,
+                    fontSize = if (windowWidth.isCompact) 34.sp else 52.sp,
+                    lineHeight = if (windowWidth.isCompact) 42.sp else 60.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
                     fontFamily = getMontserratFontFamily()
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Kami berada di persimpangan unik antara teknologi, konteks lokal, dan strategic foresight.",
+                    text = config.description,
                     fontSize = 18.sp,
                     lineHeight = 28.sp,
                     color = Color.Gray,
@@ -104,7 +137,7 @@ private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "MULAI KONSULTASI STRATEGIS",
+                            text = config.ctaLabel,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontFamily = getDmSansFontFamily(),
@@ -121,18 +154,14 @@ private fun ValuePropDarkContent(windowWidth: WindowWidth, horizontalPadding: Dp
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                ValuePropCard(
-                    title = "Lebih Strategis dari Vendor IT",
-                    description = "Memberikan insight yang dapat langsung ditindaklanjuti untuk kebijakan.",
-                    icon = Res.drawable.icon_3,
-                    contentPadding = windowWidth.cardPadding
-                )
-                ValuePropCard(
-                    title = "Lebih Teknis dari Konsultan",
-                    description = "Implementasi data real-time, bukan sekadar slide deck rekomendasi.",
-                    icon = Res.drawable.icon_4,
-                    contentPadding = windowWidth.cardPadding
-                )
+                config.cards.forEach { card ->
+                    ValuePropCard(
+                        title = card.title,
+                        description = card.description,
+                        icon = resolveCardIcon(card.iconName),
+                        contentPadding = windowWidth.cardPadding
+                    )
+                }
             }
         }
 
@@ -204,15 +233,59 @@ fun ValuePropCard(
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ValuePropDarkPreview() {
-    androidx.compose.material3.MaterialTheme {
+    MaterialTheme {
         ValuePropDark()
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ValuePropDarkDynamicPreview() {
+    MaterialTheme {
+        val dynamicConfig = WhySekotaConfig(
+            preTitle = "NILAI UNGGULAN",
+            title = "Transformasi Cerdas Berbasis Ekosistem Nyata",
+            description = "Menjembatani keunggulan riset strategis dan implementasi arsitektur digital mutakhir.",
+            ctaLabel = "JADWALKAN DISKUSI",
+            cards = listOf(
+                WhySekotaCard(
+                    id = "p1",
+                    title = "Lebih Strategis dari Vendor IT",
+                    description = "Memberikan insight yang dapat langsung ditindaklanjuti untuk kebijakan.",
+                    iconName = "trending"
+                ),
+                WhySekotaCard(
+                    id = "p2",
+                    title = "Lebih Teknis dari Konsultan",
+                    description = "Implementasi data real-time, bukan sekadar slide deck rekomendasi.",
+                    iconName = "chip"
+                ),
+                WhySekotaCard(
+                    id = "p3",
+                    title = "Keamanan & Tata Kelola Teruji",
+                    description = "Enkripsi terdesentralisasi dengan integritas data berstandar institusi tinggi.",
+                    iconName = "shield"
+                )
+            )
+        )
+        ValuePropDark(config = dynamicConfig)
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ValuePropDarkCompactPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(360.dp)) {
+            ValuePropDark()
+        }
     }
 }
 
 @Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFF0B141B)
 @Composable
 fun ValuePropCardPreview() {
-    androidx.compose.material3.MaterialTheme {
+    MaterialTheme {
         Column(
             modifier = Modifier
                 .background(Color(0xFF0B141B))
@@ -246,4 +319,3 @@ fun ValuePropCardPreview() {
         }
     }
 }
-

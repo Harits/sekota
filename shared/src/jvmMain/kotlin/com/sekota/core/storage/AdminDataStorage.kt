@@ -89,4 +89,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getCategoriesJson(): String? {
         return read("categories_json")
     }
+
+    actual fun saveWhySekotaJson(json: String) {
+        write("whysekota_json", json)
+    }
+
+    actual fun getWhySekotaJson(): String? {
+        return read("whysekota_json")
+    }
 }

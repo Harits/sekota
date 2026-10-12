@@ -58,5 +58,13 @@ actual class AdminDataStorage actual constructor() {
     actual fun getCategoriesJson(): String? {
         return window.localStorage.getItem("admin_categories_json")
     }
+
+    actual fun saveWhySekotaJson(json: String) {
+        window.localStorage.setItem("admin_whysekota_json", json)
+    }
+
+    actual fun getWhySekotaJson(): String? {
+        return window.localStorage.getItem("admin_whysekota_json")
+    }
 }
 

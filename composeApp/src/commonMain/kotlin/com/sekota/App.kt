@@ -59,6 +59,8 @@ val getProfileUseCase get() = defaultAppContainer.getProfileUseCase
 val updateProfileUseCase get() = defaultAppContainer.updateProfileUseCase
 val getValueLoopUseCase get() = defaultAppContainer.getValueLoopUseCase
 val saveValueLoopUseCase get() = defaultAppContainer.saveValueLoopUseCase
+val getWhySekotaUseCase get() = defaultAppContainer.getWhySekotaUseCase
+val saveWhySekotaUseCase get() = defaultAppContainer.saveWhySekotaUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
