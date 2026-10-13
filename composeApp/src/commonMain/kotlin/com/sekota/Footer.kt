@@ -195,13 +195,19 @@ private fun FooterContent(
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                // Column 1: Brand & Affiliation (aligned to left)
-                branding(Modifier.weight(1.3f).padding(end = 32.dp))
+                // Left Column: Brand & Tagline & Affiliation & Social
+                branding(Modifier.weight(1.4f).padding(end = 48.dp))
 
-                // Column 2: Produk
-                Box(modifier = Modifier.weight(0.9f)) {
+                // Right Section: 3 Link Columns spread to the right edge
+                Row(
+                    modifier = Modifier.weight(2f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    // Column 2: PRODUK
                     FooterColumn(
                         title = "PRODUK",
                         items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW"),
@@ -216,10 +222,8 @@ private fun FooterContent(
                             onProductClick(code)
                         }
                     )
-                }
 
-                // Column 3: Perusahaan
-                Box(modifier = Modifier.weight(0.9f)) {
+                    // Column 3: PERUSAHAAN
                     FooterColumn(
                         title = "PERUSAHAAN",
                         items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak"),
@@ -232,10 +236,8 @@ private fun FooterContent(
                             }
                         }
                     )
-                }
 
-                // Column 4: Legal (aligned to right edge)
-                Box(modifier = Modifier.weight(0.9f), contentAlignment = Alignment.TopEnd) {
+                    // Column 4: LEGAL (Flush with right edge)
                     FooterColumn(
                         title = "LEGAL",
                         items = listOf("Privasi", "Syarat & Ketentuan"),
