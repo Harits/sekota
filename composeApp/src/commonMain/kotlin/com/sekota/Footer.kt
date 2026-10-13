@@ -2,37 +2,42 @@ package com.sekota
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.WindowWidth
-import com.sekota.ui.sectionHorizontalPadding
+import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.windowWidthOf
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.container
 import sekota.composeapp.generated.resources.logo_sekota
 
-import androidx.compose.foundation.clickable
-
 @Composable
 fun Footer(
     onNavigate: (Screen) -> Unit = {},
     onProductClick: (String) -> Unit = {},
-    onKontakClick: () -> Unit = {}
+    onKontakClick: () -> Unit = {},
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         FooterContent(
@@ -40,7 +45,9 @@ fun Footer(
             horizontalPadding = contentHorizontalPadding(maxWidth),
             onNavigate = onNavigate,
             onProductClick = onProductClick,
-            onKontakClick = onKontakClick
+            onKontakClick = onKontakClick,
+            selectedLanguage = selectedLanguage,
+            onLanguageChange = onLanguageChange
         )
     }
 }
@@ -52,7 +59,9 @@ private fun FooterContent(
     horizontalPadding: Dp,
     onNavigate: (Screen) -> Unit,
     onProductClick: (String) -> Unit,
-    onKontakClick: () -> Unit
+    onKontakClick: () -> Unit,
+    selectedLanguage: String,
+    onLanguageChange: (String) -> Unit
 ) {
     val isCompact = windowWidth.isCompact
 
@@ -67,7 +76,11 @@ private fun FooterContent(
     ) {
         val branding = @Composable { modifier: Modifier ->
             Column(modifier = modifier) {
-                Box(modifier = Modifier.clickable { onNavigate(Screen.Landing) }) {
+                Box(
+                    modifier = Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clickable { onNavigate(Screen.Landing) }
+                ) {
                     FooterLogo()
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -75,15 +88,15 @@ private fun FooterContent(
                     text = "Trusted Intelligence for Sustainable Impact. Memberdayakan keputusan strategis melalui data.",
                     fontSize = 14.sp,
                     fontFamily = getDmSansFontFamily(),
-                    color = Color.Gray,
+                    color = Color(0xFF64748B),
                     lineHeight = 22.sp,
-                    modifier = Modifier.widthIn(max = 300.dp)
+                    modifier = Modifier.widthIn(max = 320.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(Res.drawable.container),
-                        contentDescription = null,
+                        contentDescription = "eBdesk Group Affiliation",
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -99,15 +112,34 @@ private fun FooterContent(
                             text = "NATIONWIDE PARTNER",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.LightGray,
-                            fontFamily = getDmSansFontFamily()
+                            color = Color(0xFF94A3B8),
+                            fontFamily = getDmSansFontFamily(),
+                            letterSpacing = 0.5.sp
                         )
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("LINKEDIN", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.LightGray)
-                    Text("TWITTER", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.LightGray)
+                    Text(
+                        text = "LINKEDIN",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF94A3B8),
+                        fontFamily = getDmSansFontFamily(),
+                        modifier = Modifier
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .clickable { /* Social Link Placeholder */ }
+                    )
+                    Text(
+                        text = "TWITTER",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF94A3B8),
+                        fontFamily = getDmSansFontFamily(),
+                        modifier = Modifier
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .clickable { /* Social Link Placeholder */ }
+                    )
                 }
             }
         }
@@ -147,12 +179,14 @@ private fun FooterContent(
             FooterColumn(
                 title = "LEGAL",
                 items = listOf("Privasi", "Syarat & Ketentuan"),
-                onItemClick = {}
+                onItemClick = { item ->
+                    // Legal modal / anchor navigation
+                    onNavigate(Screen.Landing)
+                }
             )
         }
 
-        // Branding block plus three 150dp link columns needs ~750dp. Below Expanded
-        // the branding takes a full row and the link columns wrap underneath it.
+        // Responsive grid/row wrapping
         if (windowWidth.isAtMostMedium) {
             branding(Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(40.dp))
@@ -174,7 +208,7 @@ private fun FooterContent(
         }
 
         Spacer(modifier = Modifier.height(if (isCompact) 40.dp else 64.dp))
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+        HorizontalDivider(color = Color(0xFFE2E8F0))
         Spacer(modifier = Modifier.height(if (isCompact) 24.dp else 32.dp))
 
         FlowRow(
@@ -185,13 +219,42 @@ private fun FooterContent(
             Text(
                 text = "© 2025 PT. SEKOTA SINERGI INDONESIA. BAGIAN DARI EBDESK GROUP.",
                 fontSize = 12.sp,
-                color = Color.Gray,
-                fontFamily = getDmSansFontFamily()
+                color = Color(0xFF64748B),
+                fontFamily = getDmSansFontFamily(),
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("ENGLISH", fontSize = 12.sp, color = Color.Gray)
-                Spacer(modifier = Modifier.width(24.dp))
-                Text("BAHASA INDONESIA", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                val isEn = selectedLanguage.equals("ENGLISH", ignoreCase = true)
+                val isId = selectedLanguage.equals("BAHASA INDONESIA", ignoreCase = true) || !isEn
+
+                Text(
+                    text = "ENGLISH",
+                    fontSize = 12.sp,
+                    fontWeight = if (isEn) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isEn) Color(0xFF0D1F2D) else Color(0xFF94A3B8),
+                    fontFamily = getDmSansFontFamily(),
+                    modifier = Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable { onLanguageChange("ENGLISH") }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "BAHASA INDONESIA",
+                    fontSize = 12.sp,
+                    fontWeight = if (isId) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isId) Color(0xFF0D1F2D) else Color(0xFF94A3B8),
+                    fontFamily = getDmSansFontFamily(),
+                    modifier = Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable { onLanguageChange("BAHASA INDONESIA") }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
             }
         }
     }
@@ -208,16 +271,19 @@ fun FooterColumn(
             text = title,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 24.dp)
+            color = Color(0xFF0D1F2D),
+            fontFamily = getDmSansFontFamily(),
+            modifier = Modifier.padding(bottom = 24.dp),
+            letterSpacing = 0.5.sp
         )
         items.forEach { item ->
             Text(
                 text = item,
                 fontSize = 14.sp,
-                color = Color.Gray,
+                color = Color(0xFF64748B),
                 modifier = Modifier
-                    .padding(bottom = 20.dp)
+                    .padding(bottom = 18.dp)
+                    .pointerHoverIcon(PointerIcon.Hand)
                     .clickable { onItemClick(item) },
                 fontFamily = getDmSansFontFamily()
             )
@@ -227,17 +293,16 @@ fun FooterColumn(
 
 @Composable
 fun FooterLogo() {
-    Image(
-        painter = painterResource(Res.drawable.logo_sekota),
-        contentDescription = "Sekota Logo",
-        modifier = Modifier.height(32.dp)
+    SekotaBrandLogo(
+        iconSize = 32.dp,
+        textSize = 22.sp
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun FooterColumnPreview() {
-    androidx.compose.material3.MaterialTheme {
+    MaterialTheme {
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
@@ -256,9 +321,28 @@ fun FooterColumnPreview() {
 
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
-fun FooterPreview() {
-    androidx.compose.material3.MaterialTheme {
-        Footer()
+fun FooterDefaultPreview() {
+    MaterialTheme {
+        Footer(selectedLanguage = "BAHASA INDONESIA")
     }
 }
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun FooterEnglishActivePreview() {
+    MaterialTheme {
+        Footer(selectedLanguage = "ENGLISH")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FooterCompactPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(375.dp)) {
+            Footer(selectedLanguage = "BAHASA INDONESIA")
+        }
+    }
+}
+
 

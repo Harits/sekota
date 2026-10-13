@@ -249,6 +249,19 @@
       "percentageDone": 100,
       "startDate": "2026-07-04",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-035",
+      "opId": 22475,
+      "subject": "Complete footer",
+      "type": "User story",
+      "status": "In testing",
+      "lockVersion": 3,
+      "description": "Sebagai Pengunjung Web Sekota, Saya ingin melihat dan berinteraksi dengan komponen Footer yang lengkap dan konsisten di seluruh halaman web (Branding, Afiliasi eBdesk Group, Tautan Produk, Navigasi Perusahaan, Legalitas, Hak Cipta, dan Pengalih Bahasa EN/ID), Sehingga Navigasi portal publik terasa lengkap, profesional, dan responsif di berbagai resolusi layar.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

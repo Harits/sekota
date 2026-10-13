@@ -30,7 +30,10 @@ import com.sekota.ui.windowWidthOf
 fun CatalogScreen(
     onBookClick: (String) -> Unit = {},
     onNavigate: (Screen) -> Unit = {},
-    onConsultationClick: () -> Unit = {}
+    onConsultationClick: () -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
@@ -137,7 +140,10 @@ fun CatalogScreen(
             }
             Footer(
                 onNavigate = onNavigate,
-                onKontakClick = onConsultationClick
+                onProductClick = onProductClick,
+                onKontakClick = onConsultationClick,
+                selectedLanguage = selectedLanguage,
+                onLanguageChange = onLanguageChange
             )
         }
     }

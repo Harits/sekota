@@ -32,7 +32,12 @@ import sekota.composeapp.generated.resources.*
 fun BookDetailsScreen(
     bookId: String? = "blind-spot-radar",
     isLoggedIn: Boolean = false,
-    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {}
+    onRequestAuth: (onSuccess: () -> Unit) -> Unit = {},
+    onNavigate: (Screen) -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    onKontakClick: () -> Unit = {},
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getBookByIdUseCase = remember { GetBookByIdUseCase(repository) }
@@ -225,7 +230,13 @@ fun BookDetailsScreen(
             }
             
             Spacer(modifier = Modifier.height(64.dp))
-            Footer()
+            Footer(
+                onNavigate = onNavigate,
+                onProductClick = onProductClick,
+                onKontakClick = onKontakClick,
+                selectedLanguage = selectedLanguage,
+                onLanguageChange = onLanguageChange
+            )
         }
     }
 }

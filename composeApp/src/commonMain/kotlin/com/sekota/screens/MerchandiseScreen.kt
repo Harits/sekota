@@ -32,7 +32,10 @@ fun MerchandiseScreen(
     onNavigate: (Screen) -> Unit,
     isLoggedIn: Boolean = false,
     onRequestAuth: (onSuccess: () -> Unit) -> Unit = {},
-    onConsultationClick: () -> Unit = {}
+    onConsultationClick: () -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getMerchUseCase = remember { GetAdminMerchUseCase(repository) }
@@ -94,7 +97,10 @@ fun MerchandiseScreen(
             }
             Footer(
                 onNavigate = onNavigate,
-                onKontakClick = onConsultationClick
+                onProductClick = onProductClick,
+                onKontakClick = onConsultationClick,
+                selectedLanguage = selectedLanguage,
+                onLanguageChange = onLanguageChange
             )
         }
     }

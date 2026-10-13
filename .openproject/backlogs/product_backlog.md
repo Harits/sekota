@@ -108,6 +108,8 @@ This file contains the high-level roadmap, user stories, and architectural bound
   - *Description*: Sebagai Content Administrator / Marketing Team, Saya ingin Mengelola seluruh teks, tautan CTA, serta poin-poin diferensiasi pada seksi "Mengapa Sekota" secara dinamis melalui CMS Admin, Sehingga Tim bisnis dapat memperbarui value proposition dan materi komunikasi publik secara mandiri dan cepat tanpa ketergantungan deployment developer.
 - [x] **WP-034: [CMS-05-05] - Dynamic Content & Lead Ingestion for Strategic Conversation Section** (OpenProject ID: 22474)
   - *Description*: Sebagai Admin / Tim Marketing, Saya ingin Mengelola konten teks dan placeholder pada section "Mulai Percakapan Strategis" secara dinamis melalui CMS/Backend, serta menerima data leads dari formulir kontak secara real-time, Sehingga Pesan komunikasi tetap relevan dengan campaign terbaru tanpa perlu perubahan kode (hardcoded).
+- [x] **WP-035: [WEB-05-02] - Complete Global Footer Component & Interactive Language Switcher** (OpenProject ID: 22475)
+  - *Description*: Sebagai Pengunjung Web Sekota, Saya ingin melihat dan berinteraksi dengan komponen Footer yang lengkap dan konsisten di seluruh halaman web (Branding, Afiliasi eBdesk Group, Tautan Produk, Navigasi Perusahaan, Legalitas, Hak Cipta, dan Pengalih Bahasa EN/ID), Sehingga Navigasi portal publik terasa lengkap, profesional, dan responsif di berbagai resolusi layar.
 
 ---
 

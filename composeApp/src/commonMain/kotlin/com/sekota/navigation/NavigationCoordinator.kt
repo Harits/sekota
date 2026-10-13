@@ -57,6 +57,11 @@ class NavigationCoordinator {
                     )
                 }
             }
+            is NavigationIntent.SetLanguage -> {
+                _state.update {
+                    it.copy(selectedLanguage = intent.language)
+                }
+            }
             is NavigationIntent.OpenAuthGate -> {
                 _state.update {
                     it.copy(

@@ -12,6 +12,7 @@ data class NavigationState(
     val activeLandingSection: NavbarActiveSection = NavbarActiveSection.SOLUSI,
     val selectedProductCode: String = "VRD",
     val selectedBookId: String? = "blind-spot-radar",
+    val selectedLanguage: String = "BAHASA INDONESIA",
     val isAuthGateOpen: Boolean = false,
     val pendingAction: (() -> Unit)? = null
 )
@@ -22,6 +23,7 @@ sealed interface NavigationIntent {
     data class RequestConsultation(val fromScreen: Screen? = null) : NavigationIntent
     data class SelectProduct(val productCode: String) : NavigationIntent
     data class SelectBook(val bookId: String) : NavigationIntent
+    data class SetLanguage(val language: String) : NavigationIntent
     data class OpenAuthGate(val onAuthenticated: () -> Unit) : NavigationIntent
     data object CloseAuthGate : NavigationIntent
     data class ScrollPositionChanged(val scrollY: Int, val produkOffsetY: Int, val kontakOffsetY: Int) : NavigationIntent

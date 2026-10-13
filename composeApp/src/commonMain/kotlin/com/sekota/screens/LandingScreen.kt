@@ -36,7 +36,9 @@ fun LandingScreen(
     onKontakPositioned: (Int) -> Unit = {},
     solusiRequester: BringIntoViewRequester = remember { BringIntoViewRequester() },
     produkRequester: BringIntoViewRequester = remember { BringIntoViewRequester() },
-    kontakRequester: BringIntoViewRequester = remember { BringIntoViewRequester() }
+    kontakRequester: BringIntoViewRequester = remember { BringIntoViewRequester() },
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeroSection(
@@ -88,7 +90,9 @@ fun LandingScreen(
         Footer(
             onNavigate = onNavigate,
             onProductClick = onProductClick,
-            onKontakClick = onConsultationClick
+            onKontakClick = onConsultationClick,
+            selectedLanguage = selectedLanguage,
+            onLanguageChange = onLanguageChange
         )
     }
 }

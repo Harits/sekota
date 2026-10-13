@@ -184,7 +184,11 @@ fun App(
                                 onKontakPositioned = { y -> kontakOffsetY = y },
                                 solusiRequester = solusiRequester,
                                 produkRequester = produkRequester,
-                                kontakRequester = kontakRequester
+                                kontakRequester = kontakRequester,
+                                selectedLanguage = navState.selectedLanguage,
+                                onLanguageChange = { lang ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
+                                }
                             )
                         }
                     }
@@ -204,6 +208,13 @@ fun App(
                                 },
                                 onConsultationClick = {
                                     container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
+                                },
+                                onProductClick = { code ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
+                                },
+                                selectedLanguage = navState.selectedLanguage,
+                                onLanguageChange = { lang ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
                                 }
                             )
                         }
@@ -220,6 +231,19 @@ fun App(
                                 isLoggedIn = isLoggedIn,
                                 onRequestAuth = { onSuccess ->
                                     container.navigationCoordinator.processIntent(NavigationIntent.OpenAuthGate(onSuccess))
+                                },
+                                onNavigate = { screen ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                                },
+                                onProductClick = { code ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
+                                },
+                                onKontakClick = {
+                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
+                                },
+                                selectedLanguage = navState.selectedLanguage,
+                                onLanguageChange = { lang ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
                                 }
                             )
                         }
@@ -240,6 +264,16 @@ fun App(
                                 },
                                 onConsultationClick = {
                                     container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
+                                },
+                                onNavigate = { screen ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                                },
+                                onProductClick = { code ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
+                                },
+                                selectedLanguage = navState.selectedLanguage,
+                                onLanguageChange = { lang ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
                                 }
                             )
                         }
@@ -261,6 +295,13 @@ fun App(
                                 },
                                 onConsultationClick = {
                                     container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
+                                },
+                                onProductClick = { code ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
+                                },
+                                selectedLanguage = navState.selectedLanguage,
+                                onLanguageChange = { lang ->
+                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
                                 }
                             )
                         }

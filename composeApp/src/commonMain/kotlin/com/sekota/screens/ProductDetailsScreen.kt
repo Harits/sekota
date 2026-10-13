@@ -37,7 +37,11 @@ import sekota.composeapp.generated.resources.*
 fun ProductDetailsScreen(
     productCode: String? = "VRD",
     onNavigateBack: () -> Unit = {},
-    onConsultationClick: () -> Unit = {}
+    onConsultationClick: () -> Unit = {},
+    onNavigate: (Screen) -> Unit = {},
+    onProductClick: (String) -> Unit = {},
+    selectedLanguage: String = "BAHASA INDONESIA",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     val repository = remember { AdminRepositoryImpl() }
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
@@ -357,6 +361,15 @@ fun ProductDetailsScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(48.dp))
+            Footer(
+                onNavigate = onNavigate,
+                onProductClick = onProductClick,
+                onKontakClick = onConsultationClick,
+                selectedLanguage = selectedLanguage,
+                onLanguageChange = onLanguageChange
+            )
         }
     }
 }
