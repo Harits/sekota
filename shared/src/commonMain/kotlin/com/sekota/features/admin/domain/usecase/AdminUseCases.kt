@@ -228,4 +228,24 @@ class SaveAdminFooterUseCase(private val repository: AdminRepository) {
     }
 }
 
+class GetAdminNavigationItemsUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): List<com.sekota.features.navigation.domain.model.NavigationItem> {
+        return repository.getNavigationItems()
+    }
+}
+
+class SaveAdminNavigationItemsUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>> {
+        for (item in items) {
+            if (item.label.isBlank()) {
+                return Result.failure(IllegalArgumentException("Label navigasi tidak boleh kosong"))
+            }
+            if (item.route.isBlank()) {
+                return Result.failure(IllegalArgumentException("Route navigasi tidak boleh kosong"))
+            }
+        }
+        return repository.saveNavigationItems(items)
+    }
+}
+
 

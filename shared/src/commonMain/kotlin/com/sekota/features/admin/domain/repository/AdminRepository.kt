@@ -45,5 +45,8 @@ interface AdminRepository {
 
     suspend fun getFooter(): com.sekota.features.admin.domain.model.FooterConfig
     suspend fun saveFooter(config: com.sekota.features.admin.domain.model.FooterConfig): Result<com.sekota.features.admin.domain.model.FooterConfig>
+
+    suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem>
+    suspend fun saveNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>>
 }
 

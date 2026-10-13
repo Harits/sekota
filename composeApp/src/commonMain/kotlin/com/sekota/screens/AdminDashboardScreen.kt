@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -84,9 +85,11 @@ fun AdminDashboardScreen(
     val saveStrategicConversationUseCase = remember { SaveAdminStrategicConversationUseCase(repository) }
     val getFooterUseCase = remember { GetAdminFooterUseCase(repository) }
     val saveFooterUseCase = remember { SaveAdminFooterUseCase(repository) }
+    val getNavigationItemsUseCase = remember { GetAdminNavigationItemsUseCase(repository) }
+    val saveNavigationItemsUseCase = remember { SaveAdminNavigationItemsUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries", "Footer Management")
+    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries", "Footer Management", "AppBar Management")
 
     var currentEnvironment by remember { mutableStateOf(EnvironmentConfigResolver.resolveEnvironment()) }
     var showGuideDialog by remember { mutableStateOf(false) }
@@ -220,6 +223,7 @@ fun AdminDashboardScreen(
                         5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
                         6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
                         7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
+                        8 -> AppBarManagementTab(getNavigationItemsUseCase, saveNavigationItemsUseCase, windowWidth, onActionWithProductionGuard)
                     }
                 }
 
@@ -425,6 +429,7 @@ fun AdminDashboardScreen(
                             5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
                             6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
                             7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
+                            8 -> AppBarManagementTab(getNavigationItemsUseCase, saveNavigationItemsUseCase, windowWidth, onActionWithProductionGuard)
                         }
                     }
                 }
@@ -3680,6 +3685,508 @@ fun FooterManagementTabPreview() {
         FooterManagementTab(
             getFooterUseCase = remember { GetAdminFooterUseCase(repo) },
             saveFooterUseCase = remember { SaveAdminFooterUseCase(repo) },
+            windowWidth = WindowWidth.Expanded
+        )
+    }
+}
+
+@Composable
+fun AppBarManagementTab(
+    getNavigationItemsUseCase: GetAdminNavigationItemsUseCase,
+    saveNavigationItemsUseCase: SaveAdminNavigationItemsUseCase,
+    windowWidth: WindowWidth,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
+) {
+    val scope = rememberCoroutineScope()
+    var items by remember { mutableStateOf<List<com.sekota.features.navigation.domain.model.NavigationItem>>(emptyList()) }
+    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var isSaving by remember { mutableStateOf(false) }
+
+    var editingItem by remember { mutableStateOf<com.sekota.features.navigation.domain.model.NavigationItem?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        items = getNavigationItemsUseCase()
+        com.sekota.syncService.syncEventFlow.collect {
+            items = getNavigationItemsUseCase()
+        }
+    }
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        WorkbenchHeader(
+            title = "AppBar Navigation Management",
+            subtitle = "Kelola struktur tautan navigasi utama (AppBar), visibilitas, rute, dan urutan tampilan secara dinamis.",
+            windowWidth = windowWidth,
+            actionLabel = "+ Tambah Item Navigasi",
+            onAction = {
+                val maxOrder = items.maxOfOrNull { it.order } ?: 0
+                editingItem = com.sekota.features.navigation.domain.model.NavigationItem(
+                    id = "nav_" + kotlin.random.Random.nextInt(1000, 9999),
+                    label = "",
+                    route = "#",
+                    order = maxOrder + 1,
+                    isVisible = true
+                )
+                showDialog = true
+            }
+        )
+
+        statusFeedback?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    fontFamily = getDmSansFontFamily(),
+                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Reset to Canonical Action Card
+        Surface(
+            color = Color.White,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Reset ke Navigasi Bawaan (Canonical)",
+                        fontFamily = getMontserratFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = InkNavy
+                    )
+                    Text(
+                        text = "Kembalikan 5 tautan standar: Solusi (#solusi), Produk (#produk), E-Book (/catalog), Merchandise (/merchandise), dan Kontak (#kontak).",
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 13.sp,
+                        color = Color(0xFF64748B)
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                OutlinedButton(
+                    onClick = {
+                        val executeReset: () -> Unit = {
+                            scope.launch {
+                                isSaving = true
+                                val canonical = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS
+                                val res = saveNavigationItemsUseCase(canonical)
+                                if (res.isSuccess) {
+                                    items = res.getOrThrow()
+                                    statusFeedback = "✅ Berhasil mereset navigasi ke 5 tautan standar canonical!"
+                                    syncService.triggerLocalUpdate()
+                                } else {
+                                    statusFeedback = "❌ Gagal reset: ${res.exceptionOrNull()?.message}"
+                                }
+                                isSaving = false
+                            }
+                        }
+                        if (onActionWithProductionGuard != null) {
+                            onActionWithProductionGuard("Reset Navigasi Bawaan", "AppBar Navigation", false, executeReset)
+                        } else {
+                            executeReset()
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandTeal)
+                ) {
+                    Text(text = "Reset Bawaan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Navigation Items List Table / Cards
+        Surface(
+            color = Color.White,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "Daftar Tautan Aktif (${items.size} item)",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = InkNavy
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (items.isEmpty()) {
+                    Text(
+                        text = "Belum ada item navigasi yang tersimpan. Klik '+ Tambah Item Navigasi' atau 'Reset Bawaan'.",
+                        fontFamily = getDmSansFontFamily(),
+                        color = Color(0xFF94A3B8),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                } else {
+                    val sortedList = items.sortedBy { it.order }
+                    sortedList.forEachIndexed { index, item ->
+                        Surface(
+                            color = if (item.isVisible) Color(0xFFF8FAFC) else Color(0xFFFFF1F2),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, if (item.isVisible) Color(0xFFE2E8F0) else Color(0xFFFECDD3)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Surface(
+                                        color = BrandTeal.copy(alpha = 0.15f),
+                                        shape = CircleShape,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "${item.order}",
+                                                fontFamily = getDmSansFontFamily(),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp,
+                                                color = BrandTeal
+                                            )
+                                        }
+                                    }
+
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text(
+                                                text = item.label,
+                                                fontFamily = getMontserratFontFamily(),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 15.sp,
+                                                color = InkNavy
+                                            )
+                                            if (!item.isVisible) {
+                                                Surface(
+                                                    color = Color(0xFFF43F5E),
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                                ) {
+                                                    Text(
+                                                        text = "HIDDEN",
+                                                        fontFamily = getDmSansFontFamily(),
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color.White
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Text(
+                                            text = "Route: ${item.route}",
+                                            fontFamily = getDmSansFontFamily(),
+                                            fontSize = 12.sp,
+                                            color = Color(0xFF64748B)
+                                        )
+                                    }
+                                }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    // Move Up / Down
+                                    IconButton(
+                                        onClick = {
+                                            if (index > 0) {
+                                                val prevItem = sortedList[index - 1]
+                                                val updatedList = sortedList.toMutableList()
+                                                val currentOrder = item.order
+                                                updatedList[index] = item.copy(order = prevItem.order)
+                                                updatedList[index - 1] = prevItem.copy(order = currentOrder)
+                                                val executeMove: () -> Unit = {
+                                                    scope.launch {
+                                                        val res = saveNavigationItemsUseCase(updatedList)
+                                                        if (res.isSuccess) {
+                                                            items = res.getOrThrow()
+                                                            syncService.triggerLocalUpdate()
+                                                        }
+                                                    }
+                                                }
+                                                if (onActionWithProductionGuard != null) {
+                                                    onActionWithProductionGuard("Pindahkan Item Navigasi Ke Atas", item.label, false, executeMove)
+                                                } else {
+                                                    executeMove()
+                                                }
+                                            }
+                                        },
+                                        enabled = index > 0,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        com.sekota.components.SekotaArrowUpVectorIcon(
+                                            size = 18.dp,
+                                            tint = if (index > 0) InkNavy else Color.LightGray
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            if (index < sortedList.size - 1) {
+                                                val nextItem = sortedList[index + 1]
+                                                val updatedList = sortedList.toMutableList()
+                                                val currentOrder = item.order
+                                                updatedList[index] = item.copy(order = nextItem.order)
+                                                updatedList[index + 1] = nextItem.copy(order = currentOrder)
+                                                val executeMove: () -> Unit = {
+                                                    scope.launch {
+                                                        val res = saveNavigationItemsUseCase(updatedList)
+                                                        if (res.isSuccess) {
+                                                            items = res.getOrThrow()
+                                                            syncService.triggerLocalUpdate()
+                                                        }
+                                                    }
+                                                }
+                                                if (onActionWithProductionGuard != null) {
+                                                    onActionWithProductionGuard("Pindahkan Item Navigasi Ke Bawah", item.label, false, executeMove)
+                                                } else {
+                                                    executeMove()
+                                                }
+                                            }
+                                        },
+                                        enabled = index < sortedList.size - 1,
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        com.sekota.components.SekotaArrowDownVectorIcon(
+                                            size = 18.dp,
+                                            tint = if (index < sortedList.size - 1) InkNavy else Color.LightGray
+                                        )
+                                    }
+
+                                    // Edit
+                                    OutlinedButton(
+                                        onClick = {
+                                            editingItem = item
+                                            showDialog = true
+                                        },
+                                        shape = RoundedCornerShape(6.dp),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                        modifier = Modifier.height(32.dp)
+                                    ) {
+                                        Text(text = "Edit", fontSize = 12.sp, fontFamily = getDmSansFontFamily())
+                                    }
+
+                                    // Delete
+                                    IconButton(
+                                        onClick = {
+                                            val executeDelete: () -> Unit = {
+                                                scope.launch {
+                                                    val updated = items.filterNot { it.id == item.id }
+                                                    val res = saveNavigationItemsUseCase(updated)
+                                                    if (res.isSuccess) {
+                                                        items = res.getOrThrow()
+                                                        statusFeedback = "✅ Item '${item.label}' berhasil dihapus."
+                                                        syncService.triggerLocalUpdate()
+                                                    } else {
+                                                        statusFeedback = "❌ Gagal hapus: ${res.exceptionOrNull()?.message}"
+                                                    }
+                                                }
+                                            }
+                                            if (onActionWithProductionGuard != null) {
+                                                onActionWithProductionGuard("Hapus Item Navigasi", item.label, true, executeDelete)
+                                            } else {
+                                                executeDelete()
+                                            }
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        com.sekota.components.SekotaTrashVectorIcon(size = 18.dp, tint = Color(0xFFEF4444))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Dialog for adding / editing navigation item
+    if (showDialog && editingItem != null) {
+        val currentItem = editingItem!!
+        var labelInput by remember { mutableStateOf(currentItem.label) }
+        var routeInput by remember { mutableStateOf(currentItem.route) }
+        var orderInput by remember { mutableStateOf(currentItem.order.toString()) }
+        var isVisibleInput by remember { mutableStateOf(currentItem.isVisible) }
+        var dialogError by remember { mutableStateOf<String?>(null) }
+
+        AlertDialog(
+            onDismissRequest = {
+                showDialog = false
+                editingItem = null
+            },
+            title = {
+                Text(
+                    text = if (items.any { it.id == currentItem.id }) "Edit Item Navigasi" else "Tambah Item Navigasi",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    dialogError?.let {
+                        Text(
+                            text = it,
+                            fontFamily = getDmSansFontFamily(),
+                            color = Color(0xFFEF4444),
+                            fontSize = 13.sp
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = labelInput,
+                        onValueChange = { labelInput = it },
+                        label = { Text("Label Navigasi") },
+                        placeholder = { Text("misal: Solusi, E-Book, Insights") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = routeInput,
+                        onValueChange = { routeInput = it },
+                        label = { Text("Route / Hash Target") },
+                        placeholder = { Text("misal: #solusi, /catalog, #kontak") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = orderInput,
+                        onValueChange = { orderInput = it },
+                        label = { Text("Urutan Tampilan (Order)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.clickable { isVisibleInput = !isVisibleInput }
+                    ) {
+                        Checkbox(
+                            checked = isVisibleInput,
+                            onCheckedChange = { isVisibleInput = it }
+                        )
+                        Text(
+                            text = "Tampilkan di AppBar (Visible)",
+                            fontFamily = getDmSansFontFamily(),
+                            fontSize = 14.sp,
+                            color = InkNavy
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (labelInput.isBlank()) {
+                            dialogError = "Label tidak boleh kosong"
+                            return@Button
+                        }
+                        if (routeInput.isBlank()) {
+                            dialogError = "Route tidak boleh kosong"
+                            return@Button
+                        }
+                        val parsedOrder = orderInput.toIntOrNull() ?: currentItem.order
+
+                        val updatedItem = currentItem.copy(
+                            label = labelInput.trim(),
+                            route = routeInput.trim(),
+                            order = parsedOrder,
+                            isVisible = isVisibleInput
+                        )
+
+                        val executeSave: () -> Unit = {
+                            scope.launch {
+                                val currentList = items.filterNot { it.id == updatedItem.id }.toMutableList()
+                                currentList.add(updatedItem)
+                                val res = saveNavigationItemsUseCase(currentList)
+                                if (res.isSuccess) {
+                                    items = res.getOrThrow()
+                                    statusFeedback = "✅ Item '${updatedItem.label}' berhasil disimpan!"
+                                    showDialog = false
+                                    editingItem = null
+                                    syncService.triggerLocalUpdate()
+                                } else {
+                                    dialogError = res.exceptionOrNull()?.message
+                                }
+                            }
+                        }
+
+                        if (onActionWithProductionGuard != null) {
+                            onActionWithProductionGuard("Simpan Item Navigasi", updatedItem.label, false, executeSave)
+                        } else {
+                            executeSave()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)
+                ) {
+                    Text(text = "Simpan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showDialog = false
+                        editingItem = null
+                    }
+                ) {
+                    Text(text = "Batal", fontFamily = getDmSansFontFamily())
+                }
+            }
+        )
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun AppBarManagementTabPreview() {
+    MaterialTheme {
+        val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
+        AppBarManagementTab(
+            getNavigationItemsUseCase = remember { GetAdminNavigationItemsUseCase(repo) },
+            saveNavigationItemsUseCase = remember { SaveAdminNavigationItemsUseCase(repo) },
             windowWidth = WindowWidth.Expanded
         )
     }

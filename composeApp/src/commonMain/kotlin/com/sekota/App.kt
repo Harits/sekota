@@ -65,6 +65,8 @@ val getStrategicConversationUseCase get() = defaultAppContainer.getStrategicConv
 val saveStrategicConversationUseCase get() = defaultAppContainer.saveStrategicConversationUseCase
 val getFooterUseCase get() = defaultAppContainer.getFooterUseCase
 val saveFooterUseCase get() = defaultAppContainer.saveFooterUseCase
+val getNavigationItemsUseCase get() = defaultAppContainer.getNavigationItemsUseCase
+val saveNavigationItemsUseCase get() = defaultAppContainer.saveNavigationItemsUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -74,6 +76,18 @@ fun App(
     val coroutineScope = rememberCoroutineScope()
     val syncState by container.syncService.syncState.collectAsState()
     
+    // Dynamic Navigation Items
+    var navItems by remember {
+        mutableStateOf(com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS)
+    }
+
+    LaunchedEffect(container.getNavigationItemsUseCase) {
+        navItems = container.getNavigationItemsUseCase()
+        container.syncService.syncEventFlow.collect {
+            navItems = container.getNavigationItemsUseCase()
+        }
+    }
+
     // MVI State Collection
     val navState by container.navigationCoordinator.state.collectAsState()
     var isLoggedIn by remember { mutableStateOf(container.getTokenUseCase() != null) }
@@ -346,6 +360,7 @@ fun App(
 
             // Sticky Navbar (Material Design 3 with integrated status pill)
             Navbar(
+                items = navItems,
                 currentScreen = navState.currentScreen,
                 activeLandingSection = navState.activeLandingSection,
                 isLoggedIn = isLoggedIn,

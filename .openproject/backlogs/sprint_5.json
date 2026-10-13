@@ -386,6 +386,75 @@
       "percentageDone": 0,
       "startDate": "2026-07-04",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-038",
+      "opId": 22486,
+      "subject": "[CMS-05-08] Dynamic Main Navigation Bar (AppBar) Content Management",
+      "type": "User story",
+      "status": "New",
+      "lockVersion": 1,
+      "description": "Sebagai Content Manager / CMS Operator, Saya ingin mengelola item-item tautan pada navigasi utama (AppBar) melalui CMS Workbench, Sehingga saya dapat menambah, menghapus, menyusun ulang urutan (reorder), atau mengubah label tautan navigasi (seperti 'Solusi', 'Produk', 'E-Book', dll.) secara dinamis tanpa perlu deploy ulang kode aplikasi maupun update versi portal Web Sekota.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 0,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-038-1",
+      "opId": 22487,
+      "parentId": 22486,
+      "subject": "[CMS-05-08-01] Define Navigation Item Domain Model & CMS Schema",
+      "type": "Task",
+      "status": "New",
+      "lockVersion": 1,
+      "description": "Membuat data class NavigationItem (id, label, route, iconUrl, order) dan mendefinisikan skema kontrak JSON / payload sinkronisasi AppBar Configuration.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 0,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-038-2",
+      "opId": 22488,
+      "parentId": 22486,
+      "subject": "[CMS-05-08-02] Implement Network Service, Storage Cache & Fallback Navigation",
+      "type": "Task",
+      "status": "New",
+      "lockVersion": 1,
+      "description": "Mengimplementasikan Ktor service dan repository layer dengan mekanisme caching lokal (LocalStore/DataStore) serta canonical hardcoded fallback navigation items.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 0,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-038-3",
+      "opId": 22489,
+      "parentId": 22486,
+      "subject": "[CMS-05-08-03] Decouple AppBar to Dynamic List & Route State Handling",
+      "type": "Task",
+      "status": "New",
+      "lockVersion": 1,
+      "description": "Merefaktor Navbar Composable agar menerima List<NavigationItem> terurut dinamis dan menangani active indicator mapping sesuai route aktif.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 0,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-038-4",
+      "opId": 22490,
+      "parentId": 22486,
+      "subject": "[CMS-05-08-04] Author Unit Tests, Multi-Item Compose Previews & Styling Verification",
+      "type": "Task",
+      "status": "New",
+      "lockVersion": 1,
+      "description": "Menulis pengujian repository (success, 404, fallback) dan menyusun multi-state desktop previews untuk verifikasi rendering 3-8 item tanpa overflow.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 0,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

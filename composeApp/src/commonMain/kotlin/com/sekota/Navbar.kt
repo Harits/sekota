@@ -76,6 +76,7 @@ fun SekotaBrandLogo(
 
 @Composable
 fun Navbar(
+    items: List<com.sekota.features.navigation.domain.model.NavigationItem> = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS,
     currentScreen: Screen = Screen.Landing,
     activeLandingSection: NavbarActiveSection = NavbarActiveSection.SOLUSI,
     isLoggedIn: Boolean = false,
@@ -89,6 +90,46 @@ fun Navbar(
 ) {
     // Rule 10: Interactive state hoisted outside nested BoxWithConstraints for Wasm canvas determinism
     var isMobileMenuOpen by remember { mutableStateOf(false) }
+
+    val sortedNavItems = remember(items) {
+        items.filter { it.isVisible }.sortedBy { it.order }
+    }
+
+    val handleNavClick: (String) -> Unit = { route ->
+        val cleanRoute = route.trim()
+        when {
+            cleanRoute == "#solusi" || cleanRoute == "solusi" -> onSolusiClick()
+            cleanRoute == "#produk" || cleanRoute == "produk" -> onProdukClick()
+            cleanRoute == "#kontak" || cleanRoute == "kontak" -> onKontakClick()
+            cleanRoute == "/catalog" || cleanRoute == "catalog" || cleanRoute == "#catalog" -> onNavigate(Screen.Catalog)
+            cleanRoute == "/merchandise" || cleanRoute == "merchandise" || cleanRoute == "#merchandise" -> onNavigate(Screen.Merchandise)
+            cleanRoute == "/profile" || cleanRoute == "profile" -> onNavigate(Screen.Profile)
+            cleanRoute == "/login" || cleanRoute == "login" -> onNavigate(Screen.Login)
+            cleanRoute == "/" || cleanRoute == "#beranda" || cleanRoute == "home" -> onNavigate(Screen.Landing)
+            else -> onNavigate(Screen.Landing)
+        }
+    }
+
+    val isRouteActive: (String) -> Boolean = { route ->
+        val cleanRoute = route.trim().lowercase()
+        when {
+            cleanRoute == "#solusi" || cleanRoute == "solusi" ->
+                currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.SOLUSI
+            cleanRoute == "#produk" || cleanRoute == "produk" ->
+                currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.PRODUK
+            cleanRoute == "#kontak" || cleanRoute == "kontak" ->
+                currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.KONTAK
+            cleanRoute == "/catalog" || cleanRoute == "catalog" || cleanRoute == "#catalog" ->
+                currentScreen == Screen.Catalog
+            cleanRoute == "/merchandise" || cleanRoute == "merchandise" || cleanRoute == "#merchandise" ->
+                currentScreen == Screen.Merchandise
+            cleanRoute == "/profile" || cleanRoute == "profile" ->
+                currentScreen == Screen.Profile
+            cleanRoute == "/login" || cleanRoute == "login" ->
+                currentScreen == Screen.Login
+            else -> false
+        }
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -236,55 +277,17 @@ fun Navbar(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    // Solusi
-                    MobileNavItem(
-                        title = "Solusi",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.SOLUSI,
-                        onClick = {
-                            isMobileMenuOpen = false
-                            onSolusiClick()
-                        }
-                    )
-
-                    // Produk
-                    MobileNavItem(
-                        title = "Produk",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.PRODUK,
-                        onClick = {
-                            isMobileMenuOpen = false
-                            onProdukClick()
-                        }
-                    )
-
-                    // E-Book Catalog
-                    MobileNavItem(
-                        title = "E-Book",
-                        isSelected = currentScreen == Screen.Catalog,
-                        onClick = {
-                            isMobileMenuOpen = false
-                            onNavigate(Screen.Catalog)
-                        }
-                    )
-
-                    // Merchandise
-                    MobileNavItem(
-                        title = "Merchandise",
-                        isSelected = currentScreen == Screen.Merchandise,
-                        onClick = {
-                            isMobileMenuOpen = false
-                            onNavigate(Screen.Merchandise)
-                        }
-                    )
-
-                    // Kontak
-                    MobileNavItem(
-                        title = "Kontak",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.KONTAK,
-                        onClick = {
-                            isMobileMenuOpen = false
-                            onKontakClick()
-                        }
-                    )
+                    // Dynamic Navigation Items
+                    sortedNavItems.forEach { navItem ->
+                        MobileNavItem(
+                            title = navItem.label,
+                            isSelected = isRouteActive(navItem.route),
+                            onClick = {
+                                isMobileMenuOpen = false
+                                handleNavClick(navItem.route)
+                            }
+                        )
+                    }
 
                     // Profile or Login
                     if (isLoggedIn) {
@@ -367,45 +370,18 @@ fun Navbar(
                     )
                 }
 
-                // Desktop Navigation Links
+                // Desktop Navigation Links (Dynamic)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(navItemSpacing),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Solusi
-                    DesktopNavItem(
-                        title = "Solusi",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.SOLUSI,
-                        onClick = onSolusiClick
-                    )
-
-                    // Produk
-                    DesktopNavItem(
-                        title = "Produk",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.PRODUK,
-                        onClick = onProdukClick
-                    )
-
-                    // E-Book
-                    DesktopNavItem(
-                        title = "E-Book",
-                        isSelected = currentScreen == Screen.Catalog,
-                        onClick = { onNavigate(Screen.Catalog) }
-                    )
-
-                    // Merchandise
-                    DesktopNavItem(
-                        title = "Merchandise",
-                        isSelected = currentScreen == Screen.Merchandise,
-                        onClick = { onNavigate(Screen.Merchandise) }
-                    )
-
-                    // Kontak
-                    DesktopNavItem(
-                        title = "Kontak",
-                        isSelected = currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.KONTAK,
-                        onClick = onKontakClick
-                    )
+                    sortedNavItems.forEach { navItem ->
+                        DesktopNavItem(
+                            title = navItem.label,
+                            isSelected = isRouteActive(navItem.route),
+                            onClick = { handleNavClick(navItem.route) }
+                        )
+                    }
 
                     // Login / Profile
                     if (isLoggedIn) {
@@ -601,6 +577,40 @@ fun NavbarDesktopPreview() {
     }
 }
 
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun NavbarDynamicVariationsDesktopPreview() {
+    val threeItems = listOf(
+        com.sekota.features.navigation.domain.model.NavigationItem("1", "Solusi", "#solusi", order = 1),
+        com.sekota.features.navigation.domain.model.NavigationItem("2", "Produk", "#produk", order = 2),
+        com.sekota.features.navigation.domain.model.NavigationItem("3", "Kontak", "#kontak", order = 3)
+    )
+    val fiveItems = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS
+    val eightItems = listOf(
+        com.sekota.features.navigation.domain.model.NavigationItem("1", "Solusi", "#solusi", order = 1),
+        com.sekota.features.navigation.domain.model.NavigationItem("2", "Produk", "#produk", order = 2),
+        com.sekota.features.navigation.domain.model.NavigationItem("3", "E-Book", "/catalog", order = 3),
+        com.sekota.features.navigation.domain.model.NavigationItem("4", "Merchandise", "/merchandise", order = 4),
+        com.sekota.features.navigation.domain.model.NavigationItem("5", "Insights", "#insights", order = 5),
+        com.sekota.features.navigation.domain.model.NavigationItem("6", "Komunitas", "#community", order = 6),
+        com.sekota.features.navigation.domain.model.NavigationItem("7", "Karir", "#careers", order = 7),
+        com.sekota.features.navigation.domain.model.NavigationItem("8", "Kontak", "#kontak", order = 8)
+    )
+
+    MaterialTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text("3 Navigation Items:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+            Navbar(items = threeItems, onNavigate = {})
+            
+            Text("5 Canonical Navigation Items:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+            Navbar(items = fiveItems, onNavigate = {})
+
+            Text("8 Extended Navigation Items (Overflow Stress Test):", fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+            Navbar(items = eightItems, onNavigate = {})
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun NavbarMobilePreview() {
@@ -685,3 +695,4 @@ fun NavItemPreview() {
         }
     }
 }
+

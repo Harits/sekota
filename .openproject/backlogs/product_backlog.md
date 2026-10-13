@@ -121,8 +121,16 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22482` [CMS-05-07-02] Build EnvironmentBadge Component & TopAppBar Integration
     - `#22483` [CMS-05-07-03] Production Safety Interceptor & Confirmation Dialog
     - `#22484` [CMS-05-07-04] Author Multi-State Compose Previews & Verify Desktop Build
+- [ ] **WP-038: [CMS-05-08] - Dynamic Main Navigation Bar (AppBar) Content Management** (OpenProject ID: 22486)
+  - *Description*: Sebagai Content Manager / CMS Operator, Saya ingin mengelola item-item tautan pada navigasi utama (AppBar) melalui CMS Workbench, Sehingga saya dapat menambah, menghapus, menyusun ulang urutan (reorder), atau mengubah label tautan navigasi (seperti 'Solusi', 'Produk', 'E-Book', dll.) secara dinamis tanpa perlu deploy ulang kode aplikasi maupun update versi portal Web Sekota.
+  - *Child Tasks*:
+    - `#22487` [CMS-05-08-01] Define Navigation Item Domain Model & CMS Schema
+    - `#22488` [CMS-05-08-02] Implement Network Service, Storage Cache & Fallback Navigation
+    - `#22489` [CMS-05-08-03] Decouple AppBar to Dynamic List & Route State Handling
+    - `#22490` [CMS-05-08-04] Author Unit Tests, Multi-Item Compose Previews & Styling Verification
 
 ---
+
 
 
 

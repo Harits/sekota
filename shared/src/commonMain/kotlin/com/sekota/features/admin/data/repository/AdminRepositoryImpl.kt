@@ -725,5 +725,29 @@ class AdminRepositoryImpl(
     private fun persistFooter(config: com.sekota.features.admin.domain.model.FooterConfig) {
         dataStorage.saveFooterConfigJson(json.encodeToString(config))
     }
+
+    override suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem> {
+        val storedJson = dataStorage.getNavigationItemsJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                val items = json.decodeFromString<List<com.sekota.features.navigation.domain.model.NavigationItem>>(storedJson)
+                if (items.isNotEmpty()) {
+                    return items
+                }
+            } catch (_: Exception) {}
+        }
+        val defaultItems = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS
+        persistNavigationItems(defaultItems)
+        return defaultItems
+    }
+
+    override suspend fun saveNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>> {
+        persistNavigationItems(items)
+        return Result.success(items)
+    }
+
+    private fun persistNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>) {
+        dataStorage.saveNavigationItemsJson(json.encodeToString(items))
+    }
 }
 

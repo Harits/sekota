@@ -21,5 +21,6 @@ data class SyncDataPayload(
     val whySekota: WhySekotaConfig = WhySekotaConfig(),
     val contactConfig: StrategicConversationConfig = StrategicConversationConfig(),
     val footerConfig: com.sekota.features.admin.domain.model.FooterConfig = com.sekota.features.admin.domain.model.FooterConfig(),
+    val navigationItems: List<com.sekota.features.navigation.domain.model.NavigationItem> = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS,
     val version: Long = 0L
 )

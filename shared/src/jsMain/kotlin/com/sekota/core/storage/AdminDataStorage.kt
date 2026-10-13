@@ -82,5 +82,13 @@ actual class AdminDataStorage actual constructor() {
     actual fun getFooterConfigJson(): String? {
         return window.localStorage.getItem("admin_footer_config_json")
     }
+
+    actual fun saveNavigationItemsJson(json: String) {
+        window.localStorage.setItem("admin_navigation_items_json", json)
+    }
+
+    actual fun getNavigationItemsJson(): String? {
+        return window.localStorage.getItem("admin_navigation_items_json")
+    }
 }
 

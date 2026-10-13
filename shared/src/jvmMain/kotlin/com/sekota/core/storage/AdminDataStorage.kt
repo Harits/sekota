@@ -113,4 +113,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getFooterConfigJson(): String? {
         return read("footer_config_json")
     }
+
+    actual fun saveNavigationItemsJson(json: String) {
+        write("navigation_items_json", json)
+    }
+
+    actual fun getNavigationItemsJson(): String? {
+        return read("navigation_items_json")
+    }
 }

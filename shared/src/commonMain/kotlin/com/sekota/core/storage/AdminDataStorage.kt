@@ -30,5 +30,8 @@ expect class AdminDataStorage() {
 
     fun saveFooterConfigJson(json: String)
     fun getFooterConfigJson(): String?
+
+    fun saveNavigationItemsJson(json: String)
+    fun getNavigationItemsJson(): String?
 }
 

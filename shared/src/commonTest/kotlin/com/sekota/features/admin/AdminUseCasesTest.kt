@@ -111,6 +111,13 @@ class FakeAdminRepository : AdminRepository {
         footer = config
         return Result.success(config)
     }
+
+    var navigationItems = com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS.toMutableList()
+    override suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem> = navigationItems.toList()
+    override suspend fun saveNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>> {
+        navigationItems = items.toMutableList()
+        return Result.success(items)
+    }
 }
 
 class AdminUseCasesTest {
@@ -399,6 +406,45 @@ class AdminUseCasesTest {
         val blankCopyrightResult = saveUseCase(updated.copy(copyrightText = ""))
         assertTrue(blankCopyrightResult.isFailure)
         assertEquals("Copyright footer tidak boleh kosong", blankCopyrightResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testNavigationItemsUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getUseCase = GetAdminNavigationItemsUseCase(repo)
+        val saveUseCase = SaveAdminNavigationItemsUseCase(repo)
+
+        // 1. Initial canonical items
+        val initialItems = getUseCase()
+        assertEquals(5, initialItems.size)
+        assertEquals("Solusi", initialItems[0].label)
+        assertEquals("#solusi", initialItems[0].route)
+
+        // 2. Save updated navigation items
+        val customItems = listOf(
+            com.sekota.features.navigation.domain.model.NavigationItem("nav_1", "Beranda", "/", order = 1),
+            com.sekota.features.navigation.domain.model.NavigationItem("nav_2", "Publikasi", "/catalog", order = 2)
+        )
+        val saveResult = saveUseCase(customItems)
+        assertTrue(saveResult.isSuccess)
+
+        val fetched = getUseCase()
+        assertEquals(2, fetched.size)
+        assertEquals("Publikasi", fetched[1].label)
+
+        // 3. Validation failure: blank label
+        val invalidLabelResult = saveUseCase(listOf(
+            com.sekota.features.navigation.domain.model.NavigationItem("nav_x", "", "#test")
+        ))
+        assertTrue(invalidLabelResult.isFailure)
+        assertEquals("Label navigasi tidak boleh kosong", invalidLabelResult.exceptionOrNull()?.message)
+
+        // 4. Validation failure: blank route
+        val invalidRouteResult = saveUseCase(listOf(
+            com.sekota.features.navigation.domain.model.NavigationItem("nav_y", "Test", "")
+        ))
+        assertTrue(invalidRouteResult.isFailure)
+        assertEquals("Route navigasi tidak boleh kosong", invalidRouteResult.exceptionOrNull()?.message)
     }
 }
 

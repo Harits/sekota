@@ -67,6 +67,9 @@ class SyncService(
                             dataStorage.saveWhySekotaJson(json.encodeToString(payload.whySekota))
                             dataStorage.saveContactConfigJson(json.encodeToString(payload.contactConfig))
                             dataStorage.saveFooterConfigJson(json.encodeToString(payload.footerConfig))
+                            if (payload.navigationItems.isNotEmpty()) {
+                                dataStorage.saveNavigationItemsJson(json.encodeToString(payload.navigationItems))
+                            }
                             _syncEventFlow.tryEmit(Unit)
                         }
                         _syncState.value = "Connected"

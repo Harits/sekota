@@ -90,5 +90,14 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_footer_config_json")
         return if (data == null) null else data
     }
+
+    actual fun saveNavigationItemsJson(json: String) {
+        setStorageItem("admin_navigation_items_json", json)
+    }
+
+    actual fun getNavigationItemsJson(): String? {
+        val data = getStorageItem("admin_navigation_items_json")
+        return if (data == null) null else data
+    }
 }
 
