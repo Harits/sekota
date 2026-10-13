@@ -78,4 +78,16 @@ trigger: always_on
     - **Buffered Side-Effect Channel**: Efek samping navigasi satu kali jalan (seperti request scroll ke section tertentu saat berpindah layar) wajib dialirkan melalui `Channel<NavigationEffect>(Channel.BUFFERED)` untuk menjamin eksekusi deterministik setelah layar target selesai di-mount.
     - **Lightweight Idiomatic DI Container**: Dependency injection pada level client KMP diimplementasikan menggunakan `AppContainer` murni berbasis `by lazy` instantiations untuk Service, Repository, UseCase, dan Coordinator. HINDARI overhead library DI eksternal yang menambah ukuran bundle Wasm.
 
+13. **Landing Page & Public Section Horizontal Alignment Standard**:
+    - **Single Source of Truth**: Seluruh seksi di Landing Page (Hero, Features, Value Loop, Suite, E-Book, Value Prop, Contact, Footer) WAJIB menggunakan utility function `contentHorizontalPadding(maxWidth)` yang didefinisikan di `com.sekota.ui.Responsive.kt`.
+    - **Dilarang Hardcoded Dp**: DILARANG keras menggunakan nilai hardcoded (seperti `120.dp`, `64.dp`, atau `20.dp`) pada padding horizontal container utama seksi.
+    - **Scope Measurement**: Nilai `maxWidth` harus diturunkan langsung dari scope `BoxWithConstraints` teratas (`val horizontalPadding = contentHorizontalPadding(maxWidth)`) untuk menjamin sinkronisasi breakpoint gutter pada Compact (20dp/32dp), Expanded/Large (64dp), dan Ultrawide/ExtraLarge (symmetric auto-centering capped at `MaxContentWidth` 1400dp).
+    - **Zero Root Pollution**: `LandingScreen` dilarang menerapkan padding horizontal global pada root Column yang dapat mengintervensi atau menggandakan padding individual seksi.
+
+14. **Dynamic Global Footer & CMS Content Governance**:
+    - **CMS Dynamic Binding**: Komponen Footer publik (`Footer.kt`) wajib mengonsumsi data secara dinamis dari `FooterConfig` via `GetAdminFooterUseCase` dan mendengarkan stream `syncService.syncEventFlow`.
+    - **CMS Workbench Management**: Seluruh kolom tautan (Produk, Perusahaan, Legal), sosial media, tagline, afiliasi, dan hak cipta dikelola melalui modul "Footer Content Management" di CMS tanpa perlu re-deploy kode sumber.
+    - **Multi-Language Dynamic Resolution**: Pergantian bahasa via Language Switcher (`BAHASA INDONESIA` / `ENGLISH`) wajib menerjemahkan judul kolom, label navigasi standar, tagline, dan copyright secara dinamis melalui kamus lokal tanpa hardcoding statis terpisah.
+    - **Resilience & Graceful Fallback**: Komponen Footer wajib dilengkapi penanganan error/fallback bawaan canonical `FooterConfig()` agar tata letak halaman utama tidak rusak (*zero broken layout*) ketika koneksi sinkronisasi terputus.
+
 
