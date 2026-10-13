@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 
 private val BrandGreen = Color(0xFF60BD65)
 private val BrandTeal = Color(0xFF02B6CF)
+private val InkNavy = Color(0xFF0D1F2D)
 
 @Composable
 fun SekotaIconMark(
@@ -179,6 +180,57 @@ fun SekotaAnalyticsVectorIcon(
     }
 }
 
+@Composable
+fun SekotaArrowUpVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = InkNavy,
+    modifier: Modifier = Modifier
+) {
+    val upPath = remember {
+        PathParser().parsePathString("M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(upPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaArrowDownVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = InkNavy,
+    modifier: Modifier = Modifier
+) {
+    val downPath = remember {
+        PathParser().parsePathString("M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(downPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaTrashVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFFE53E3E),
+    modifier: Modifier = Modifier
+) {
+    val trashPath = remember {
+        PathParser().parsePathString("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(trashPath, color = tint)
+        }
+    }
+}
+
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun BookEditionVectorIconPreview() {
@@ -193,9 +245,13 @@ fun BookEditionVectorIconPreview() {
             BookEditionVectorIcon(size = 32.dp, tint = Color(0xFF00B5C8))
             SekotaCheckmarkVectorIcon(size = 24.dp)
             SekotaAnalyticsVectorIcon(size = 24.dp)
+            SekotaArrowUpVectorIcon(size = 20.dp)
+            SekotaArrowDownVectorIcon(size = 20.dp)
+            SekotaTrashVectorIcon(size = 20.dp)
         }
     }
 }
+
 
 
 

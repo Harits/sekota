@@ -5,7 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -2275,7 +2275,10 @@ fun WhySekotaTab(
                                     },
                                     enabled = index > 0
                                 ) {
-                                    Text("⬆️", fontSize = 16.sp)
+                                    com.sekota.components.SekotaArrowUpVectorIcon(
+                                        size = 18.dp,
+                                        tint = if (index > 0) InkNavy else Color.LightGray
+                                    )
                                 }
 
                                 // Move Down Button
@@ -2291,7 +2294,10 @@ fun WhySekotaTab(
                                     },
                                     enabled = index < config.cards.lastIndex
                                 ) {
-                                    Text("⬇️", fontSize = 16.sp)
+                                    com.sekota.components.SekotaArrowDownVectorIcon(
+                                        size = 18.dp,
+                                        tint = if (index < config.cards.lastIndex) InkNavy else Color.LightGray
+                                    )
                                 }
 
                                 // Delete Button
@@ -2308,12 +2314,15 @@ fun WhySekotaTab(
                                     },
                                     enabled = config.cards.size > 1
                                 ) {
-                                    Text("🗑️", fontSize = 16.sp)
+                                    com.sekota.components.SekotaTrashVectorIcon(
+                                        size = 18.dp,
+                                        tint = if (config.cards.size > 1) Color(0xFFE53E3E) else Color.LightGray
+                                    )
                                 }
                             }
                         }
 
-                        // Icon Selector Chips
+                        // Icon Selector Chips with real Compose drawables
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(
                                 text = "Pilih Ikon Pilar:",
@@ -2321,34 +2330,51 @@ fun WhySekotaTab(
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                availableIcons.forEach { iconKey ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                listOf(
+                                    Triple("trending", "Tren", Res.drawable.icon_3),
+                                    Triple("chip", "Chip", Res.drawable.icon_4),
+                                    Triple("shield", "Shield", Res.drawable.icon_1),
+                                    Triple("sparkle", "Sparkle", Res.drawable.icon_6)
+                                ).forEach { (iconKey, iconLabel, iconRes) ->
                                     val isSelected = card.iconName.equals(iconKey, ignoreCase = true)
-                                    FilterChip(
-                                        selected = isSelected,
-                                        onClick = {
+                                    Surface(
+                                        color = if (isSelected) BrandTeal.copy(alpha = 0.12f) else Color(0xFFF1F5F9),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(1.dp, if (isSelected) BrandTeal else Color(0xFFCBD5E1)),
+                                        modifier = Modifier.clickable {
                                             val mutable = config.cards.toMutableList()
                                             mutable[index] = card.copy(iconName = iconKey)
                                             config = config.copy(cards = mutable)
                                             statusFeedback = null
-                                        },
-                                        label = {
+                                        }
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Image(
+                                                painter = painterResource(iconRes),
+                                                contentDescription = iconLabel,
+                                                modifier = Modifier.size(16.dp)
+                                            )
                                             Text(
-                                                text = when (iconKey) {
-                                                    "trending" -> "📈 Tren (icon_3)"
-                                                    "chip" -> "💾 Chip (icon_4)"
-                                                    "shield" -> "🛡️ Shield (icon_1)"
-                                                    "sparkle" -> "✨ Sparkle (icon_6)"
-                                                    else -> iconKey
-                                                },
+                                                text = iconLabel,
                                                 fontFamily = getDmSansFontFamily(),
-                                                fontSize = 12.sp
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (isSelected) BrandTeal else InkNavy
                                             )
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }
+
 
                         OutlinedTextField(
                             value = card.title,
