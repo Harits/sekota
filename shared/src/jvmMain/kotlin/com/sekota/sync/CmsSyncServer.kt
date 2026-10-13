@@ -53,6 +53,7 @@ object CmsSyncServer {
                                 valueLoop = repository.getValueLoop(),
                                 categories = repository.getCategories(),
                                 whySekota = repository.getWhySekota(),
+                                contactConfig = repository.getStrategicConversation(),
                                 version = versionCounter.get()
                             )
                         }
@@ -75,6 +76,7 @@ object CmsSyncServer {
                             storage.saveValueLoopJson(json.encodeToString(payload.valueLoop))
                             storage.saveCategoriesJson(json.encodeToString(payload.categories))
                             storage.saveWhySekotaJson(json.encodeToString(payload.whySekota))
+                            storage.saveContactConfigJson(json.encodeToString(payload.contactConfig))
                             versionCounter.incrementAndGet()
                             exchange.sendResponseHeaders(200, -1)
                         } catch (e: Exception) {

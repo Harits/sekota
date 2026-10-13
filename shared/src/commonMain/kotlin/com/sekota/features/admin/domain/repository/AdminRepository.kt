@@ -6,6 +6,7 @@ import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaConfig
 
 interface AdminRepository {
@@ -38,5 +39,8 @@ interface AdminRepository {
 
     suspend fun getWhySekota(): WhySekotaConfig
     suspend fun saveWhySekota(config: WhySekotaConfig): Result<WhySekotaConfig>
+
+    suspend fun getStrategicConversation(): StrategicConversationConfig
+    suspend fun saveStrategicConversation(config: StrategicConversationConfig): Result<StrategicConversationConfig>
 }
 

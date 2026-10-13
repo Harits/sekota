@@ -59,5 +59,12 @@ class AppContainer(
         com.sekota.features.admin.domain.usecase.SaveAdminWhySekotaUseCase(adminRepository)
     }
 
+    val getStrategicConversationUseCase: com.sekota.features.admin.domain.usecase.GetAdminStrategicConversationUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.GetAdminStrategicConversationUseCase(adminRepository)
+    }
+    val saveStrategicConversationUseCase: com.sekota.features.admin.domain.usecase.SaveAdminStrategicConversationUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.SaveAdminStrategicConversationUseCase(adminRepository)
+    }
+
     val navigationCoordinator: NavigationCoordinator by lazy { NavigationCoordinator() }
 }

@@ -61,6 +61,8 @@ val getValueLoopUseCase get() = defaultAppContainer.getValueLoopUseCase
 val saveValueLoopUseCase get() = defaultAppContainer.saveValueLoopUseCase
 val getWhySekotaUseCase get() = defaultAppContainer.getWhySekotaUseCase
 val saveWhySekotaUseCase get() = defaultAppContainer.saveWhySekotaUseCase
+val getStrategicConversationUseCase get() = defaultAppContainer.getStrategicConversationUseCase
+val saveStrategicConversationUseCase get() = defaultAppContainer.saveStrategicConversationUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable

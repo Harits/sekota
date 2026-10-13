@@ -65,6 +65,7 @@ class SyncService(
                             dataStorage.saveValueLoopJson(json.encodeToString(payload.valueLoop))
                             dataStorage.saveCategoriesJson(json.encodeToString(payload.categories))
                             dataStorage.saveWhySekotaJson(json.encodeToString(payload.whySekota))
+                            dataStorage.saveContactConfigJson(json.encodeToString(payload.contactConfig))
                             _syncEventFlow.tryEmit(Unit)
                         }
                         _syncState.value = "Connected"

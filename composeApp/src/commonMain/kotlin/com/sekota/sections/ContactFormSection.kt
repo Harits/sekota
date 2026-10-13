@@ -16,13 +16,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sekota.*
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.*
 
 @Composable
-fun ContactFormSection() {
+fun ContactFormSection(
+    config: StrategicConversationConfig? = null
+) {
+    var liveConfig by remember { mutableStateOf(config ?: StrategicConversationConfig()) }
+
+    LaunchedEffect(config) {
+        if (config != null) {
+            liveConfig = config
+        } else {
+            liveConfig = com.sekota.getStrategicConversationUseCase()
+            com.sekota.syncService.syncEventFlow.collect {
+                liveConfig = com.sekota.getStrategicConversationUseCase()
+            }
+        }
+    }
+
     BoxWithConstraints {
         val isCompact = maxWidth < 840.dp
         Box(
@@ -39,7 +55,7 @@ fun ContactFormSection() {
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "Mulai Percakapan\nStrategis.",
+                            text = liveConfig.title,
                             fontSize = 36.sp,
                             lineHeight = 44.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -48,7 +64,7 @@ fun ContactFormSection() {
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "Tim kami akan merespons dalam 1x24 jam kerja untuk mendiskusikan kebutuhan Anda.",
+                            text = liveConfig.subtitle,
                             fontSize = 18.sp,
                             lineHeight = 28.sp,
                             color = Color(0xFF64748B),
@@ -58,19 +74,22 @@ fun ContactFormSection() {
                         
                         ContactInfoItem(
                             icon = Res.drawable.map_pin,
-                            text = "Jl. H. Rasam No.96, Parigi Baru,\nPd. Aren, Tangerang Selatan 15228"
+                            text = liveConfig.address
                         )
                         ContactInfoItem(
                             icon = Res.drawable.envelope_simple,
-                            text = "sales@sekota.id"
+                            text = liveConfig.email
                         )
                         ContactInfoItem(
                             icon = Res.drawable.globe_simple,
-                            text = "www.sekota.id"
+                            text = liveConfig.website
                         )
                     }
 
-                    ContactFormCard(isCompact = true)
+                    ContactFormCard(
+                        isCompact = true,
+                        config = liveConfig
+                    )
                 }
             } else {
                 Row(
@@ -83,7 +102,7 @@ fun ContactFormSection() {
                     // Left: Contact Info
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Mulai Percakapan\nStrategis.",
+                            text = liveConfig.title,
                             fontSize = 56.sp,
                             lineHeight = 64.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -92,7 +111,7 @@ fun ContactFormSection() {
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "Tim kami akan merespons dalam 1x24 jam kerja untuk mendiskusikan kebutuhan Anda.",
+                            text = liveConfig.subtitle,
                             fontSize = 18.sp,
                             lineHeight = 28.sp,
                             color = Color(0xFF64748B),
@@ -102,21 +121,24 @@ fun ContactFormSection() {
                         
                         ContactInfoItem(
                             icon = Res.drawable.map_pin,
-                            text = "Jl. H. Rasam No.96, Parigi Baru,\nPd. Aren, Tangerang Selatan 15228"
+                            text = liveConfig.address
                         )
                         ContactInfoItem(
                             icon = Res.drawable.envelope_simple,
-                            text = "sales@sekota.id"
+                            text = liveConfig.email
                         )
                         ContactInfoItem(
                             icon = Res.drawable.globe_simple,
-                            text = "www.sekota.id"
+                            text = liveConfig.website
                         )
                     }
 
                     // Right: Form
                     Box(modifier = Modifier.weight(1.2f).padding(start = 100.dp)) {
-                        ContactFormCard(isCompact = false)
+                        ContactFormCard(
+                            isCompact = false,
+                            config = liveConfig
+                        )
                     }
                 }
             }
@@ -127,11 +149,13 @@ fun ContactFormSection() {
 @Composable
 fun ContactFormCard(
     isCompact: Boolean,
+    config: StrategicConversationConfig = StrategicConversationConfig(),
     initialName: String = "",
     initialEmail: String = "",
     initialMessage: String = "",
     initialValidationError: String? = null,
-    initialSuccess: Boolean = false
+    initialSuccess: Boolean = false,
+    initialIsSubmitting: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -140,7 +164,7 @@ fun ContactFormCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(if(isCompact) 32.dp else 64.dp),
+            modifier = Modifier.padding(if (isCompact) 32.dp else 64.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             var name by remember { mutableStateOf(initialName) }
@@ -148,6 +172,7 @@ fun ContactFormCard(
             var message by remember { mutableStateOf(initialMessage) }
             var submissionSuccess by remember { mutableStateOf(initialSuccess) }
             var validationError by remember { mutableStateOf(initialValidationError) }
+            var isSubmitting by remember { mutableStateOf(initialIsSubmitting) }
             val coroutineScope = rememberCoroutineScope()
 
             if (submissionSuccess) {
@@ -182,7 +207,26 @@ fun ContactFormCard(
             }
 
             validationError?.let {
-                Text(it, color = Color(0xFFE53E3E), fontSize = 13.sp, fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                Surface(
+                    color = Color(0xFFFFEBEE),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("⚠️", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = it,
+                            color = Color(0xFFC62828),
+                            fontSize = 13.sp,
+                            fontFamily = getDmSansFontFamily(),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
 
             if (isCompact) {
@@ -190,15 +234,15 @@ fun ContactFormCard(
                     FormTextField(
                         value = name,
                         onValueChange = { name = it; validationError = null },
-                        label = "NAMA LENGKAP",
-                        placeholder = "Budi Santoso",
+                        label = config.nameLabel,
+                        placeholder = config.namePlaceholder,
                         modifier = Modifier.fillMaxWidth()
                     )
                     FormTextField(
                         value = email,
                         onValueChange = { email = it; validationError = null },
-                        label = "EMAIL BISNIS",
-                        placeholder = "budi@instansi.go.id",
+                        label = config.emailLabel,
+                        placeholder = config.emailPlaceholder,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -210,15 +254,15 @@ fun ContactFormCard(
                     FormTextField(
                         value = name,
                         onValueChange = { name = it; validationError = null },
-                        label = "NAMA LENGKAP",
-                        placeholder = "Budi Santoso",
+                        label = config.nameLabel,
+                        placeholder = config.namePlaceholder,
                         modifier = Modifier.weight(1f)
                     )
                     FormTextField(
                         value = email,
                         onValueChange = { email = it; validationError = null },
-                        label = "EMAIL BISNIS",
-                        placeholder = "budi@instansi.go.id",
+                        label = config.emailLabel,
+                        placeholder = config.emailPlaceholder,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -227,8 +271,8 @@ fun ContactFormCard(
             FormTextField(
                 value = message,
                 onValueChange = { message = it; validationError = null },
-                label = "PESAN / KEBUTUHAN STRATEGIS",
-                placeholder = "Ceritakan tantangan Anda...",
+                label = config.messageLabel,
+                placeholder = config.messagePlaceholder,
                 modifier = Modifier.fillMaxWidth(),
                 isTextArea = true
             )
@@ -237,12 +281,13 @@ fun ContactFormCard(
             
             Button(
                 onClick = {
+                    if (isSubmitting) return@Button
                     if (name.isBlank()) {
                         validationError = "Mohon isi nama lengkap Anda."
                         return@Button
                     }
                     if (email.isBlank() || !email.contains("@")) {
-                        validationError = "Mohon isi email bisnis yang valid."
+                        validationError = "Mohon isi email bisnis yang valid (contoh: nama@instansi.go.id)."
                         return@Button
                     }
                     if (message.isBlank()) {
@@ -251,39 +296,75 @@ fun ContactFormCard(
                     }
 
                     coroutineScope.launch {
-                        val inquiry = com.sekota.features.admin.domain.model.ClientInquiry(
-                            id = "inq-${kotlin.random.Random.nextInt(10000, 99999)}",
-                            name = name.trim(),
-                            email = email.trim(),
-                            message = message.trim(),
-                            timestamp = "Baru Saja",
-                            status = "New"
-                        )
-                        syncService.submitInquiry(inquiry)
-                        submissionSuccess = true
-                        name = ""
-                        email = ""
-                        message = ""
+                        isSubmitting = true
+                        try {
+                            val inquiry = com.sekota.features.admin.domain.model.ClientInquiry(
+                                id = "inq-${kotlin.random.Random.nextInt(10000, 99999)}",
+                                name = name.trim(),
+                                email = email.trim(),
+                                message = message.trim(),
+                                timestamp = "Baru Saja",
+                                status = "New"
+                            )
+                            val success = syncService.submitInquiry(inquiry)
+                            if (success) {
+                                submissionSuccess = true
+                                validationError = null
+                                name = ""
+                                email = ""
+                                message = ""
+                            } else {
+                                validationError = "Gagal mengirimkan pesan konsultasi. Silakan coba beberapa saat lagi."
+                            }
+                        } catch (e: Exception) {
+                            validationError = "Terjadi kesalahan: ${e.message ?: "Gagal mengirim formulir"}"
+                        } finally {
+                            isSubmitting = false
+                        }
                     }
                 },
+                enabled = !isSubmitting,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp),
                 shape = RoundedCornerShape(36.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A))
-            ) {
-                Text(
-                    text = "Kirim & Mulai Konsultasi",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    fontFamily = getDmSansFontFamily()
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF0F172A),
+                    disabledContainerColor = Color(0xFF0F172A).copy(alpha = 0.6f)
                 )
+            ) {
+                if (isSubmitting) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.5.dp
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Mengirim...",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontFamily = getDmSansFontFamily()
+                        )
+                    }
+                } else {
+                    Text(
+                        text = config.submitButtonLabel,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontFamily = getDmSansFontFamily()
+                    )
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun ContactInfoItem(icon: org.jetbrains.compose.resources.DrawableResource, text: String) {
@@ -367,15 +448,70 @@ fun FormTextField(
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ContactFormSectionPreview() {
-    androidx.compose.material3.MaterialTheme {
-        ContactFormSection()
+    MaterialTheme {
+        ContactFormSection(config = StrategicConversationConfig())
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormSectionCompactPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.width(420.dp)) {
+            ContactFormSection(config = StrategicConversationConfig())
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormCardValidationErrorPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            ContactFormCard(
+                isCompact = false,
+                initialName = "Budi Santoso",
+                initialEmail = "budisentosa",
+                initialMessage = "",
+                initialValidationError = "Mohon isi email bisnis yang valid (contoh: nama@instansi.go.id)."
+            )
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormCardSubmissionSuccessPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            ContactFormCard(
+                isCompact = false,
+                initialSuccess = true
+            )
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormCardSubmittingPreview() {
+    MaterialTheme {
+        Box(modifier = Modifier.padding(32.dp)) {
+            ContactFormCard(
+                isCompact = false,
+                initialName = "Budi Santoso",
+                initialEmail = "budi@instansi.go.id",
+                initialMessage = "Kebutuhan analisis kebijakan publik",
+                initialIsSubmitting = true
+            )
+        }
     }
 }
 
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun ContactFormCardStatesPreview() {
-    androidx.compose.material3.MaterialTheme {
+    MaterialTheme {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -423,7 +559,7 @@ fun ContactFormCardStatesPreview() {
                 initialName = "Budi Santoso",
                 initialEmail = "invalid-email-format",
                 initialMessage = "",
-                initialValidationError = "Mohon isi email bisnis yang valid."
+                initialValidationError = "Mohon isi email bisnis yang valid (contoh: nama@instansi.go.id)."
             )
 
             // State 4: Success Submission State
@@ -441,4 +577,3 @@ fun ContactFormCardStatesPreview() {
         }
     }
 }
-

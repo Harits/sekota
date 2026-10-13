@@ -72,5 +72,14 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_whysekota_json")
         return if (data == null) null else data
     }
+
+    actual fun saveContactConfigJson(json: String) {
+        setStorageItem("admin_contact_config_json", json)
+    }
+
+    actual fun getContactConfigJson(): String? {
+        val data = getStorageItem("admin_contact_config_json")
+        return if (data == null) null else data
+    }
 }
 

@@ -5,6 +5,7 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaConfig
 import kotlinx.serialization.Serializable
 
@@ -18,5 +19,6 @@ data class SyncDataPayload(
     val valueLoop: com.sekota.features.admin.domain.model.ValueLoopConfig = com.sekota.features.admin.domain.model.ValueLoopConfig(),
     val categories: List<String> = emptyList(),
     val whySekota: WhySekotaConfig = WhySekotaConfig(),
+    val contactConfig: StrategicConversationConfig = StrategicConversationConfig(),
     val version: Long = 0L
 )

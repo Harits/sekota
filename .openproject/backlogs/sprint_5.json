@@ -236,6 +236,19 @@
       "percentageDone": 100,
       "startDate": "2026-07-04",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-034",
+      "opId": 22474,
+      "subject": "[CMS-05-05] Dynamic Content & Lead Ingestion for Strategic Conversation Section",
+      "type": "User story",
+      "status": "In testing",
+      "lockVersion": 9,
+      "description": "Sebagai Admin / Tim Marketing, saya ingin mengelola konten teks dan placeholder pada section 'Mulai Percakapan Strategis' secara dinamis melalui CMS/Backend, serta menerima data leads dari formulir kontak secara real-time, agar pesan komunikasi tetap relevan dengan campaign terbaru tanpa perlu perubahan kode (hardcoded).",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

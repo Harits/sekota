@@ -97,4 +97,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getWhySekotaJson(): String? {
         return read("whysekota_json")
     }
+
+    actual fun saveContactConfigJson(json: String) {
+        write("contact_config_json", json)
+    }
+
+    actual fun getContactConfigJson(): String? {
+        return read("contact_config_json")
+    }
 }

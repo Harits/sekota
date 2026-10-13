@@ -4,6 +4,7 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
 
@@ -187,4 +188,26 @@ class SaveAdminWhySekotaUseCase(private val repository: AdminRepository) {
         return repository.saveWhySekota(config)
     }
 }
+
+class GetAdminStrategicConversationUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): StrategicConversationConfig {
+        return repository.getStrategicConversation()
+    }
+}
+
+class SaveAdminStrategicConversationUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: StrategicConversationConfig): Result<StrategicConversationConfig> {
+        if (config.title.isBlank()) {
+            return Result.failure(IllegalArgumentException("Judul percakapan strategis tidak boleh kosong"))
+        }
+        if (config.email.isBlank()) {
+            return Result.failure(IllegalArgumentException("Email tidak boleh kosong"))
+        }
+        if (config.submitButtonLabel.isBlank()) {
+            return Result.failure(IllegalArgumentException("Label tombol kirim tidak boleh kosong"))
+        }
+        return repository.saveStrategicConversation(config)
+    }
+}
+
 

@@ -106,8 +106,12 @@ This file contains the high-level roadmap, user stories, and architectural bound
   - *Description*: Sebagai Pengguna Web & Operator Sekota CMS, Saya ingin Seluruh ikon di seluruh modul dan tampilan publik (khususnya What's Inside di Book Details dan icon selector di CMS) terikat langsung ke resource resmi (`Res.drawable.*`) atau vektor native yang relevan dengan konteksnya tanpa emoji mentah atau placeholder rusak, Sehingga Tampilan antarmuka profesional, tajam, dan bebas dari icon broken di Skiko Wasm maupun Desktop.
 - [x] **WP-033: [CMS-05-04] - Dynamic Content Management for Why Sekota Section** (OpenProject ID: 22473)
   - *Description*: Sebagai Content Administrator / Marketing Team, Saya ingin Mengelola seluruh teks, tautan CTA, serta poin-poin diferensiasi pada seksi "Mengapa Sekota" secara dinamis melalui CMS Admin, Sehingga Tim bisnis dapat memperbarui value proposition dan materi komunikasi publik secara mandiri dan cepat tanpa ketergantungan deployment developer.
+- [x] **WP-034: [CMS-05-05] - Dynamic Content & Lead Ingestion for Strategic Conversation Section** (OpenProject ID: 22474)
+  - *Description*: Sebagai Admin / Tim Marketing, Saya ingin Mengelola konten teks dan placeholder pada section "Mulai Percakapan Strategis" secara dinamis melalui CMS/Backend, serta menerima data leads dari formulir kontak secara real-time, Sehingga Pesan komunikasi tetap relevan dengan campaign terbaru tanpa perlu perubahan kode (hardcoded).
 
 ---
+
+
 
 
 

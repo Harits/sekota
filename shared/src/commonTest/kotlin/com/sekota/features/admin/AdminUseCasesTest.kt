@@ -5,6 +5,7 @@ import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.ClientInquiry
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaCard
 import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
@@ -94,6 +95,13 @@ class FakeAdminRepository : AdminRepository {
     override suspend fun getWhySekota(): WhySekotaConfig = whySekota
     override suspend fun saveWhySekota(config: WhySekotaConfig): Result<WhySekotaConfig> {
         whySekota = config
+        return Result.success(config)
+    }
+
+    var strategicConversation = StrategicConversationConfig()
+    override suspend fun getStrategicConversation(): StrategicConversationConfig = strategicConversation
+    override suspend fun saveStrategicConversation(config: StrategicConversationConfig): Result<StrategicConversationConfig> {
+        strategicConversation = config
         return Result.success(config)
     }
 }
@@ -305,6 +313,48 @@ class AdminUseCasesTest {
         val blankCardTitleResult = saveUseCase(updated.copy(cards = listOf(WhySekotaCard("c1", "   ", "Deskripsi", "trending"))))
         assertTrue(blankCardTitleResult.isFailure)
         assertEquals("Judul setiap kartu tidak boleh kosong", blankCardTitleResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testStrategicConversationUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getUseCase = GetAdminStrategicConversationUseCase(repo)
+        val saveUseCase = SaveAdminStrategicConversationUseCase(repo)
+
+        // 1. Initial default state
+        val initial = getUseCase()
+        assertEquals("Mulai Percakapan\nStrategis.", initial.title)
+        assertEquals("sales@sekota.id", initial.email)
+        assertEquals("Kirim & Mulai Konsultasi", initial.submitButtonLabel)
+
+        // 2. Save valid updated config
+        val updated = initial.copy(
+            title = "Hubungi Sekota Hari Ini",
+            email = "contact@sekota.id",
+            submitButtonLabel = "Mulai Diskusi"
+        )
+        val saveResult = saveUseCase(updated)
+        assertTrue(saveResult.isSuccess)
+
+        val fetched = getUseCase()
+        assertEquals("Hubungi Sekota Hari Ini", fetched.title)
+        assertEquals("contact@sekota.id", fetched.email)
+        assertEquals("Mulai Diskusi", fetched.submitButtonLabel)
+
+        // 3. Validation failure: blank title
+        val blankTitleResult = saveUseCase(updated.copy(title = "   "))
+        assertTrue(blankTitleResult.isFailure)
+        assertEquals("Judul percakapan strategis tidak boleh kosong", blankTitleResult.exceptionOrNull()?.message)
+
+        // 4. Validation failure: blank email
+        val blankEmailResult = saveUseCase(updated.copy(email = ""))
+        assertTrue(blankEmailResult.isFailure)
+        assertEquals("Email tidak boleh kosong", blankEmailResult.exceptionOrNull()?.message)
+
+        // 5. Validation failure: blank submitButtonLabel
+        val blankButtonResult = saveUseCase(updated.copy(submitButtonLabel = "   "))
+        assertTrue(blankButtonResult.isFailure)
+        assertEquals("Label tombol kirim tidak boleh kosong", blankButtonResult.exceptionOrNull()?.message)
     }
 }
 

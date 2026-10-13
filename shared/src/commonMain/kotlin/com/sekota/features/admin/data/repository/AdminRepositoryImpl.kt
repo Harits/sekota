@@ -10,6 +10,7 @@ import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.features.admin.domain.repository.AdminRepository
 import io.ktor.client.call.body
@@ -681,6 +682,27 @@ class AdminRepositoryImpl(
 
     private fun persistWhySekota(config: WhySekotaConfig) {
         dataStorage.saveWhySekotaJson(json.encodeToString(config))
+    }
+
+    override suspend fun getStrategicConversation(): StrategicConversationConfig {
+        val storedJson = dataStorage.getContactConfigJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<StrategicConversationConfig>(storedJson)
+            } catch (_: Exception) {}
+        }
+        val defaultConfig = StrategicConversationConfig()
+        persistStrategicConversation(defaultConfig)
+        return defaultConfig
+    }
+
+    override suspend fun saveStrategicConversation(config: StrategicConversationConfig): Result<StrategicConversationConfig> {
+        persistStrategicConversation(config)
+        return Result.success(config)
+    }
+
+    private fun persistStrategicConversation(config: StrategicConversationConfig) {
+        dataStorage.saveContactConfigJson(json.encodeToString(config))
     }
 }
 
