@@ -144,49 +144,7 @@ private fun FooterContent(
             }
         }
 
-        val linkColumns = @Composable {
-            // Column 2: Produk
-            FooterColumn(
-                title = "PRODUK",
-                items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW"),
-                onItemClick = { item ->
-                    val code = when (item) {
-                        "VERIDIA" -> "VRD"
-                        "ASCENDIO" -> "ASC"
-                        "SOCIARA" -> "SOC"
-                        "ECOFLOW" -> "ECO"
-                        else -> "VRD"
-                    }
-                    onProductClick(code)
-                }
-            )
-
-            // Column 3: Perusahaan
-            FooterColumn(
-                title = "PERUSAHAAN",
-                items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak"),
-                onItemClick = { item ->
-                    when (item) {
-                        "E-Book" -> onNavigate(Screen.Catalog)
-                        "Merchandise" -> onNavigate(Screen.Merchandise)
-                        "Kontak" -> onKontakClick()
-                        else -> onNavigate(Screen.Landing)
-                    }
-                }
-            )
-
-            // Column 4: Legal
-            FooterColumn(
-                title = "LEGAL",
-                items = listOf("Privasi", "Syarat & Ketentuan"),
-                onItemClick = { item ->
-                    // Legal modal / anchor navigation
-                    onNavigate(Screen.Landing)
-                }
-            )
-        }
-
-        // Responsive grid/row wrapping
+        // Responsive layout matching design: 4-column grid on desktop, wrapped FlowRow on tablet/mobile
         if (windowWidth.isAtMostMedium) {
             branding(Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(40.dp))
@@ -195,15 +153,97 @@ private fun FooterContent(
                 horizontalArrangement = Arrangement.spacedBy(32.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                linkColumns()
+                // Column 2: Produk
+                FooterColumn(
+                    title = "PRODUK",
+                    items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW"),
+                    onItemClick = { item ->
+                        val code = when (item) {
+                            "VERIDIA" -> "VRD"
+                            "ASCENDIO" -> "ASC"
+                            "SOCIARA" -> "SOC"
+                            "ECOFLOW" -> "ECO"
+                            else -> "VRD"
+                        }
+                        onProductClick(code)
+                    }
+                )
+
+                // Column 3: Perusahaan
+                FooterColumn(
+                    title = "PERUSAHAAN",
+                    items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak"),
+                    onItemClick = { item ->
+                        when (item) {
+                            "E-Book" -> onNavigate(Screen.Catalog)
+                            "Merchandise" -> onNavigate(Screen.Merchandise)
+                            "Kontak" -> onKontakClick()
+                            else -> onNavigate(Screen.Landing)
+                        }
+                    }
+                )
+
+                // Column 4: Legal
+                FooterColumn(
+                    title = "LEGAL",
+                    items = listOf("Privasi", "Syarat & Ketentuan"),
+                    onItemClick = {
+                        onNavigate(Screen.Landing)
+                    }
+                )
             }
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                branding(Modifier.weight(1.8f).padding(end = 48.dp))
-                linkColumns()
+                // Column 1: Brand & Affiliation (aligned to left)
+                branding(Modifier.weight(1.3f).padding(end = 32.dp))
+
+                // Column 2: Produk
+                Box(modifier = Modifier.weight(0.9f)) {
+                    FooterColumn(
+                        title = "PRODUK",
+                        items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW"),
+                        onItemClick = { item ->
+                            val code = when (item) {
+                                "VERIDIA" -> "VRD"
+                                "ASCENDIO" -> "ASC"
+                                "SOCIARA" -> "SOC"
+                                "ECOFLOW" -> "ECO"
+                                else -> "VRD"
+                            }
+                            onProductClick(code)
+                        }
+                    )
+                }
+
+                // Column 3: Perusahaan
+                Box(modifier = Modifier.weight(0.9f)) {
+                    FooterColumn(
+                        title = "PERUSAHAAN",
+                        items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak"),
+                        onItemClick = { item ->
+                            when (item) {
+                                "E-Book" -> onNavigate(Screen.Catalog)
+                                "Merchandise" -> onNavigate(Screen.Merchandise)
+                                "Kontak" -> onKontakClick()
+                                else -> onNavigate(Screen.Landing)
+                            }
+                        }
+                    )
+                }
+
+                // Column 4: Legal (aligned to right edge)
+                Box(modifier = Modifier.weight(0.9f), contentAlignment = Alignment.TopEnd) {
+                    FooterColumn(
+                        title = "LEGAL",
+                        items = listOf("Privasi", "Syarat & Ketentuan"),
+                        onItemClick = {
+                            onNavigate(Screen.Landing)
+                        }
+                    )
+                }
             }
         }
 

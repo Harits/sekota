@@ -22,6 +22,10 @@ import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.*
 
+import com.sekota.ui.contentHorizontalPadding
+import com.sekota.ui.windowWidthOf
+import com.sekota.ui.sectionVerticalPadding
+
 @Composable
 fun ContactFormSection(
     config: StrategicConversationConfig? = null
@@ -40,7 +44,11 @@ fun ContactFormSection(
     }
 
     BoxWithConstraints {
-        val isCompact = maxWidth < 840.dp
+        val windowWidth = windowWidthOf(maxWidth)
+        val isCompact = windowWidth.isAtMostMedium
+        val horizontalPadding = contentHorizontalPadding(maxWidth)
+        val verticalPadding = if (isCompact) 60.dp else 120.dp
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -50,7 +58,7 @@ fun ContactFormSection(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 60.dp, horizontal = 20.dp),
+                        .padding(vertical = verticalPadding, horizontal = horizontalPadding),
                     verticalArrangement = Arrangement.spacedBy(48.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -95,7 +103,7 @@ fun ContactFormSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 120.dp, horizontal = 120.dp),
+                        .padding(vertical = verticalPadding, horizontal = horizontalPadding),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
