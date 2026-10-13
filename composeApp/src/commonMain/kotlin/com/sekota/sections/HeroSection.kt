@@ -42,6 +42,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import com.sekota.components.SekotaIconMark
+import com.sekota.ui.contentHorizontalPadding
 
 private val InkNavy = Color(0xFF0D1F2D)
 
@@ -84,7 +85,7 @@ fun HeroSection(
                 .blur(80.dp)
         )
 
-        val paddingHorizontal = if (isCompact) 20.dp else 64.dp
+        val paddingHorizontal = contentHorizontalPadding(maxWidth)
         val headlineFontSize = if (isCompact) 36.sp else 52.sp
         val headlineLineHeight = if (isCompact) 44.sp else 60.sp
 

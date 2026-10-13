@@ -45,6 +45,7 @@ fun ContactFormSection(
 
     BoxWithConstraints {
         val isCompact = maxWidth < 840.dp
+        val horizontalPadding = contentHorizontalPadding(maxWidth)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -54,7 +55,7 @@ fun ContactFormSection(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 60.dp, horizontal = 20.dp),
+                        .padding(vertical = 60.dp, horizontal = horizontalPadding),
                     verticalArrangement = Arrangement.spacedBy(48.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -99,7 +100,7 @@ fun ContactFormSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 120.dp, horizontal = 120.dp),
+                        .padding(vertical = 120.dp, horizontal = horizontalPadding),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
