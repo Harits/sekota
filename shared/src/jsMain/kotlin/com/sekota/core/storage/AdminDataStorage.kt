@@ -74,5 +74,13 @@ actual class AdminDataStorage actual constructor() {
     actual fun getContactConfigJson(): String? {
         return window.localStorage.getItem("admin_contact_config_json")
     }
+
+    actual fun saveFooterConfigJson(json: String) {
+        window.localStorage.setItem("admin_footer_config_json", json)
+    }
+
+    actual fun getFooterConfigJson(): String? {
+        return window.localStorage.getItem("admin_footer_config_json")
+    }
 }
 

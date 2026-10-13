@@ -704,5 +704,26 @@ class AdminRepositoryImpl(
     private fun persistStrategicConversation(config: StrategicConversationConfig) {
         dataStorage.saveContactConfigJson(json.encodeToString(config))
     }
+
+    override suspend fun getFooter(): com.sekota.features.admin.domain.model.FooterConfig {
+        val storedJson = dataStorage.getFooterConfigJson()
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<com.sekota.features.admin.domain.model.FooterConfig>(storedJson)
+            } catch (_: Exception) {}
+        }
+        val defaultConfig = com.sekota.features.admin.domain.model.FooterConfig()
+        persistFooter(defaultConfig)
+        return defaultConfig
+    }
+
+    override suspend fun saveFooter(config: com.sekota.features.admin.domain.model.FooterConfig): Result<com.sekota.features.admin.domain.model.FooterConfig> {
+        persistFooter(config)
+        return Result.success(config)
+    }
+
+    private fun persistFooter(config: com.sekota.features.admin.domain.model.FooterConfig) {
+        dataStorage.saveFooterConfigJson(json.encodeToString(config))
+    }
 }
 

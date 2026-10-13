@@ -20,5 +20,6 @@ data class SyncDataPayload(
     val categories: List<String> = emptyList(),
     val whySekota: WhySekotaConfig = WhySekotaConfig(),
     val contactConfig: StrategicConversationConfig = StrategicConversationConfig(),
+    val footerConfig: com.sekota.features.admin.domain.model.FooterConfig = com.sekota.features.admin.domain.model.FooterConfig(),
     val version: Long = 0L
 )

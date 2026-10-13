@@ -105,4 +105,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getContactConfigJson(): String? {
         return read("contact_config_json")
     }
+
+    actual fun saveFooterConfigJson(json: String) {
+        write("footer_config_json", json)
+    }
+
+    actual fun getFooterConfigJson(): String? {
+        return read("footer_config_json")
+    }
 }

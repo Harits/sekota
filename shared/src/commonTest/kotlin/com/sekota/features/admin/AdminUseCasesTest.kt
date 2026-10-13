@@ -104,6 +104,13 @@ class FakeAdminRepository : AdminRepository {
         strategicConversation = config
         return Result.success(config)
     }
+
+    var footer = com.sekota.features.admin.domain.model.FooterConfig()
+    override suspend fun getFooter(): com.sekota.features.admin.domain.model.FooterConfig = footer
+    override suspend fun saveFooter(config: com.sekota.features.admin.domain.model.FooterConfig): Result<com.sekota.features.admin.domain.model.FooterConfig> {
+        footer = config
+        return Result.success(config)
+    }
 }
 
 class AdminUseCasesTest {
@@ -355,6 +362,43 @@ class AdminUseCasesTest {
         val blankButtonResult = saveUseCase(updated.copy(submitButtonLabel = "   "))
         assertTrue(blankButtonResult.isFailure)
         assertEquals("Label tombol kirim tidak boleh kosong", blankButtonResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testFooterUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val getUseCase = GetAdminFooterUseCase(repo)
+        val saveUseCase = SaveAdminFooterUseCase(repo)
+
+        // 1. Initial default state
+        val initial = getUseCase()
+        assertTrue(initial.tagline.contains("Trusted Intelligence"))
+        assertEquals("eBdesk Group Affiliation", initial.affiliationText)
+        assertEquals(4, initial.productColumn.items.size)
+        assertEquals(5, initial.companyColumn.items.size)
+        assertEquals(2, initial.legalColumn.items.size)
+
+        // 2. Save valid updated footer
+        val updated = initial.copy(
+            tagline = "Inovasi Berkelanjutan Sekota 2026",
+            copyrightText = "© 2026 PT Sekota."
+        )
+        val saveResult = saveUseCase(updated)
+        assertTrue(saveResult.isSuccess)
+
+        val fetched = getUseCase()
+        assertEquals("Inovasi Berkelanjutan Sekota 2026", fetched.tagline)
+        assertEquals("© 2026 PT Sekota.", fetched.copyrightText)
+
+        // 3. Validation failure: blank tagline
+        val blankTaglineResult = saveUseCase(updated.copy(tagline = "   "))
+        assertTrue(blankTaglineResult.isFailure)
+        assertEquals("Tagline footer tidak boleh kosong", blankTaglineResult.exceptionOrNull()?.message)
+
+        // 4. Validation failure: blank copyright
+        val blankCopyrightResult = saveUseCase(updated.copy(copyrightText = ""))
+        assertTrue(blankCopyrightResult.isFailure)
+        assertEquals("Copyright footer tidak boleh kosong", blankCopyrightResult.exceptionOrNull()?.message)
     }
 }
 

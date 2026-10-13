@@ -63,6 +63,8 @@ val getWhySekotaUseCase get() = defaultAppContainer.getWhySekotaUseCase
 val saveWhySekotaUseCase get() = defaultAppContainer.saveWhySekotaUseCase
 val getStrategicConversationUseCase get() = defaultAppContainer.getStrategicConversationUseCase
 val saveStrategicConversationUseCase get() = defaultAppContainer.saveStrategicConversationUseCase
+val getFooterUseCase get() = defaultAppContainer.getFooterUseCase
+val saveFooterUseCase get() = defaultAppContainer.saveFooterUseCase
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable

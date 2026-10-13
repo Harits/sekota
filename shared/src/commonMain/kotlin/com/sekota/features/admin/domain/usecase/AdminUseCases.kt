@@ -210,4 +210,22 @@ class SaveAdminStrategicConversationUseCase(private val repository: AdminReposit
     }
 }
 
+class GetAdminFooterUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): com.sekota.features.admin.domain.model.FooterConfig {
+        return repository.getFooter()
+    }
+}
+
+class SaveAdminFooterUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: com.sekota.features.admin.domain.model.FooterConfig): Result<com.sekota.features.admin.domain.model.FooterConfig> {
+        if (config.tagline.isBlank()) {
+            return Result.failure(IllegalArgumentException("Tagline footer tidak boleh kosong"))
+        }
+        if (config.copyrightText.isBlank()) {
+            return Result.failure(IllegalArgumentException("Copyright footer tidak boleh kosong"))
+        }
+        return repository.saveFooter(config)
+    }
+}
+
 

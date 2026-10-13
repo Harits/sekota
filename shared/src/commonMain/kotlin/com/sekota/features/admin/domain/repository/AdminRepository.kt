@@ -42,5 +42,8 @@ interface AdminRepository {
 
     suspend fun getStrategicConversation(): StrategicConversationConfig
     suspend fun saveStrategicConversation(config: StrategicConversationConfig): Result<StrategicConversationConfig>
+
+    suspend fun getFooter(): com.sekota.features.admin.domain.model.FooterConfig
+    suspend fun saveFooter(config: com.sekota.features.admin.domain.model.FooterConfig): Result<com.sekota.features.admin.domain.model.FooterConfig>
 }
 

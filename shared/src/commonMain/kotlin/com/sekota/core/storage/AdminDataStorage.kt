@@ -27,5 +27,8 @@ expect class AdminDataStorage() {
 
     fun saveContactConfigJson(json: String)
     fun getContactConfigJson(): String?
+
+    fun saveFooterConfigJson(json: String)
+    fun getFooterConfigJson(): String?
 }
 

@@ -76,9 +76,11 @@ fun AdminDashboardScreen(
     val saveWhySekotaUseCase = remember { SaveAdminWhySekotaUseCase(repository) }
     val getStrategicConversationUseCase = remember { GetAdminStrategicConversationUseCase(repository) }
     val saveStrategicConversationUseCase = remember { SaveAdminStrategicConversationUseCase(repository) }
+    val getFooterUseCase = remember { GetAdminFooterUseCase(repository) }
+    val saveFooterUseCase = remember { SaveAdminFooterUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries")
+    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries", "Footer Management")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
@@ -130,6 +132,7 @@ fun AdminDashboardScreen(
                         4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
                         5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
                         6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
+                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
                     }
                 }
 
@@ -258,6 +261,7 @@ fun AdminDashboardScreen(
                         4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
                         5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
                         6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
+                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
                     }
                 }
             }
@@ -2913,6 +2917,406 @@ fun WhySekotaTab(
     }
 }
 
+@Composable
+fun FooterManagementTab(
+    getFooterUseCase: GetAdminFooterUseCase,
+    saveFooterUseCase: SaveAdminFooterUseCase,
+    windowWidth: WindowWidth
+) {
+    val scope = rememberCoroutineScope()
+    var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.FooterConfig()) }
+    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var isSaving by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        config = getFooterUseCase()
+        com.sekota.syncService.syncEventFlow.collect {
+            config = getFooterUseCase()
+        }
+    }
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        WorkbenchHeader(
+            title = "Footer Content Management",
+            subtitle = "Kelola tagline, afiliasi, hak cipta, tautan media sosial, serta kolom tautan Produk, Perusahaan, dan Legal secara dinamis.",
+            windowWidth = windowWidth
+        )
+
+        statusFeedback?.let {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = it,
+                    fontFamily = getDmSansFontFamily(),
+                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Card 1: Branding, Tagline, & Afiliasi
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Branding, Tagline & Afiliasi",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+
+                OutlinedTextField(
+                    value = config.tagline,
+                    onValueChange = { config = config.copy(tagline = it); statusFeedback = null },
+                    label = { Text("Tagline Sekota", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 4
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = config.affiliationText,
+                        onValueChange = { config = config.copy(affiliationText = it); statusFeedback = null },
+                        label = { Text("Teks Afiliasi", fontFamily = getDmSansFontFamily()) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = config.affiliationSubtext,
+                        onValueChange = { config = config.copy(affiliationSubtext = it); statusFeedback = null },
+                        label = { Text("Subteks Afiliasi", fontFamily = getDmSansFontFamily()) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
+                    )
+                }
+
+                OutlinedTextField(
+                    value = config.copyrightText,
+                    onValueChange = { config = config.copy(copyrightText = it); statusFeedback = null },
+                    label = { Text("Teks Hak Cipta (Copyright)", fontFamily = getDmSansFontFamily()) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Card 2: Kolom Produk
+        FooterColumnEditorCard(
+            columnTitle = "Kolom Produk",
+            columnConfig = config.productColumn,
+            onColumnChange = { updated ->
+                config = config.copy(productColumn = updated)
+                statusFeedback = null
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Card 3: Kolom Perusahaan
+        FooterColumnEditorCard(
+            columnTitle = "Kolom Perusahaan",
+            columnConfig = config.companyColumn,
+            onColumnChange = { updated ->
+                config = config.copy(companyColumn = updated)
+                statusFeedback = null
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Card 4: Kolom Legal
+        FooterColumnEditorCard(
+            columnTitle = "Kolom Legal",
+            columnConfig = config.legalColumn,
+            onColumnChange = { updated ->
+                config = config.copy(legalColumn = updated)
+                statusFeedback = null
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Card 5: Media Sosial
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Tautan Media Sosial",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+
+                config.socialLinks.forEachIndexed { sIdx, social ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = social.platform,
+                            onValueChange = { newPlat ->
+                                val list = config.socialLinks.toMutableList()
+                                list[sIdx] = social.copy(platform = newPlat)
+                                config = config.copy(socialLinks = list)
+                                statusFeedback = null
+                            },
+                            label = { Text("Platform", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.width(140.dp),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = social.url,
+                            onValueChange = { newUrl ->
+                                val list = config.socialLinks.toMutableList()
+                                list[sIdx] = social.copy(url = newUrl)
+                                config = config.copy(socialLinks = list)
+                                statusFeedback = null
+                            },
+                            label = { Text("URL Tautan Eksternal", fontFamily = getDmSansFontFamily()) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = social.isVisible,
+                                onCheckedChange = { checked ->
+                                    val list = config.socialLinks.toMutableList()
+                                    list[sIdx] = social.copy(isVisible = checked)
+                                    config = config.copy(socialLinks = list)
+                                    statusFeedback = null
+                                }
+                            )
+                            Text("Tampil", fontFamily = getDmSansFontFamily(), fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Action Buttons Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    if (config.tagline.isBlank()) {
+                        statusFeedback = "❌ Tagline tidak boleh kosong"
+                        return@Button
+                    }
+                    if (config.copyrightText.isBlank()) {
+                        statusFeedback = "❌ Teks hak cipta tidak boleh kosong"
+                        return@Button
+                    }
+                    scope.launch {
+                        isSaving = true
+                        val result = saveFooterUseCase(config)
+                        isSaving = false
+                        if (result.isSuccess) {
+                            statusFeedback = "✅ Konten Footer berhasil diperbarui dan disinkronkan ke Web!"
+                        } else {
+                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                shape = RoundedCornerShape(100.dp),
+                enabled = !isSaving,
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan Footer",
+                    fontFamily = getDmSansFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    config = com.sekota.features.admin.domain.model.FooterConfig()
+                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                },
+                shape = RoundedCornerShape(100.dp),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    text = "↺ Reset Bawaan",
+                    fontFamily = getDmSansFontFamily(),
+                    color = InkNavy
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
+    }
+}
+
+@Composable
+fun FooterColumnEditorCard(
+    columnTitle: String,
+    columnConfig: com.sekota.features.admin.domain.model.FooterColumnConfig,
+    onColumnChange: (com.sekota.features.admin.domain.model.FooterColumnConfig) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = columnTitle,
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = InkNavy
+                )
+                Button(
+                    onClick = {
+                        val nextIdx = columnConfig.items.size + 1
+                        val newItem = com.sekota.features.admin.domain.model.FooterLinkItem(
+                            id = "item_${kotlin.random.Random.nextInt(1000, 9999)}",
+                            label = "Menu Baru #$nextIdx",
+                            urlOrCode = "",
+                            sortOrder = nextIdx
+                        )
+                        onColumnChange(columnConfig.copy(items = columnConfig.items + newItem))
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
+                    shape = RoundedCornerShape(100.dp)
+                ) {
+                    Text("➕ Tambah Tautan", fontFamily = getDmSansFontFamily(), fontSize = 12.sp, color = Color.White)
+                }
+            }
+
+            OutlinedTextField(
+                value = columnConfig.title,
+                onValueChange = { onColumnChange(columnConfig.copy(title = it)) },
+                label = { Text("Judul Kolom", fontFamily = getDmSansFontFamily()) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            columnConfig.items.forEachIndexed { index, item ->
+                Surface(
+                    color = Color(0xFFF8FAFC),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = item.label,
+                            onValueChange = { newLabel ->
+                                val list = columnConfig.items.toMutableList()
+                                list[index] = item.copy(label = newLabel)
+                                onColumnChange(columnConfig.copy(items = list))
+                            },
+                            label = { Text("Label", fontFamily = getDmSansFontFamily(), fontSize = 11.sp) },
+                            modifier = Modifier.weight(1.2f),
+                            singleLine = true
+                        )
+
+                        OutlinedTextField(
+                            value = item.urlOrCode,
+                            onValueChange = { newTarget ->
+                                val list = columnConfig.items.toMutableList()
+                                list[index] = item.copy(urlOrCode = newTarget)
+                                onColumnChange(columnConfig.copy(items = list))
+                            },
+                            label = { Text("Target / Kode / URL", fontFamily = getDmSansFontFamily(), fontSize = 11.sp) },
+                            modifier = Modifier.weight(1.5f),
+                            singleLine = true
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = item.isVisible,
+                                onCheckedChange = { checked ->
+                                    val list = columnConfig.items.toMutableList()
+                                    list[index] = item.copy(isVisible = checked)
+                                    onColumnChange(columnConfig.copy(items = list))
+                                }
+                            )
+                            Text("Aktif", fontFamily = getDmSansFontFamily(), fontSize = 12.sp)
+                        }
+
+                        IconButton(
+                            onClick = {
+                                val list = columnConfig.items.toMutableList()
+                                list.removeAt(index)
+                                onColumnChange(columnConfig.copy(items = list))
+                            }
+                        ) {
+                            com.sekota.components.SekotaTrashVectorIcon(size = 18.dp)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Preview(device = DESKTOP)
 @Composable
 fun AdminDashboardPreview() {
@@ -2973,6 +3377,19 @@ fun ClientInquiriesTabPreview() {
             deleteInquiryUseCase = remember { DeleteAdminInquiryUseCase(repo) },
             getStrategicConversationUseCase = remember { GetAdminStrategicConversationUseCase(repo) },
             saveStrategicConversationUseCase = remember { SaveAdminStrategicConversationUseCase(repo) },
+            windowWidth = WindowWidth.Expanded
+        )
+    }
+}
+
+@Preview(device = DESKTOP)
+@Composable
+fun FooterManagementTabPreview() {
+    MaterialTheme {
+        val repo = remember { com.sekota.features.admin.data.repository.AdminRepositoryImpl() }
+        FooterManagementTab(
+            getFooterUseCase = remember { GetAdminFooterUseCase(repo) },
+            saveFooterUseCase = remember { SaveAdminFooterUseCase(repo) },
             windowWidth = WindowWidth.Expanded
         )
     }
