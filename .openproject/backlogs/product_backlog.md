@@ -108,10 +108,22 @@ This file contains the high-level roadmap, user stories, and architectural bound
   - *Description*: Sebagai Content Administrator / Marketing Team, Saya ingin Mengelola seluruh teks, tautan CTA, serta poin-poin diferensiasi pada seksi "Mengapa Sekota" secara dinamis melalui CMS Admin, Sehingga Tim bisnis dapat memperbarui value proposition dan materi komunikasi publik secara mandiri dan cepat tanpa ketergantungan deployment developer.
 - [x] **WP-034: [CMS-05-05] - Dynamic Content & Lead Ingestion for Strategic Conversation Section** (OpenProject ID: 22474)
   - *Description*: Sebagai Admin / Tim Marketing, Saya ingin Mengelola konten teks dan placeholder pada section "Mulai Percakapan Strategis" secara dinamis melalui CMS/Backend, serta menerima data leads dari formulir kontak secara real-time, Sehingga Pesan komunikasi tetap relevan dengan campaign terbaru tanpa perlu perubahan kode (hardcoded).
-- [x] **WP-035: [WEB-05-02] - Complete Global Footer Component & Interactive Language Switcher** (OpenProject ID: 22475)
-  - *Description*: Sebagai Pengunjung Web Sekota, Saya ingin melihat dan berinteraksi dengan komponen Footer yang lengkap dan konsisten di seluruh halaman web (Branding, Afiliasi eBdesk Group, Tautan Produk, Navigasi Perusahaan, Legalitas, Hak Cipta, dan Pengalih Bahasa EN/ID), Sehingga Navigasi portal publik terasa lengkap, profesional, dan responsif di berbagai resolusi layar.
+- [ ] **WP-036: [CMS-05-06] - Content Mapping Documentation & Workbench In-App Guide** (OpenProject ID: 22476)
+  - *Description*: Sebagai Content Editor / CMS Operator, Saya ingin melihat dokumentasi pemetaan (mapping) yang jelas antara setiap field yang diedit di CMS Workbench dengan komponen tampilan spesifik yang menerimanya di portal Web Sekota, Sehingga saya dapat memprediksi secara akurat bagaimana perubahan data akan tampil bagi pembaca/klien publik, serta mencegah kesalahan tata letak (layout break) dan ketidaksesuaian konten.
+  - *Child Tasks*:
+    - `#22477` [CMS-05-06-01] Content Entities & Web Components Audit
+    - `#22478` [CMS-05-06-02] Create Content Mapping Artifact (content_mapping.md)
+    - `#22479` [CMS-05-06-03] CMS Workbench UI Integration: Contextual Guide Dialog
+- [ ] **WP-037: [CMS-05-07] - Multi-Environment Awareness Badge & Production Safety Guardrails in CMS** (OpenProject ID: 22480)
+  - *Description*: Sebagai Administrator atau CMS Operator, Saya ingin CMS Workbench menampilkan indikator status lingkungan koneksi aktif secara eksplisit (Development, Staging, atau Production) dan memberikan konfirmasi pengamanan pada aksi tulis, Sehingga saya terhindar dari kesalahan fatal mengedit data live production saat berniat melakukan uji coba atau eksperimen di lingkungan staging/development.
+  - *Child Tasks*:
+    - `#22481` [CMS-05-07-01] Implement Shared Environment Enum & Config Resolver
+    - `#22482` [CMS-05-07-02] Build EnvironmentBadge Component & TopAppBar Integration
+    - `#22483` [CMS-05-07-03] Production Safety Interceptor & Confirmation Dialog
+    - `#22484` [CMS-05-07-04] Author Multi-State Compose Previews & Verify Desktop Build
 
 ---
+
 
 
 

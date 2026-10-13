@@ -46,6 +46,12 @@ import com.sekota.ui.WindowWidth
 import com.sekota.ui.windowWidthOf
 import sekota.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import com.sekota.features.admin.domain.model.AppEnvironment
+import com.sekota.features.admin.domain.model.EnvironmentConfigResolver
+import com.sekota.components.EnvironmentBadge
+import com.sekota.components.ContentMappingGuideDialog
+import com.sekota.components.ProductionActionConfirmationDialog
+import com.sekota.components.SekotaInfoVectorIcon
 
 val InkNavy = Color(0xFF0D1F2D)
 val BrandTeal = Color(0xFF00B5C8)
@@ -82,6 +88,49 @@ fun AdminDashboardScreen(
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries", "Footer Management")
 
+    var currentEnvironment by remember { mutableStateOf(EnvironmentConfigResolver.resolveEnvironment()) }
+    var showGuideDialog by remember { mutableStateOf(false) }
+    var guideInitialTab by remember { mutableStateOf(0) }
+
+    var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var pendingActionName by remember { mutableStateOf("") }
+    var pendingEntityName by remember { mutableStateOf("") }
+    var isPendingDelete by remember { mutableStateOf(false) }
+
+    val onActionWithProductionGuard: (String, String, Boolean, () -> Unit) -> Unit = { actionName, entityName, isDelete, action ->
+        if (currentEnvironment.isProduction) {
+            pendingActionName = actionName
+            pendingEntityName = entityName
+            isPendingDelete = isDelete
+            pendingAction = action
+        } else {
+            action()
+        }
+    }
+
+    if (showGuideDialog) {
+        ContentMappingGuideDialog(
+            initialTab = guideInitialTab,
+            onDismiss = { showGuideDialog = false }
+        )
+    }
+
+    if (pendingAction != null) {
+        ProductionActionConfirmationDialog(
+            actionName = pendingActionName,
+            entityName = pendingEntityName,
+            isCriticalDelete = isPendingDelete,
+            onConfirm = {
+                val act = pendingAction
+                pendingAction = null
+                act?.invoke()
+            },
+            onDismiss = {
+                pendingAction = null
+            }
+        )
+    }
+
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
         // Medium up. The rail collapses to icons-only at Medium so it does not eat
@@ -101,7 +150,7 @@ fun AdminDashboardScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .statusBarsPadding()
-                            .padding(horizontal = 20.dp, vertical = 14.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -109,11 +158,49 @@ fun AdminDashboardScreen(
                             color = BrandTeal,
                             fontFamily = getMontserratFontFamily(),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
+                            fontSize = 17.sp,
                             modifier = Modifier.weight(1f)
                         )
-                        IconButton(onClick = onLogout) {
-                            com.sekota.components.SekotaExitVectorIcon(size = 20.dp, tint = Color(0xFFFF8A80))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            EnvironmentBadge(
+                                environment = currentEnvironment,
+                                onClick = {
+                                    // Cycles through environments for testing/verification
+                                    currentEnvironment = when (currentEnvironment) {
+                                        AppEnvironment.DEVELOPMENT -> AppEnvironment.STAGING
+                                        AppEnvironment.STAGING -> AppEnvironment.PRODUCTION
+                                        AppEnvironment.PRODUCTION -> AppEnvironment.DEVELOPMENT
+                                    }
+                                }
+                            )
+                            IconButton(
+                                onClick = {
+                                    guideInitialTab = when (selectedTab) {
+                                        0 -> 0 // Books
+                                        1 -> 2 // Intelligence Suite
+                                        2 -> 0 // Merchandise
+                                        3 -> 1 // Metrics/Value
+                                        4 -> 1 // Value Loop
+                                        5 -> 3 // Why Sekota
+                                        6 -> 4 // Contact
+                                        7 -> 5 // Footer
+                                        else -> 0
+                                    }
+                                    showGuideDialog = true
+                                },
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                SekotaInfoVectorIcon(size = 18.dp, tint = Color.White.copy(alpha = 0.9f))
+                            }
+                            IconButton(
+                                onClick = onLogout,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                com.sekota.components.SekotaExitVectorIcon(size = 18.dp, tint = Color(0xFFFF8A80))
+                            }
                         }
                     }
                 }
@@ -252,16 +339,93 @@ fun AdminDashboardScreen(
                     }
                 }
 
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp)) {
-                    when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
-                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
-                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
-                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
-                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
-                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
-                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
+                Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                    // Top Workbench Control Bar for Desktop / Tablet
+                    Surface(
+                        color = Color.White,
+                        tonalElevation = 2.dp,
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    text = "Sekota Management Console",
+                                    fontFamily = getMontserratFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = InkNavy
+                                )
+                                EnvironmentBadge(
+                                    environment = currentEnvironment,
+                                    onClick = {
+                                        currentEnvironment = when (currentEnvironment) {
+                                            AppEnvironment.DEVELOPMENT -> AppEnvironment.STAGING
+                                            AppEnvironment.STAGING -> AppEnvironment.PRODUCTION
+                                            AppEnvironment.PRODUCTION -> AppEnvironment.DEVELOPMENT
+                                        }
+                                    }
+                                )
+                            }
+
+                            FilledTonalButton(
+                                onClick = {
+                                    guideInitialTab = when (selectedTab) {
+                                        0 -> 0 // Books
+                                        1 -> 2 // Intelligence Suite
+                                        2 -> 0 // Merchandise
+                                        3 -> 1 // Metrics/Value
+                                        4 -> 1 // Value Loop
+                                        5 -> 3 // Why Sekota
+                                        6 -> 4 // Contact
+                                        7 -> 5 // Footer
+                                        else -> 0
+                                    }
+                                    showGuideDialog = true
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = Color(0xFFF1F5F9),
+                                    contentColor = InkNavy
+                                ),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    SekotaInfoVectorIcon(size = 16.dp, tint = BrandTeal)
+                                    Text(
+                                        text = "Panduan Konten & Mapping",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(32.dp)) {
+                        when (selectedTab) {
+                            0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
+                            1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
+                            2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
+                            3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
+                            4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
+                            5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
+                            6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
+                            7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
+                        }
                     }
                 }
             }

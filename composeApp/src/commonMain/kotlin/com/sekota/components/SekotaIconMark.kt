@@ -249,6 +249,40 @@ fun SekotaWarningVectorIcon(
 }
 
 @Composable
+fun SekotaInfoVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = InkNavy,
+    modifier: Modifier = Modifier
+) {
+    val infoPath = remember {
+        PathParser().parsePathString("M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(infoPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaShieldCheckVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFFC62828),
+    modifier: Modifier = Modifier
+) {
+    val shieldCheckPath = remember {
+        PathParser().parsePathString("M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(shieldCheckPath, color = tint)
+        }
+    }
+}
+
+@Composable
 fun SekotaCmsNavVectorIcon(
     index: Int,
     size: Dp = 20.dp,
