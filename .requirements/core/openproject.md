@@ -75,18 +75,31 @@ To update an existing Work Package, send a PATCH request.
 - `Content-Type`: `application/json`
 - `Authorization`: `Basic ...`
 
-**Body Example** (changing subject and adding a comment):
+**Status ID Reference**:
+| ID | Status Name | Meaning |
+|---|---|---|
+| 1 | New | Newly created task |
+| 7 | In progress | Work is actively underway |
+| 8 | Developed | Implementation complete, pending QA |
+| 9 | In testing | Under test / verification |
+| 12 | **Closed** | **Completed successfully** |
+| 14 | **Rejected** | **Discarded / Canceled (Never use for completed tasks!)** |
+
+**Body Example** (changing status and adding a journal note):
 ```json
 {
-  "lockVersion": 1, 
-  "subject": "Updated Task Subject",
-  "journalNotes": {
-    "format": "markdown",
-    "raw": "Updated from sync script."
+  "lockVersion": 1,
+  "_links": {
+    "status": {
+      "href": "/api/v3/statuses/12"
+    }
+  },
+  "comment": {
+    "raw": "Task implementation verified and closed."
   }
 }
 ```
-Note: OpenProject uses optimistic locking. You often need to provide the lockVersion of the work package when updating it. You can retrieve this by fetching the work package first.
+Note: OpenProject uses optimistic locking. You must provide the `lockVersion` of the work package when updating it. You can retrieve this by fetching the work package first.
 
 ### KMP (Kotlin Multiplatform) Ktor Example
 If you are implementing this in Kotlin using Ktor, here is a snippet for creating a Work Package:

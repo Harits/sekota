@@ -7,6 +7,19 @@ description: Procedures for OpenProject task synchronization, Jules AI coding se
 
 ## 1. OpenProject Optimistic Lock, Status Transition & Hierarchy Sync
 When updating or creating work packages in OpenProject:
+### Official OpenProject Status IDs
+| ID | Status Name | isClosed | Usage & Meaning |
+|---|---|---|---|
+| 1 | New | False | Unstarted work package |
+| 7 | In progress | False | Actively being developed |
+| 8 | Developed | False | Development done, awaiting test |
+| 9 | In testing | False | QA / test stage |
+| 12 | **Closed** | True | **Successfully completed and accepted** |
+| 14 | **Rejected** | True | **Cancelled or discarded (DO NOT use for completed work!)** |
+
+> [!CAUTION]
+> NEVER set status to ID `14` (`Rejected`) when completing a task or user story. Completed work packages MUST use status ID `12` (`Closed`).
+
 1. **Check Allowed Status Transitions**:
    - Query the form schema to verify permitted statuses for the user's role:
      ```bash
@@ -21,7 +34,7 @@ When updating or creating work packages in OpenProject:
    ```json
    {
      "lockVersion": <latest_version>,
-     "_links": { "status": { "href": "/api/v3/statuses/<id>" } },
+     "_links": { "status": { "href": "/api/v3/statuses/12" } },
      "comment": { "raw": "Completed implementation sub-task." }
    }
    ```
