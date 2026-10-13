@@ -190,6 +190,7 @@ fun AdminDashboardScreen(
                                         5 -> 3 // Why Sekota
                                         6 -> 4 // Contact
                                         7 -> 5 // Footer
+                                        8 -> 6 // AppBar Navigation
                                         else -> 0
                                     }
                                     showGuideDialog = true
@@ -392,6 +393,7 @@ fun AdminDashboardScreen(
                                         5 -> 3 // Why Sekota
                                         6 -> 4 // Contact
                                         7 -> 5 // Footer
+                                        8 -> 6 // AppBar Navigation
                                         else -> 0
                                     }
                                     showGuideDialog = true

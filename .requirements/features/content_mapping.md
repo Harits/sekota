@@ -106,6 +106,18 @@ Setiap mutasi data yang disimpan di CMS Workbench akan secara otomatis dipersist
 
 ---
 
+### H. AppBar Navigation (Dynamic Main Navigation Bar)
+
+| Field CMS | Tipe Data | Komponen Penerima Web Sekota | Batas Karakter & Format | Kaidah Input (Good vs Bad) |
+|---|---|---|---|---|
+| `label` | `String` | `Navbar.kt` (Desktop Nav Item & Mobile Drawer Item) | Max 30 karakter | **Good**: "Solusi", "E-Book", "Insights"<br>**Bad**: "Halaman Direktori Seluruh Buku dan Laporan" (Memicu overflow) |
+| `route` | `String` | Anchor hash atau Screen Route | Anchor `#section` (misal `#solusi`, `#produk`, `#kontak`) atau rute internal (`/catalog`, `/merchandise`, `/profile`, `/login`) | **Good**: `#solusi`, `/catalog`<br>**Bad**: `http://external-untrusted-link` tanpa routing terdefinisi |
+| `order` | `Int` | Urutan Tampilan Navigasi | Angka bulat berurutan (1, 2, 3...) | Mengatur prioritas posisi dari kiri ke kanan (desktop) atau atas ke bawah (drawer). |
+| `isVisible` | `Boolean` | Visibilitas Tautan | `true` (Tampil) / `false` (Disembunyikan) | Gunakan untuk menyembunyikan halaman yang masih tahap draft tanpa menghapus konfigurasi. |
+| `iconUrl` | `String?` | Optional Icon Identifier | URL aset vektor atau null | Opsional untuk ikon pendukung bila diperlukan. |
+
+---
+
 ## 3. Checklist Validasi & Quality Assurance untuk Operator CMS
 
 - [ ] **Panjang Karakter**: Pastikan judul dan deskripsi tidak melebihi rekomendasi batas karakter di atas untuk menjaga ritme grid visual responsif.

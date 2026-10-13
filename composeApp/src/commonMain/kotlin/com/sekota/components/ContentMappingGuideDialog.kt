@@ -34,7 +34,8 @@ fun ContentMappingGuideDialog(
         "Intelligence Suite",
         "Why Sekota",
         "Contact",
-        "Footer"
+        "Footer",
+        "AppBar Navigation"
     )
 
     Dialog(onDismissRequest = onDismiss) {
@@ -135,6 +136,7 @@ fun ContentMappingGuideDialog(
                         3 -> GuideSectionWhySekota()
                         4 -> GuideSectionContact()
                         5 -> GuideSectionFooter()
+                        6 -> GuideSectionAppBar()
                     }
                 }
 
@@ -302,6 +304,40 @@ private fun GuideSectionFooter() {
             rule = "Atur sortOrder, target URL/kode, dan toggle visibilitas aktif.",
             good = "Label 'E-Book' -> Target 'EBOOK' (Aktif: True)",
             bad = "Label kosong tanpa target"
+        )
+    }
+}
+
+@Composable
+private fun GuideSectionAppBar() {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        GuideItemRow(
+            field = "Label Navigasi (Label)",
+            target = "Navbar Desktop & Mobile Drawer Items",
+            rule = "Maksimal 30 karakter. Gunakan nama ringkas agar tidak memicu overflow horizontal.",
+            good = "Solusi, E-Book, Insights",
+            bad = "Halaman Direktori Seluruh Buku dan Laporan Lengkap"
+        )
+        GuideItemRow(
+            field = "Target Rute / Hash (Route)",
+            target = "Click Event Handler & Scroll Target",
+            rule = "Gunakan hashtag '#section' untuk scrolling seksi Landing Page atau '/path' untuk layar terpisah.",
+            good = "#solusi, #produk, /catalog, /merchandise",
+            bad = "unsupported_link_format"
+        )
+        GuideItemRow(
+            field = "Urutan Tampilan (Order)",
+            target = "Position Order (Kiri ke Kanan)",
+            rule = "Angka bulat berurutan (1, 2, 3...) menentukan prioritas penempatan item.",
+            good = "1 (Solusi), 2 (Produk), 3 (E-Book)",
+            bad = "Angka acak atau bernilai negatif"
+        )
+        GuideItemRow(
+            field = "Visibilitas (Is Visible)",
+            target = "AppBar Filter (isVisible == true)",
+            rule = "Toggle untuk menyembunyikan halaman dalam pengembangan tanpa menghapus data.",
+            good = "Checked (Aktif tampil)",
+            bad = "Unchecked untuk menu draft"
         )
     }
 }
