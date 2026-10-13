@@ -212,14 +212,14 @@ fun AdminDashboardScreen(
                         .padding(16.dp)
                 ) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
-                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
-                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
-                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
-                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
-                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
-                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
+                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth, onActionWithProductionGuard)
+                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth, onActionWithProductionGuard)
+                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth, onActionWithProductionGuard)
+                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth, onActionWithProductionGuard)
+                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth, onActionWithProductionGuard)
+                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
+                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
+                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
                     }
                 }
 
@@ -417,14 +417,14 @@ fun AdminDashboardScreen(
 
                     Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(32.dp)) {
                         when (selectedTab) {
-                            0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth)
-                            1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth)
-                            2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth)
-                            3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth)
-                            4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth)
-                            5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth)
-                            6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth)
-                            7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth)
+                            0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth, onActionWithProductionGuard)
+                            1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth, onActionWithProductionGuard)
+                            2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth, onActionWithProductionGuard)
+                            3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth, onActionWithProductionGuard)
+                            4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth, onActionWithProductionGuard)
+                            5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
+                            6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
+                            7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
                         }
                     }
                 }
@@ -523,7 +523,8 @@ fun BooksRegistryTab(
     getCategoriesUseCase: GetAdminCategoriesUseCase = remember { GetAdminCategoriesUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
     addCategoryUseCase: AddAdminCategoryUseCase = remember { AddAdminCategoryUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
     deleteCategoryUseCase: DeleteAdminCategoryUseCase = remember { DeleteAdminCategoryUseCase(com.sekota.features.admin.data.repository.AdminRepositoryImpl()) },
-    windowWidth: WindowWidth = WindowWidth.Expanded
+    windowWidth: WindowWidth = WindowWidth.Expanded,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
     var categories by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -919,27 +920,37 @@ fun BooksRegistryTab(
                             webError = "Jumlah halaman harus berupa angka lebih dari 0"
                             return@Button
                         }
-                        scope.launch {
-                            val updated = target.copy(
-                                category = webCategory.trim().ifBlank { target.category },
-                                description = webDescription.trim(),
-                                pdfUrl = webPdfUrl.trim().ifBlank { null },
-                                readingTime = webReadingTime.trim().ifBlank { target.readingTime },
-                                pages = pages ?: target.pages,
-                                year = webYear.trim().ifBlank { target.year },
-                                language = webLanguage.trim().ifBlank { target.language },
-                                publishedDate = webPublishedDate.trim().ifBlank { target.publishedDate },
-                                whatsInside = webWhatsInside.filter { it.title.isNotBlank() }
-                            )
-                            val result = saveBookUseCase(updated)
-                            if (result.isSuccess) {
-                                books = getBooksUseCase()
-                                showWebDialog = false
-                                webBook = null
-                                webError = null
-                            } else {
-                                webError = result.exceptionOrNull()?.message
+                        val performSave = {
+                            scope.launch {
+                                val updated = target.copy(
+                                    category = webCategory.trim().ifBlank { target.category },
+                                    description = webDescription.trim(),
+                                    pdfUrl = webPdfUrl.trim().ifBlank { null },
+                                    readingTime = webReadingTime.trim().ifBlank { target.readingTime },
+                                    pages = pages ?: target.pages,
+                                    year = webYear.trim().ifBlank { target.year },
+                                    language = webLanguage.trim().ifBlank { target.language },
+                                    publishedDate = webPublishedDate.trim().ifBlank { target.publishedDate },
+                                    whatsInside = webWhatsInside.filter { it.title.isNotBlank() }
+                                )
+                                val result = saveBookUseCase(updated)
+                                if (result.isSuccess) {
+                                    books = getBooksUseCase()
+                                    showWebDialog = false
+                                    webBook = null
+                                    webError = null
+                                } else {
+                                    webError = result.exceptionOrNull()?.message
+                                }
                             }
+                        }
+
+                        if (onActionWithProductionGuard != null) {
+                            onActionWithProductionGuard("Simpan Tampilan Web Buku", target.title, false) {
+                                performSave()
+                            }
+                        } else {
+                            performSave()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -1104,7 +1115,8 @@ fun IntelligenceSuiteTab(
     getProductsUseCase: GetAdminProductsUseCase,
     saveProductUseCase: SaveAdminProductUseCase,
     deleteProductUseCase: DeleteAdminProductUseCase,
-    windowWidth: WindowWidth = WindowWidth.Expanded
+    windowWidth: WindowWidth = WindowWidth.Expanded,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -1290,35 +1302,49 @@ fun IntelligenceSuiteTab(
                             errorMessage = "Kode produk tidak boleh kosong"
                             return@Button
                         }
-                        scope.launch {
-                            val id = editingProduct?.id ?: prodCode.lowercase().trim().ifBlank { "prod-${kotlin.random.Random.nextInt(1000, 9999)}" }
-                            val features = prodFeaturesText.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                            val productToSave = AdminProduct(
-                                id = id,
-                                code = prodCode.trim().uppercase(),
-                                name = prodName.trim(),
-                                categoryEyebrow = prodCategory.trim().ifBlank { "Intelligence Suite" },
-                                description = prodDesc.trim(),
-                                features = if (features.isNotEmpty()) features else listOf("Core Intelligence"),
-                                iconUrlOrBase64 = prodIconUrlOrBase64,
-                                accentColorHex = prodAccentColorHex.trim().ifBlank { null }
-                            )
-                            val result = saveProductUseCase(productToSave)
-                            if (result.isSuccess) {
-                                products = getProductsUseCase()
-                                syncService.triggerLocalUpdate()
-                                showDialog = false
-                                editingProduct = null
-                                prodCode = ""
-                                prodName = ""
-                                prodDesc = ""
-                                prodFeaturesText = ""
-                                prodIconUrlOrBase64 = null
-                                prodAccentColorHex = ""
-                                errorMessage = null
-                            } else {
-                                errorMessage = result.exceptionOrNull()?.message
+                        val performSave = {
+                            scope.launch {
+                                val id = editingProduct?.id ?: prodCode.lowercase().trim().ifBlank { "prod-${kotlin.random.Random.nextInt(1000, 9999)}" }
+                                val features = prodFeaturesText.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                                val productToSave = AdminProduct(
+                                    id = id,
+                                    code = prodCode.trim().uppercase(),
+                                    name = prodName.trim(),
+                                    categoryEyebrow = prodCategory.trim().ifBlank { "Intelligence Suite" },
+                                    description = prodDesc.trim(),
+                                    features = if (features.isNotEmpty()) features else listOf("Core Intelligence"),
+                                    iconUrlOrBase64 = prodIconUrlOrBase64,
+                                    accentColorHex = prodAccentColorHex.trim().ifBlank { null }
+                                )
+                                val result = saveProductUseCase(productToSave)
+                                if (result.isSuccess) {
+                                    products = getProductsUseCase()
+                                    syncService.triggerLocalUpdate()
+                                    showDialog = false
+                                    editingProduct = null
+                                    prodCode = ""
+                                    prodName = ""
+                                    prodDesc = ""
+                                    prodFeaturesText = ""
+                                    prodIconUrlOrBase64 = null
+                                    prodAccentColorHex = ""
+                                    errorMessage = null
+                                } else {
+                                    errorMessage = result.exceptionOrNull()?.message
+                                }
                             }
+                        }
+
+                        if (onActionWithProductionGuard != null) {
+                            onActionWithProductionGuard(
+                                if (editingProduct == null) "Tambah Produk" else "Edit Produk",
+                                prodName.trim(),
+                                false
+                            ) {
+                                performSave()
+                            }
+                        } else {
+                            performSave()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal)
@@ -1417,10 +1443,24 @@ fun IntelligenceSuiteTab(
                             Spacer(modifier = Modifier.width(8.dp))
                             TextButton(
                                 onClick = {
-                                    products = products.filter { it.id != prod.id }
-                                    scope.launch {
-                                        deleteProductUseCase(prod.id)
-                                        syncService.triggerLocalUpdate()
+                                    val performDelete = {
+                                        products = products.filter { it.id != prod.id }
+                                        scope.launch {
+                                            deleteProductUseCase(prod.id)
+                                            syncService.triggerLocalUpdate()
+                                        }
+                                    }
+
+                                    if (onActionWithProductionGuard != null) {
+                                        onActionWithProductionGuard(
+                                            "Hapus Modul Produk",
+                                            "${prod.name} (${prod.code})",
+                                            true
+                                        ) {
+                                            performDelete()
+                                        }
+                                    } else {
+                                        performDelete()
                                     }
                                 }
                             ) {
@@ -1439,7 +1479,8 @@ fun MerchandiseTab(
     getMerchUseCase: GetAdminMerchUseCase,
     saveMerchUseCase: SaveAdminMerchUseCase,
     deleteMerchUseCase: DeleteAdminMerchUseCase,
-    windowWidth: WindowWidth = WindowWidth.Expanded
+    windowWidth: WindowWidth = WindowWidth.Expanded,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     var merchList by remember { mutableStateOf<List<AdminMerch>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -1546,22 +1587,36 @@ fun MerchandiseTab(
                             errorMessage = "Harga harus berupa angka valid lebih dari 0 (contoh: 45.0)"
                             return@Button
                         }
-                        scope.launch {
-                            val id = editingMerchId ?: "m-${kotlin.random.Random.nextInt(1000, 9999)}"
-                            val img = itemImageUrl.trim().ifBlank { null }
-                            val result = saveMerchUseCase(AdminMerch(id, itemTitle.trim(), itemCategory.trim(), "The Urban Collaborator", parsedPrice, 5.0, img))
-                            if (result.isSuccess) {
-                                merchList = getMerchUseCase()
-                                showDialog = false
-                                editingMerchId = null
-                                itemTitle = ""
-                                itemCategory = "Apparel"
-                                itemPrice = ""
-                                itemImageUrl = ""
-                                errorMessage = null
-                            } else {
-                                errorMessage = result.exceptionOrNull()?.message
+                        val performSave = {
+                            scope.launch {
+                                val id = editingMerchId ?: "m-${kotlin.random.Random.nextInt(1000, 9999)}"
+                                val img = itemImageUrl.trim().ifBlank { null }
+                                val result = saveMerchUseCase(AdminMerch(id, itemTitle.trim(), itemCategory.trim(), "The Urban Collaborator", parsedPrice, 5.0, img))
+                                if (result.isSuccess) {
+                                    merchList = getMerchUseCase()
+                                    showDialog = false
+                                    editingMerchId = null
+                                    itemTitle = ""
+                                    itemCategory = "Apparel"
+                                    itemPrice = ""
+                                    itemImageUrl = ""
+                                    errorMessage = null
+                                } else {
+                                    errorMessage = result.exceptionOrNull()?.message
+                                }
                             }
+                        }
+
+                        if (onActionWithProductionGuard != null) {
+                            onActionWithProductionGuard(
+                                if (editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise",
+                                itemTitle.trim(),
+                                false
+                            ) {
+                                performSave()
+                            }
+                        } else {
+                            performSave()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -1653,9 +1708,23 @@ fun MerchandiseTab(
                             }
                             TextButton(
                                 onClick = {
-                                    merchList = merchList.filter { it.id != item.id }
-                                    scope.launch {
-                                        deleteMerchUseCase(item.id)
+                                    val performDelete = {
+                                        merchList = merchList.filter { it.id != item.id }
+                                        scope.launch {
+                                            deleteMerchUseCase(item.id)
+                                        }
+                                    }
+
+                                    if (onActionWithProductionGuard != null) {
+                                        onActionWithProductionGuard(
+                                            "Hapus Item Merchandise",
+                                            item.title,
+                                            true
+                                        ) {
+                                            performDelete()
+                                        }
+                                    } else {
+                                        performDelete()
                                     }
                                 }
                             ) { 
@@ -1673,7 +1742,8 @@ fun MerchandiseTab(
 fun LiveMetricsTab(
     getLiveMetricsUseCase: GetAdminLiveMetricsUseCase,
     saveLiveMetricsUseCase: SaveAdminLiveMetricsUseCase,
-    windowWidth: WindowWidth = WindowWidth.Expanded
+    windowWidth: WindowWidth = WindowWidth.Expanded,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     var accuracy by remember { mutableStateOf("99.8%") }
     var totalClients by remember { mutableStateOf("100+") }
@@ -1721,47 +1791,45 @@ fun LiveMetricsTab(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            val saveMetric: (String, String) -> Unit = { metricName, feedback ->
+                val performSave = {
+                    scope.launch {
+                        val result = saveLiveMetricsUseCase(AdminLiveMetrics(accuracy.trim(), totalClients.trim(), establishedYear.trim()))
+                        if (result.isSuccess) {
+                            statusFeedback = feedback
+                        }
+                    }
+                }
+
+                if (onActionWithProductionGuard != null) {
+                    onActionWithProductionGuard("Update Live Metrics ($metricName)", "Landing Page Metrics", false) {
+                        performSave()
+                    }
+                } else {
+                    performSave()
+                }
+            }
+
             MetricCardEditor(
                 modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Data Accuracy",
                 value = accuracy,
                 onValueChange = { accuracy = it; statusFeedback = null },
-                onSave = {
-                    scope.launch {
-                        val result = saveLiveMetricsUseCase(AdminLiveMetrics(accuracy.trim(), totalClients.trim(), establishedYear.trim()))
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ Data Accuracy diperbarui ke '$accuracy'"
-                        }
-                    }
-                }
+                onSave = { saveMetric("Data Accuracy", "✅ Data Accuracy diperbarui ke '$accuracy'") }
             )
             MetricCardEditor(
                 modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Total Clients",
                 value = totalClients,
                 onValueChange = { totalClients = it; statusFeedback = null },
-                onSave = {
-                    scope.launch {
-                        val result = saveLiveMetricsUseCase(AdminLiveMetrics(accuracy.trim(), totalClients.trim(), establishedYear.trim()))
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ Total Clients diperbarui ke '$totalClients'"
-                        }
-                    }
-                }
+                onSave = { saveMetric("Total Clients", "✅ Total Clients diperbarui ke '$totalClients'") }
             )
             MetricCardEditor(
                 modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Established",
                 value = establishedYear,
                 onValueChange = { establishedYear = it; statusFeedback = null },
-                onSave = {
-                    scope.launch {
-                        val result = saveLiveMetricsUseCase(AdminLiveMetrics(accuracy.trim(), totalClients.trim(), establishedYear.trim()))
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ Tahun Didirikan diperbarui ke '$establishedYear'"
-                        }
-                    }
-                }
+                onSave = { saveMetric("Established Year", "✅ Tahun Didirikan diperbarui ke '$establishedYear'") }
             )
         }
     }
@@ -1819,7 +1887,8 @@ fun ClientInquiriesTab(
     deleteInquiryUseCase: DeleteAdminInquiryUseCase,
     getStrategicConversationUseCase: GetAdminStrategicConversationUseCase = remember { GetAdminStrategicConversationUseCase(AdminRepositoryImpl()) },
     saveStrategicConversationUseCase: SaveAdminStrategicConversationUseCase = remember { SaveAdminStrategicConversationUseCase(AdminRepositoryImpl()) },
-    windowWidth: WindowWidth
+    windowWidth: WindowWidth,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     var inquiries by remember { mutableStateOf<List<ClientInquiry>>(emptyList()) }
@@ -2233,15 +2302,25 @@ fun ClientInquiriesTab(
                 ) {
                     Button(
                         onClick = {
-                            scope.launch {
-                                isSaving = true
-                                val result = saveStrategicConversationUseCase(config)
-                                isSaving = false
-                                if (result.isSuccess) {
-                                    statusFeedback = "Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!"
-                                } else {
-                                    statusFeedback = "Gagal menyimpan: ${result.exceptionOrNull()?.message}"
+                            val performSave = {
+                                scope.launch {
+                                    isSaving = true
+                                    val result = saveStrategicConversationUseCase(config)
+                                    isSaving = false
+                                    if (result.isSuccess) {
+                                        statusFeedback = "Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!"
+                                    } else {
+                                        statusFeedback = "Gagal menyimpan: ${result.exceptionOrNull()?.message}"
+                                    }
                                 }
+                            }
+
+                            if (onActionWithProductionGuard != null) {
+                                onActionWithProductionGuard("Simpan Pengaturan Formulir Klien", "Contact Form Configuration", false) {
+                                    performSave()
+                                }
+                            } else {
+                                performSave()
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -2344,14 +2423,28 @@ fun ClientInquiriesTab(
 
                                 IconButton(
                                     onClick = {
-                                        scope.launch {
-                                            val res = deleteInquiryUseCase(inquiry.id)
-                                            if (res.isSuccess) {
-                                                inquiries = getInquiriesUseCase()
-                                                statusFeedback = "Pesan dari ${inquiry.name} berhasil dihapus"
-                                            } else {
-                                                statusFeedback = "Gagal menghapus pesan"
+                                        val performDelete = {
+                                            scope.launch {
+                                                val res = deleteInquiryUseCase(inquiry.id)
+                                                if (res.isSuccess) {
+                                                    inquiries = getInquiriesUseCase()
+                                                    statusFeedback = "Pesan dari ${inquiry.name} berhasil dihapus"
+                                                } else {
+                                                    statusFeedback = "Gagal menghapus pesan"
+                                                }
                                             }
+                                        }
+
+                                        if (onActionWithProductionGuard != null) {
+                                            onActionWithProductionGuard(
+                                                "Hapus Pesan Konsultasi",
+                                                "Inquiry dari ${inquiry.name} (${inquiry.email})",
+                                                true
+                                            ) {
+                                                performDelete()
+                                            }
+                                        } else {
+                                            performDelete()
                                         }
                                     }
                                 ) {
@@ -2402,7 +2495,8 @@ fun ClientInquiriesTab(
 fun ValueLoopTab(
     getValueLoopUseCase: GetAdminValueLoopUseCase,
     saveValueLoopUseCase: SaveAdminValueLoopUseCase,
-    windowWidth: WindowWidth
+    windowWidth: WindowWidth,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.ValueLoopConfig()) }
@@ -2602,15 +2696,25 @@ fun ValueLoopTab(
         ) {
             Button(
                 onClick = {
-                    scope.launch {
-                        isSaving = true
-                        val result = saveValueLoopUseCase(config)
-                        isSaving = false
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ Strategic Value Loop berhasil diperbarui dan disinkronkan!"
-                        } else {
-                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                    val performSave = {
+                        scope.launch {
+                            isSaving = true
+                            val result = saveValueLoopUseCase(config)
+                            isSaving = false
+                            if (result.isSuccess) {
+                                statusFeedback = "✅ Strategic Value Loop berhasil diperbarui dan disinkronkan!"
+                            } else {
+                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                            }
                         }
+                    }
+
+                    if (onActionWithProductionGuard != null) {
+                        onActionWithProductionGuard("Simpan Strategic Value Loop", "Landing Page Solusi Kami", false) {
+                            performSave()
+                        }
+                    } else {
+                        performSave()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -2650,7 +2754,8 @@ fun ValueLoopTab(
 fun WhySekotaTab(
     getWhySekotaUseCase: GetAdminWhySekotaUseCase,
     saveWhySekotaUseCase: SaveAdminWhySekotaUseCase,
-    windowWidth: WindowWidth
+    windowWidth: WindowWidth,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(WhySekotaConfig()) }
@@ -3037,15 +3142,25 @@ fun WhySekotaTab(
                         statusFeedback = "❌ Judul pada setiap kartu pilar tidak boleh kosong"
                         return@Button
                     }
-                    scope.launch {
-                        isSaving = true
-                        val result = saveWhySekotaUseCase(config)
-                        isSaving = false
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ 'Why Sekota' berhasil diperbarui dan disinkronkan ke Web!"
-                        } else {
-                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                    val performSave = {
+                        scope.launch {
+                            isSaving = true
+                            val result = saveWhySekotaUseCase(config)
+                            isSaving = false
+                            if (result.isSuccess) {
+                                statusFeedback = "✅ 'Why Sekota' berhasil diperbarui dan disinkronkan ke Web!"
+                            } else {
+                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                            }
                         }
+                    }
+
+                    if (onActionWithProductionGuard != null) {
+                        onActionWithProductionGuard("Simpan Why Sekota", "Landing Page Pilar Keunggulan", false) {
+                            performSave()
+                        }
+                    } else {
+                        performSave()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
@@ -3085,7 +3200,8 @@ fun WhySekotaTab(
 fun FooterManagementTab(
     getFooterUseCase: GetAdminFooterUseCase,
     saveFooterUseCase: SaveAdminFooterUseCase,
-    windowWidth: WindowWidth
+    windowWidth: WindowWidth,
+    onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.FooterConfig()) }
@@ -3315,15 +3431,25 @@ fun FooterManagementTab(
                         statusFeedback = "❌ Teks hak cipta tidak boleh kosong"
                         return@Button
                     }
-                    scope.launch {
-                        isSaving = true
-                        val result = saveFooterUseCase(config)
-                        isSaving = false
-                        if (result.isSuccess) {
-                            statusFeedback = "✅ Konten Footer berhasil diperbarui dan disinkronkan ke Web!"
-                        } else {
-                            statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                    val performSave = {
+                        scope.launch {
+                            isSaving = true
+                            val result = saveFooterUseCase(config)
+                            isSaving = false
+                            if (result.isSuccess) {
+                                statusFeedback = "✅ Konten Footer berhasil diperbarui dan disinkronkan ke Web!"
+                            } else {
+                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                            }
                         }
+                    }
+
+                    if (onActionWithProductionGuard != null) {
+                        onActionWithProductionGuard("Simpan Konten Footer", "Footer Global Web", false) {
+                            performSave()
+                        }
+                    } else {
+                        performSave()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
