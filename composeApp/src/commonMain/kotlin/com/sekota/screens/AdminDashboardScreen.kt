@@ -79,7 +79,6 @@ fun AdminDashboardScreen(
 
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries")
-    val icons = listOf("📝", "🛠", "🛒", "ℹ️", "🔄", "💡", "📩")
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFFFAFAFA))) {
         // M3 adaptive navigation: NavigationBar below 600dp, NavigationRail from
@@ -112,7 +111,7 @@ fun AdminDashboardScreen(
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(onClick = onLogout) {
-                            Text(text = "🚪", fontSize = 18.sp)
+                            com.sekota.components.SekotaExitVectorIcon(size = 20.dp, tint = Color(0xFFFF8A80))
                         }
                     }
                 }
@@ -142,7 +141,13 @@ fun AdminDashboardScreen(
                         NavigationBarItem(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            icon = { Text(text = icons[index], fontSize = 20.sp) },
+                            icon = {
+                                com.sekota.components.SekotaCmsNavVectorIcon(
+                                    index = index,
+                                    size = 20.dp,
+                                    tint = if (selectedTab == index) BrandTeal else Color.LightGray
+                                )
+                            },
                             label = {
                                 Text(
                                     text = title.split(" ").first(),
@@ -187,7 +192,13 @@ fun AdminDashboardScreen(
                         NavigationRailItem(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            icon = { Text(text = icons[index], fontSize = 24.sp) },
+                            icon = {
+                                com.sekota.components.SekotaCmsNavVectorIcon(
+                                    index = index,
+                                    size = 24.dp,
+                                    tint = if (selectedTab == index) BrandTeal else Color.LightGray
+                                )
+                            },
                             label = {
                                 Text(
                                     text = if (railExpanded) title else title.split(" ").first(),
@@ -219,13 +230,22 @@ fun AdminDashboardScreen(
                             .fillMaxWidth()
                             .padding(horizontal = if (railExpanded) 24.dp else 8.dp, vertical = 24.dp)
                     ) {
-                        Text(
-                            text = if (railExpanded) "🚪 Sign Out" else "🚪",
-                            fontFamily = getDmSansFontFamily(),
-                            fontSize = 13.sp,
-                            maxLines = 1,
-                            color = Color(0xFFFF8A80)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            com.sekota.components.SekotaExitVectorIcon(size = 18.dp, tint = Color(0xFFFF8A80))
+                            if (railExpanded) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Sign Out",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 13.sp,
+                                    maxLines = 1,
+                                    color = Color(0xFFFF8A80)
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -1674,8 +1694,14 @@ fun ClientInquiriesTab(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    com.sekota.components.SekotaCmsNavVectorIcon(
+                        index = 1,
+                        size = 16.dp,
+                        tint = if (activeSubTab == 0) Color.White else InkNavy
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "⚙️ Pengaturan Konten Formulir",
+                        text = "Pengaturan Konten Formulir",
                         fontFamily = getDmSansFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
@@ -1695,8 +1721,14 @@ fun ClientInquiriesTab(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    com.sekota.components.SekotaCmsNavVectorIcon(
+                        index = 6,
+                        size = 16.dp,
+                        tint = if (activeSubTab == 1) Color.White else InkNavy
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "📩 Daftar Pesan Masuk (${inquiries.size})",
+                        text = "Daftar Pesan Masuk (${inquiries.size})",
                         fontFamily = getDmSansFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
@@ -2038,9 +2070,9 @@ fun ClientInquiriesTab(
                                 val result = saveStrategicConversationUseCase(config)
                                 isSaving = false
                                 if (result.isSuccess) {
-                                    statusFeedback = "✅ Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!"
+                                    statusFeedback = "Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!"
                                 } else {
-                                    statusFeedback = "❌ Gagal menyimpan: ${result.exceptionOrNull()?.message}"
+                                    statusFeedback = "Gagal menyimpan: ${result.exceptionOrNull()?.message}"
                                 }
                             }
                         },
@@ -2049,7 +2081,7 @@ fun ClientInquiriesTab(
                         enabled = !isSaving
                     ) {
                         Text(
-                            text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan",
+                            text = if (isSaving) "Menyimpan..." else "Simpan Perubahan",
                             fontFamily = getDmSansFontFamily(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
@@ -2059,13 +2091,13 @@ fun ClientInquiriesTab(
                     OutlinedButton(
                         onClick = {
                             config = StrategicConversationConfig()
-                            statusFeedback = "ℹ️ Formulir dikembalikan ke nilai default. Klik 'Simpan Perubahan' untuk menerapkan."
+                            statusFeedback = "Formulir dikembalikan ke nilai default. Klik 'Simpan Perubahan' untuk menerapkan."
                         },
                         shape = RoundedCornerShape(100.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = InkNavy)
                     ) {
                         Text(
-                            text = "🔄 Reset ke Default",
+                            text = "Reset ke Default",
                             fontFamily = getDmSansFontFamily(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
@@ -2086,7 +2118,7 @@ fun ClientInquiriesTab(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "📩", fontSize = 48.sp)
+                    com.sekota.components.SekotaCmsNavVectorIcon(index = 6, size = 48.dp, tint = Color.LightGray)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Belum ada pesan konsultasi masuk.",
@@ -2148,14 +2180,14 @@ fun ClientInquiriesTab(
                                             val res = deleteInquiryUseCase(inquiry.id)
                                             if (res.isSuccess) {
                                                 inquiries = getInquiriesUseCase()
-                                                statusFeedback = "✅ Pesan dari ${inquiry.name} berhasil dihapus"
+                                                statusFeedback = "Pesan dari ${inquiry.name} berhasil dihapus"
                                             } else {
-                                                statusFeedback = "❌ Gagal menghapus pesan"
+                                                statusFeedback = "Gagal menghapus pesan"
                                             }
                                         }
                                     }
                                 ) {
-                                    Text("🗑️", fontSize = 16.sp)
+                                    com.sekota.components.SekotaTrashVectorIcon(size = 18.dp, tint = Color(0xFFE53E3E))
                                 }
                             }
 

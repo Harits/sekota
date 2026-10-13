@@ -216,7 +216,7 @@ fun ContactFormCard(
                         modifier = Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("⚠️", fontSize = 16.sp)
+                        com.sekota.components.SekotaWarningVectorIcon(size = 18.dp, tint = Color(0xFFC62828))
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = it,
