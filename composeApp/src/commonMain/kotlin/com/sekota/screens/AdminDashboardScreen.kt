@@ -2337,7 +2337,7 @@ fun WhySekotaTab(
                                 listOf(
                                     Triple("trending", "Tren", Res.drawable.icon_3),
                                     Triple("chip", "Chip", Res.drawable.icon_4),
-                                    Triple("shield", "Shield", Res.drawable.icon_1),
+                                    Triple("shield", "Shield", Res.drawable.shield),
                                     Triple("sparkle", "Sparkle", Res.drawable.icon_6)
                                 ).forEach { (iconKey, iconLabel, iconRes) ->
                                     val isSelected = card.iconName.equals(iconKey, ignoreCase = true)

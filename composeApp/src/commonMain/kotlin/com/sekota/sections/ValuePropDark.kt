@@ -62,7 +62,7 @@ private fun resolveCardIcon(iconName: String): DrawableResource {
     return when (iconName.lowercase().trim()) {
         "trending", "icon_3" -> Res.drawable.icon_3
         "chip", "icon_4" -> Res.drawable.icon_4
-        "shield", "icon_1" -> Res.drawable.icon_1
+        "shield" -> Res.drawable.shield
         "sparkle", "icon_6" -> Res.drawable.icon_6
         else -> Res.drawable.icon_3
     }
