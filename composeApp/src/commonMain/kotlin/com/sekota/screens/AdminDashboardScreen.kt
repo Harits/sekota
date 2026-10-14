@@ -89,7 +89,7 @@ fun AdminDashboardScreen(
     val saveNavigationItemsUseCase = remember { SaveAdminNavigationItemsUseCase(repository) }
 
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Books Registry", "Intelligence Suite", "Merchandise", "Live Metrics", "Value Loop", "Why Sekota", "Client Inquiries", "Footer Management", "AppBar Management")
+    val tabs = listOf("Product Registry", "Brand & Story", "Site Config", "Insights & Feedback")
 
     var currentEnvironment by remember { mutableStateOf(EnvironmentConfigResolver.resolveEnvironment()) }
     var showGuideDialog by remember { mutableStateOf(false) }
@@ -182,15 +182,10 @@ fun AdminDashboardScreen(
                             IconButton(
                                 onClick = {
                                     guideInitialTab = when (selectedTab) {
-                                        0 -> 0 // Books
-                                        1 -> 2 // Intelligence Suite
-                                        2 -> 0 // Merchandise
-                                        3 -> 1 // Metrics/Value
-                                        4 -> 1 // Value Loop
-                                        5 -> 3 // Why Sekota
-                                        6 -> 4 // Contact
-                                        7 -> 5 // Footer
-                                        8 -> 6 // AppBar Navigation
+                                        0 -> 0 // Product Registry (Books/Suite/Merch)
+                                        1 -> 1 // Brand & Story (Value Loop / Why Sekota)
+                                        2 -> 6 // Site Config (AppBar & Footer)
+                                        3 -> 4 // Insights & Feedback
                                         else -> 0
                                     }
                                     showGuideDialog = true
@@ -216,15 +211,25 @@ fun AdminDashboardScreen(
                         .padding(16.dp)
                 ) {
                     when (selectedTab) {
-                        0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth, onActionWithProductionGuard)
-                        1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth, onActionWithProductionGuard)
-                        2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth, onActionWithProductionGuard)
-                        3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth, onActionWithProductionGuard)
-                        4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth, onActionWithProductionGuard)
-                        5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
-                        6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
-                        7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
-                        8 -> AppBarManagementTab(getNavigationItemsUseCase, saveNavigationItemsUseCase, windowWidth, onActionWithProductionGuard)
+                        0 -> com.sekota.screens.cms.ProductRegistryScreen(
+                            getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase,
+                            getProductsUseCase, saveProductUseCase, deleteProductUseCase,
+                            getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
+                            windowWidth, onActionWithProductionGuard
+                        )
+                        1 -> com.sekota.screens.cms.BrandStoryScreen(
+                            getValueLoopUseCase, saveValueLoopUseCase, getWhySekotaUseCase, saveWhySekotaUseCase,
+                            windowWidth, onActionWithProductionGuard
+                        )
+                        2 -> com.sekota.screens.cms.SiteConfigScreen(
+                            getNavigationItemsUseCase, saveNavigationItemsUseCase, getFooterUseCase, saveFooterUseCase,
+                            windowWidth, onActionWithProductionGuard
+                        )
+                        3 -> com.sekota.screens.cms.InsightsFeedbackScreen(
+                            getLiveMetricsUseCase, saveLiveMetricsUseCase, getInquiriesUseCase, deleteInquiryUseCase,
+                            getStrategicConversationUseCase, saveStrategicConversationUseCase,
+                            windowWidth, onActionWithProductionGuard
+                        )
                     }
                 }
 
@@ -385,15 +390,10 @@ fun AdminDashboardScreen(
                             FilledTonalButton(
                                 onClick = {
                                     guideInitialTab = when (selectedTab) {
-                                        0 -> 0 // Books
-                                        1 -> 2 // Intelligence Suite
-                                        2 -> 0 // Merchandise
-                                        3 -> 1 // Metrics/Value
-                                        4 -> 1 // Value Loop
-                                        5 -> 3 // Why Sekota
-                                        6 -> 4 // Contact
-                                        7 -> 5 // Footer
-                                        8 -> 6 // AppBar Navigation
+                                        0 -> 0 // Product Registry
+                                        1 -> 1 // Brand & Story
+                                        2 -> 6 // Site Config
+                                        3 -> 4 // Insights & Feedback
                                         else -> 0
                                     }
                                     showGuideDialog = true
@@ -423,15 +423,25 @@ fun AdminDashboardScreen(
 
                     Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(32.dp)) {
                         when (selectedTab) {
-                            0 -> BooksRegistryTab(getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase, windowWidth, onActionWithProductionGuard)
-                            1 -> IntelligenceSuiteTab(getProductsUseCase, saveProductUseCase, deleteProductUseCase, windowWidth, onActionWithProductionGuard)
-                            2 -> MerchandiseTab(getMerchUseCase, saveMerchUseCase, deleteMerchUseCase, windowWidth, onActionWithProductionGuard)
-                            3 -> LiveMetricsTab(getLiveMetricsUseCase, saveLiveMetricsUseCase, windowWidth, onActionWithProductionGuard)
-                            4 -> ValueLoopTab(getValueLoopUseCase, saveValueLoopUseCase, windowWidth, onActionWithProductionGuard)
-                            5 -> WhySekotaTab(getWhySekotaUseCase, saveWhySekotaUseCase, windowWidth, onActionWithProductionGuard)
-                            6 -> ClientInquiriesTab(getInquiriesUseCase, deleteInquiryUseCase, getStrategicConversationUseCase, saveStrategicConversationUseCase, windowWidth, onActionWithProductionGuard)
-                            7 -> FooterManagementTab(getFooterUseCase, saveFooterUseCase, windowWidth, onActionWithProductionGuard)
-                            8 -> AppBarManagementTab(getNavigationItemsUseCase, saveNavigationItemsUseCase, windowWidth, onActionWithProductionGuard)
+                            0 -> com.sekota.screens.cms.ProductRegistryScreen(
+                                getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase,
+                                getProductsUseCase, saveProductUseCase, deleteProductUseCase,
+                                getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
+                                windowWidth, onActionWithProductionGuard
+                            )
+                            1 -> com.sekota.screens.cms.BrandStoryScreen(
+                                getValueLoopUseCase, saveValueLoopUseCase, getWhySekotaUseCase, saveWhySekotaUseCase,
+                                windowWidth, onActionWithProductionGuard
+                            )
+                            2 -> com.sekota.screens.cms.SiteConfigScreen(
+                                getNavigationItemsUseCase, saveNavigationItemsUseCase, getFooterUseCase, saveFooterUseCase,
+                                windowWidth, onActionWithProductionGuard
+                            )
+                            3 -> com.sekota.screens.cms.InsightsFeedbackScreen(
+                                getLiveMetricsUseCase, saveLiveMetricsUseCase, getInquiriesUseCase, deleteInquiryUseCase,
+                                getStrategicConversationUseCase, saveStrategicConversationUseCase,
+                                windowWidth, onActionWithProductionGuard
+                            )
                         }
                     }
                 }
