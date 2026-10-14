@@ -128,6 +128,43 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22488` [CMS-05-08-02] Implement Network Service, Storage Cache & Fallback Navigation
     - `#22489` [CMS-05-08-03] Decouple AppBar to Dynamic List & Route State Handling
     - `#22490` [CMS-05-08-04] Author Unit Tests, Multi-Item Compose Previews & Styling Verification
+- [ ] **WP-039: [CMS-05-09] - Shared CMS UI Components Standardization & Presentation Decoupling** (OpenProject ID: 22495)
+  - *Description*: Sebagai Developer & Maintainer Sekota CMS, Saya ingin mengekstrak komponen UI repetitif (Form Input, Image Uploader, Action Header, Empty & Loading States) ke package `com.sekota.components.cms` dan menyiapkan kerangka arsitektur kluster CMS modular, Sehingga kompleksitas `AdminDashboardScreen.kt` berkurang drastis, kode komponen dapat digunakan ulang secara konsisten di seluruh cluster, dan mendukung multi-platform responsive preview (Desktop JVM & Android).
+  - *Child Tasks*:
+    - `#22496` [CMS-05-09-01] Extract & Author Reusable Atomic CMS Input & Form Components
+    - `#22497` [CMS-05-09-02] Standardize Multiplatform Image Uploader & Media Preview Component
+    - `#22498` [CMS-05-09-03] Implement CmsActionHeader, Confirmation Bar & Production Safety Wrappers
+    - `#22499` [CMS-05-09-04] Author Multi-State Compose Previews for Reusable CMS Components
+- [ ] **WP-040: [CMS-05-10] - Product Registry (Unified Catalog Workspace)** (OpenProject ID: 22500)
+  - *Description*: Sebagai Administrator / Operator Konten Sekota, Saya ingin mengelola seluruh katalog produk (Buku, Intelligence Suite, dan Merchandise) dalam satu layar terpadu "Product Registry" dengan filter tipe entitas, Sehingga saya tidak perlu berpindah-pindah antar tab terpisah saat mengelola portofolio produk, sementara integritas logika domain masing-masing model (`AdminBook`, `AdminProduct`, `AdminMerch`) tetap terjaga rapi.
+  - *Child Tasks*:
+    - `#22501` [CMS-05-10-01] Design Product Registry Contract & Dedicated ViewModel
+    - `#22502` [CMS-05-10-02] Build ProductRegistryScreen & Filterable Adaptive Grid Layout
+    - `#22503` [CMS-05-10-03] Integrate Dynamic CRUD & Modals (WebMetadata, Suite Editor, Merch Dialog)
+    - `#22504` [CMS-05-10-04] Verify Real-Time Sync Triggers & Author Multi-State Compose Previews
+- [ ] **WP-041: [CMS-05-11] - Brand & Story Workspace (Marketing Narrative Content)** (OpenProject ID: 22505)
+  - *Description*: Sebagai Content Marketing / Tim Narasi Sekota, Saya ingin mengelola seluruh materi komunikasi publik (Why Sekota, Strategic Value Loop 01-05, dan Intelligence Suite Descriptions) dalam satu workspace "Brand & Story", Sehingga narasi merek dan value proposition solusi Sekota dapat dikurasi secara kohesif dalam satu alur kerja tanpa fragmentasi menu.
+  - *Child Tasks*:
+    - `#22506` [CMS-05-11-01] Define BrandStoryContract & Modular ViewModel
+    - `#22507` [CMS-05-11-02] Build BrandStoryScreen with Tabbed / Segmented Narrative Workspaces
+    - `#22508` [CMS-05-11-03] Author Multi-State Desktop Previews & Sync Verification
+- [ ] **WP-042: [CMS-05-12] - Site Configuration & Global Settings Panel** (OpenProject ID: 22509)
+  - *Description*: Sebagai Administrator Sistem Sekota CMS, Saya ingin mengelola pengaturan global situs (Dynamic AppBar Navigation, Global Footer Links, dan Legal/Copyright Policy) di panel terpusat "Site Configuration", Sehingga pembaruan struktur navigasi dan tautan situs dapat dikelola dari satu panel kendali tanpa harus membuka tab terpisah.
+  - *Child Tasks*:
+    - `#22510` [CMS-05-12-01] Create SiteConfigContract & Consolidate Config ViewModels
+    - `#22511` [CMS-05-12-02] Build SiteConfigScreen with Navigation & Footer Sub-Panels
+    - `#22512` [CMS-05-12-03] Desktop Previews & Graceful Fallback Validation
+- [ ] **WP-043: [CMS-05-13] - Insights & Feedback Integrated Dashboard** (OpenProject ID: 22513)
+  - *Description*: Sebagai Administrator / Business Development Sekota, Saya ingin melihat metrik interaksi pembaca (Live Telemetry Metrics) berdampingan dengan daftar pertanyaan prospek (Client Inquiries) pada dashboard "Insights & Feedback", Sehingga tim bisnis dan editorial dapat memperoleh gambaran holistik antara tren keterbacaan konten publik dengan kebutuhan nyata dari calon klien.
+  - *Child Tasks*:
+    - `#22514` [CMS-05-13-01] Create InsightsFeedbackContract & Integrated ViewModel
+    - `#22515` [CMS-05-13-02] Build Dual-Pane InsightsFeedbackScreen Layout
+    - `#22516` [CMS-05-13-03] Author Multi-State Compose Previews & Verify Telemetry Read-Only Invariants
+- [ ] **WP-044: [CMS-05-14] - Refactor & Slim Down AdminDashboardScreen.kt God File** (OpenProject ID: 22517)
+  - *Description*: Sebagai Lead Architect Sekota, Saya ingin merefaktor `AdminDashboardScreen.kt` menjadi root container tipis yang hanya mengelola NavigationRail/Drawer dan routing ke 4 cluster modular, Sehingga ukuran file berkurang >80%, recomposition lebih deterministik, dan bebas dari technical debt "God File".
+  - *Child Tasks*:
+    - `#22518` [CMS-05-14-01] Update CMS NavigationRail & Routing Enums for Clustered Workspaces
+    - `#22519` [CMS-05-14-02] Migrate Legacy Inlined Composables to Feature Screens & Remove Dead Code
 
 ---
 
