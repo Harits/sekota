@@ -48,6 +48,8 @@ class ProductRegistryViewModel(
 
             // Modal Lifecycle
             is ProductRegistryIntent.OpenCreateModal -> handleOpenCreateModal()
+            is ProductRegistryIntent.OpenCreateTypePicker -> _uiState.update { it.copy(activeModal = ActiveModalState.SelectCreateTypeModal(it.selectedFilter)) }
+            is ProductRegistryIntent.OpenBookInfoDialog -> _uiState.update { it.copy(activeModal = ActiveModalState.BookInfoModal) }
             is ProductRegistryIntent.OpenEditBookModal -> handleOpenEditBookModal(intent.book)
             is ProductRegistryIntent.OpenEditProductModal -> handleOpenEditProductModal(intent.product)
             is ProductRegistryIntent.OpenEditMerchModal -> handleOpenEditMerchModal(intent.merch)
@@ -111,14 +113,17 @@ class ProductRegistryViewModel(
 
     private fun handleOpenCreateModal() {
         when (_uiState.value.selectedFilter) {
-            ProductTypeFilter.ALL, ProductTypeFilter.SUITE -> {
+            ProductTypeFilter.ALL -> {
+                _uiState.update { it.copy(activeModal = ActiveModalState.SelectCreateTypeModal(ProductTypeFilter.ALL)) }
+            }
+            ProductTypeFilter.SUITE -> {
                 _uiState.update { it.copy(activeModal = ActiveModalState.SuiteProductModal()) }
             }
             ProductTypeFilter.MERCHANDISE -> {
                 _uiState.update { it.copy(activeModal = ActiveModalState.MerchModal()) }
             }
             ProductTypeFilter.BOOKS -> {
-                _effect.trySend(ProductRegistryEffect.ShowToast("Katalog buku dikelola oleh sistem telemetri"))
+                _uiState.update { it.copy(activeModal = ActiveModalState.BookInfoModal) }
             }
         }
     }
@@ -193,6 +198,8 @@ class ProductRegistryViewModel(
             is ActiveModalState.BookMetadataModal -> saveBookMetadata(modal)
             is ActiveModalState.SuiteProductModal -> saveSuiteProduct(modal)
             is ActiveModalState.MerchModal -> saveMerch(modal)
+            is ActiveModalState.SelectCreateTypeModal,
+            ActiveModalState.BookInfoModal,
             ActiveModalState.None -> Unit
         }
     }

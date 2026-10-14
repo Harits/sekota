@@ -64,6 +64,9 @@ sealed interface ActiveModalState {
         val validationError: String? = null
     ) : ActiveModalState
 
+    data class SelectCreateTypeModal(val filterHint: ProductTypeFilter = ProductTypeFilter.ALL) : ActiveModalState
+    data object BookInfoModal : ActiveModalState
+
     data class SuiteProductModal(
         val editingProductId: String? = null,
         val name: String = "",
@@ -136,6 +139,8 @@ sealed interface ProductRegistryIntent {
 
     // Modal Lifecycle
     data object OpenCreateModal : ProductRegistryIntent
+    data object OpenCreateTypePicker : ProductRegistryIntent
+    data object OpenBookInfoDialog : ProductRegistryIntent
     data class OpenEditBookModal(val book: AdminBook) : ProductRegistryIntent
     data class OpenEditProductModal(val product: AdminProduct) : ProductRegistryIntent
     data class OpenEditMerchModal(val merch: AdminMerch) : ProductRegistryIntent

@@ -28,6 +28,8 @@ import com.sekota.components.cms.CmsImageUploader
 import com.sekota.components.cms.CmsInputField
 import com.sekota.components.cms.CmsInkNavy
 import com.sekota.features.admin.domain.model.AdminBook
+import com.sekota.features.admin.domain.model.AdminMerch
+import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.getDmSansFontFamily
 import com.sekota.getMontserratFontFamily
@@ -113,6 +115,248 @@ fun ProductRegistryContent(
     windowWidth: WindowWidth = WindowWidth.Expanded,
     onIntent: (ProductRegistryIntent) -> Unit
 ) {
+    // 0a. Modal Pemilihan Tipe Entitas Baru (Anti-Confusion Modal)
+    if (state.activeModal is ActiveModalState.SelectCreateTypeModal) {
+        AlertDialog(
+            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
+            title = {
+                Text(
+                    text = "Pilih Jenis Item Katalog",
+                    fontFamily = getMontserratFontFamily(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = CmsInkNavy
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Silakan tentukan jenis entitas katalog yang ingin ditambahkan ke Sekota Platform:",
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+
+                    // Option 1: Intelligence Suite Module
+                    Surface(
+                        onClick = {
+                            onIntent(ProductRegistryIntent.OpenEditProductModal(AdminProduct(
+                                id = "", code = "", name = "", categoryEyebrow = "Enterprise", description = "", features = emptyList()
+                            )))
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        color = Color(0xFFF8FAFC),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFF3E8FF),
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("⚙️", fontSize = 20.sp)
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Intelligence Suite Module",
+                                    fontFamily = getMontserratFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = CmsInkNavy
+                                )
+                                Text(
+                                    text = "Modul perangkat lunak analitik, platform intelijen, atau solusi SaaS kota cerdas.",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+
+                    // Option 2: Merchandise Item
+                    Surface(
+                        onClick = {
+                            onIntent(ProductRegistryIntent.OpenEditMerchModal(AdminMerch(
+                                id = "", title = "", category = "Apparel", seriesName = "The Urban Collaborator", price = 0.0, rating = 0.0
+                            )))
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        color = Color(0xFFF8FAFC),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFFEF3C7),
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("👕", fontSize = 20.sp)
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Merchandise",
+                                    fontFamily = getMontserratFontFamily(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = CmsInkNavy
+                                )
+                                Text(
+                                    text = "Produk apparel, aksesoris, atau cinderamata resmi Sekota Series.",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+
+                    // Option 3: Buku / Publikasi (Info Guardrail)
+                    Surface(
+                        onClick = {
+                            onIntent(ProductRegistryIntent.OpenBookInfoDialog)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        color = Color(0xFFF0FDF4),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFE0F2FE),
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text("📖", fontSize = 20.sp)
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        text = "Buku / Publikasi Riset",
+                                        fontFamily = getMontserratFontFamily(),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = CmsInkNavy
+                                    )
+                                    Surface(
+                                        color = Color(0xFFE2E8F0),
+                                        shape = RoundedCornerShape(4.dp)
+                                    ) {
+                                        Text(
+                                            text = "Info",
+                                            fontFamily = getDmSansFontFamily(),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF475569),
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "Identitas & rilis buku dikelola via sistem telemetri (klik untuk detail info).",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = Color(0xFF0369A1)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { onIntent(ProductRegistryIntent.DismissModal) }) {
+                    Text("Tutup", fontFamily = getDmSansFontFamily(), color = Color.Gray)
+                }
+            }
+        )
+    }
+
+    // 0b. Modal Penjelasan Buku Tidak Bisa Ditambah dari CMS (Telemetry Protocol Info)
+    if (state.activeModal is ActiveModalState.BookInfoModal) {
+        AlertDialog(
+            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("ℹ️", fontSize = 20.sp)
+                    Text(
+                        text = "Informasi Katalog Buku",
+                        fontFamily = getMontserratFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = CmsInkNavy
+                    )
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Surface(
+                        color = Color(0xFFE0F2FE),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Buku tidak dapat ditambahkan langsung secara manual dari form CMS ini.",
+                            fontFamily = getDmSansFontFamily(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = Color(0xFF0369A1),
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+
+                    Text(
+                        text = "Sesuai Standar Protokol Integritas Telemetri Sekota (Rule 6):\n\n" +
+                               "1. Identitas buku, ISBN, data pembaca terdaftar, dan rating bintang dihitung secara otomatis oleh Telemetry Engine.\n\n" +
+                               "2. CMS Admin Workbench hanya berfungsi untuk memperkaya Web Metadata (Kategori, Sinopsis, Link PDF Reader, Estimasi Waktu Baca, Jumlah Halaman, dan Daftar Bab).\n\n" +
+                               "3. Untuk mengedit metadata tampilan web buku yang sudah ada, gunakan tombol 'Edit Web Metadata' pada kartu buku di bawah.",
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 12.sp,
+                        color = Color(0xFF334155),
+                        lineHeight = 18.sp
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onIntent(ProductRegistryIntent.DismissModal) },
+                    colors = ButtonDefaults.buttonColors(containerColor = CmsBrandTeal),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text("Saya Mengerti", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
     // 1. Modal Book Web Metadata Editor
     if (state.activeModal is ActiveModalState.BookMetadataModal) {
         val modal = state.activeModal
@@ -379,8 +623,18 @@ fun ProductRegistryContent(
             title = "Product Registry",
             subtitle = "Repositori terpadu katalog buku (${state.books.size}), intelligence suite (${state.products.size}), dan merchandise (${state.merchList.size}).",
             windowWidth = windowWidth,
-            actionLabel = if (state.selectedFilter == ProductTypeFilter.BOOKS) null else "Tambah Item",
-            onAction = { onIntent(ProductRegistryIntent.OpenCreateModal) },
+            actionLabel = when (state.selectedFilter) {
+                ProductTypeFilter.ALL -> "+ Tambah Item"
+                ProductTypeFilter.SUITE -> "+ Tambah Suite Module"
+                ProductTypeFilter.MERCHANDISE -> "+ Tambah Merchandise"
+                ProductTypeFilter.BOOKS -> "ℹ️ Info Katalog Buku"
+            },
+            onAction = {
+                when (state.selectedFilter) {
+                    ProductTypeFilter.BOOKS -> onIntent(ProductRegistryIntent.OpenBookInfoDialog)
+                    else -> onIntent(ProductRegistryIntent.OpenCreateModal)
+                }
+            },
             secondaryLabel = "Refresh Data",
             onSecondaryAction = { onIntent(ProductRegistryIntent.Refresh) }
         )
