@@ -8,7 +8,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
  * Platform-agnostic file picker for selecting an image file.
  * Returns the data URI / Base64 string of the selected image.
  */
-expect fun selectAndReadImageFile(onFileRead: (String) -> Unit)
+expect fun selectAndReadImageFile(onFileRead: (String) -> Unit, onCancel: () -> Unit = {})
 
 /**
  * Platform-agnostic image decoder for Compose Multiplatform.

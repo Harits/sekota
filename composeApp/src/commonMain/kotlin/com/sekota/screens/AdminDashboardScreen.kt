@@ -3,6 +3,7 @@ package com.sekota.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
@@ -1252,9 +1253,11 @@ fun IntelligenceSuiteTab(
                     ) {
                         Button(
                             onClick = {
-                                selectAndReadImageFile { base64Data ->
-                                    prodIconUrlOrBase64 = base64Data
-                                }
+                                selectAndReadImageFile(
+                                    onFileRead = { base64Data ->
+                                        prodIconUrlOrBase64 = base64Data
+                                    }
+                                )
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = BrandTeal.copy(alpha = 0.15f))
                         ) {
@@ -1782,7 +1785,11 @@ fun LiveMetricsTab(
         establishedYear = metrics.establishedYear
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         WorkbenchHeader(
             title = "Live Metrics Editor",
             subtitle = "Konfigurasi angka metrik yang tampil langsung pada Hero & Trust section Landing Page",
@@ -1941,6 +1948,7 @@ fun ClientInquiriesTab(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
                 .padding(top = 16.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -4080,7 +4088,9 @@ fun AppBarManagementTab(
             },
             text = {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     dialogError?.let {

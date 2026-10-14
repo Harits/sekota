@@ -79,10 +79,15 @@ fun CmsImageUploader(
                 .clickable(enabled = !isReadOnly && !isUploading) {
                     isUploading = true
                     try {
-                        selectAndReadImageFile { base64Data ->
-                            onImageSelected(base64Data)
-                            isUploading = false
-                        }
+                        selectAndReadImageFile(
+                            onFileRead = { base64Data ->
+                                onImageSelected(base64Data)
+                                isUploading = false
+                            },
+                            onCancel = {
+                                isUploading = false
+                            }
+                        )
                     } catch (e: Exception) {
                         isUploading = false
                     }
@@ -101,20 +106,37 @@ fun CmsImageUploader(
                     )
 
                     if (!isReadOnly) {
-                        Surface(
-                            color = Color.Black.copy(alpha = 0.55f),
-                            shape = RoundedCornerShape(20.dp),
+                        Row(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .padding(10.dp)
+                                .padding(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Text(
-                                text = "Ganti Gambar",
-                                fontFamily = getDmSansFontFamily(),
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
+                            Surface(
+                                color = Color.Red.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(20.dp),
+                                modifier = Modifier.clickable { onImageSelected("") }
+                            ) {
+                                Text(
+                                    text = "Hapus",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                            Surface(
+                                color = Color.Black.copy(alpha = 0.65f),
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Text(
+                                    text = "Ganti Gambar",
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
                         }
                     }
                 } else {

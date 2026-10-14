@@ -15,7 +15,7 @@ actual fun decodeImageToBitmap(bytes: ByteArray): ImageBitmap? {
     }
 }
 
-actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
+actual fun selectAndReadImageFile(onFileRead: (String) -> Unit, onCancel: () -> Unit) {
     // Run file chooser in a background thread so it does not block the Skiko FlushCoroutineDispatcher / AWT EventQueue
     Thread {
         try {
@@ -37,9 +37,16 @@ actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
                 javax.swing.SwingUtilities.invokeLater {
                     onFileRead("data:$mimeType;base64,$base64String")
                 }
+            } else {
+                javax.swing.SwingUtilities.invokeLater {
+                    onCancel()
+                }
             }
         } catch (e: Exception) {
             println("Desktop Image Pick Error: ${e.message}")
+            javax.swing.SwingUtilities.invokeLater {
+                onCancel()
+            }
         }
     }.start()
 }

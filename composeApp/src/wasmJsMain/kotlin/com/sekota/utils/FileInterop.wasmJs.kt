@@ -18,12 +18,14 @@ actual fun decodeImageToBitmap(bytes: ByteArray): ImageBitmap? {
 }
 
 @OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
-actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
+actual fun selectAndReadImageFile(onFileRead: (String) -> Unit, onCancel: () -> Unit) {
     val fileInput = document.createElement("input") as HTMLInputElement
     fileInput.type = "file"
     fileInput.accept = "image/*"
 
+    var handled = false
     fileInput.addEventListener("change", { _: Event ->
+        handled = true
         val file = fileInput.files?.get(0)
         if (file != null) {
             val reader = FileReader()
@@ -31,8 +33,18 @@ actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
                 val base64 = reader.result.toString()
                 onFileRead(base64)
             }
+            reader.onerror = {
+                onCancel()
+            }
             reader.readAsDataURL(file)
+        } else {
+            onCancel()
         }
+    })
+
+    fileInput.addEventListener("cancel", { _: Event ->
+        handled = true
+        onCancel()
     })
 
     fileInput.click()

@@ -3,7 +3,9 @@ package com.sekota.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,11 +35,14 @@ fun ProductionActionConfirmationDialog(
             tonalElevation = 6.dp,
             border = BorderStroke(1.5.dp, if (isCriticalDelete) Color(0xFFEF5350) else Color(0xFFFFB74D)),
             modifier = Modifier
-                .widthIn(min = 340.dp, max = 480.dp)
+                .fillMaxWidth(0.92f)
+                .widthIn(max = 480.dp)
                 .padding(16.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Surface(

@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +46,8 @@ fun ContentMappingGuideDialog(
             tonalElevation = 8.dp,
             border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
             modifier = Modifier
-                .widthIn(min = 600.dp, max = 800.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 800.dp)
                 .heightIn(max = 680.dp)
                 .padding(16.dp)
         ) {
@@ -93,9 +95,11 @@ fun ContentMappingGuideDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Section Tabs Row
+                // Section Tabs Row (Responsive with Horizontal Scroll)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     sectionNames.forEachIndexed { idx, name ->

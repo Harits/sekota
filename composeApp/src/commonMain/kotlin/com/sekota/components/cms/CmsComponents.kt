@@ -67,6 +67,11 @@ fun CmsInputField(
             singleLine = isSingleLine,
             minLines = minLines,
             maxLines = maxLines,
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontFamily = getDmSansFontFamily(),
+                fontSize = 13.sp,
+                color = CmsInkNavy
+            ),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = CmsBrandTeal,

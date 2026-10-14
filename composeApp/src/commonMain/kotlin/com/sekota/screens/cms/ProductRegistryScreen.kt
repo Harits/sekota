@@ -3,7 +3,7 @@ package com.sekota.screens.cms
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,19 +28,15 @@ import com.sekota.components.cms.CmsImageUploader
 import com.sekota.components.cms.CmsInputField
 import com.sekota.components.cms.CmsInkNavy
 import com.sekota.features.admin.domain.model.AdminBook
-import com.sekota.features.admin.domain.model.AdminMerch
-import com.sekota.features.admin.domain.model.AdminProduct
-import com.sekota.features.admin.domain.model.AdminWhatsInsideItem
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.getDmSansFontFamily
 import com.sekota.getMontserratFontFamily
-import com.sekota.syncService
 import com.sekota.ui.WindowWidth
 import com.sekota.utils.decodeBase64ToBitmap
-import kotlinx.coroutines.launch
 
 /**
  * Product Registry: Unified Catalog Workspace consolidating Books, Intelligence Suite, and Merchandise.
+ * Powered by MVI ProductRegistryViewModel.
  */
 @Composable
 fun ProductRegistryScreen(
@@ -60,91 +55,69 @@ fun ProductRegistryScreen(
     onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
-
-    var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
-    var categories by remember { mutableStateOf<List<String>>(emptyList()) }
-    var products by remember { mutableStateOf<List<AdminProduct>>(emptyList()) }
-    var merchList by remember { mutableStateOf<List<AdminMerch>>(emptyList()) }
-
-    var selectedFilter by remember { mutableStateOf(ProductTypeFilter.ALL) }
-    var searchQuery by remember { mutableStateOf("") }
-
-    // Dialog state for Book Web Metadata
-    var showBookDialog by remember { mutableStateOf(false) }
-    var targetBook by remember { mutableStateOf<AdminBook?>(null) }
-    var bookCategory by remember { mutableStateOf("") }
-    var bookDescription by remember { mutableStateOf("") }
-    var bookPdfUrl by remember { mutableStateOf("") }
-    var bookReadingTime by remember { mutableStateOf("") }
-    var bookPages by remember { mutableStateOf("") }
-    var bookYear by remember { mutableStateOf("") }
-    var bookLanguage by remember { mutableStateOf("") }
-    var bookPublishedDate by remember { mutableStateOf("") }
-    var bookWhatsInside by remember { mutableStateOf<List<AdminWhatsInsideItem>>(emptyList()) }
-    var bookError by remember { mutableStateOf<String?>(null) }
-
-    // Dialog state for Product (Suite)
-    var showProductDialog by remember { mutableStateOf(false) }
-    var editingProductId by remember { mutableStateOf<String?>(null) }
-    var productName by remember { mutableStateOf("") }
-    var productCode by remember { mutableStateOf("") }
-    var productEyebrow by remember { mutableStateOf("Enterprise") }
-    var productDesc by remember { mutableStateOf("") }
-    var productCoverImage by remember { mutableStateOf("") }
-    var productFeaturesText by remember { mutableStateOf("") }
-    var productError by remember { mutableStateOf<String?>(null) }
-
-    // Dialog state for Merchandise
-    var showMerchDialog by remember { mutableStateOf(false) }
-    var editingMerchId by remember { mutableStateOf<String?>(null) }
-    var merchTitle by remember { mutableStateOf("") }
-    var merchCategory by remember { mutableStateOf("Apparel") }
-    var merchSeriesName by remember { mutableStateOf("The Urban Collaborator") }
-    var merchPrice by remember { mutableStateOf("") }
-    var merchImageUrl by remember { mutableStateOf("") }
-    var merchError by remember { mutableStateOf<String?>(null) }
-
-    fun refreshData() {
-        scope.launch {
-            books = getBooksUseCase()
-            categories = getCategoriesUseCase()
-            products = getProductsUseCase()
-            merchList = getMerchUseCase()
-        }
+    val viewModel = remember(
+        getBooksUseCase, saveBookUseCase, getCategoriesUseCase,
+        getProductsUseCase, saveProductUseCase, deleteProductUseCase,
+        getMerchUseCase, saveMerchUseCase, deleteMerchUseCase
+    ) {
+        ProductRegistryViewModel(
+            getBooksUseCase, saveBookUseCase, getCategoriesUseCase,
+            getProductsUseCase, saveProductUseCase, deleteProductUseCase,
+            getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
+            scope
+        )
     }
 
-    LaunchedEffect(Unit) {
-        refreshData()
-    }
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val registryItems = remember(books, products, merchList, selectedFilter, searchQuery) {
-        val list = mutableListOf<RegistryItem>()
-        if (selectedFilter == ProductTypeFilter.ALL || selectedFilter == ProductTypeFilter.BOOKS) {
-            list.addAll(books.map { RegistryItem.Book(it) })
-        }
-        if (selectedFilter == ProductTypeFilter.ALL || selectedFilter == ProductTypeFilter.SUITE) {
-            list.addAll(products.map { RegistryItem.SuiteProduct(it) })
-        }
-        if (selectedFilter == ProductTypeFilter.ALL || selectedFilter == ProductTypeFilter.MERCHANDISE) {
-            list.addAll(merchList.map { RegistryItem.Merch(it) })
-        }
-        if (searchQuery.isNotBlank()) {
-            val q = searchQuery.trim().lowercase()
-            list.filter {
-                it.title.lowercase().contains(q) ||
-                        it.subtitle.lowercase().contains(q) ||
-                        it.category.lowercase().contains(q)
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ProductRegistryEffect.ShowToast -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+                is ProductRegistryEffect.RequestProductionGuard -> {
+                    if (onActionWithProductionGuard != null) {
+                        onActionWithProductionGuard(
+                            effect.actionName,
+                            effect.entityName,
+                            effect.isCriticalDelete,
+                            effect.executeAction
+                        )
+                    } else {
+                        effect.executeAction()
+                    }
+                }
             }
-        } else {
-            list
         }
     }
 
-    // Modal Book Web Metadata Editor
-    if (showBookDialog && targetBook != null) {
-        val b = targetBook!!
+    Box(modifier = Modifier.fillMaxSize()) {
+        ProductRegistryContent(
+            state = state,
+            windowWidth = windowWidth,
+            onIntent = { viewModel.onIntent(it) }
+        )
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+        )
+    }
+}
+
+@Composable
+fun ProductRegistryContent(
+    state: ProductRegistryState,
+    windowWidth: WindowWidth = WindowWidth.Expanded,
+    onIntent: (ProductRegistryIntent) -> Unit
+) {
+    // 1. Modal Book Web Metadata Editor
+    if (state.activeModal is ActiveModalState.BookMetadataModal) {
+        val modal = state.activeModal
         AlertDialog(
-            onDismissRequest = { showBookDialog = false; targetBook = null },
+            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
             title = {
                 Column {
                     Text(
@@ -155,7 +128,7 @@ fun ProductRegistryScreen(
                         color = CmsInkNavy
                     )
                     Text(
-                        text = b.title,
+                        text = modal.targetBook.title,
                         fontFamily = getDmSansFontFamily(),
                         fontSize = 12.sp,
                         color = Color.Gray
@@ -167,77 +140,70 @@ fun ProductRegistryScreen(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    bookError?.let {
+                    modal.validationError?.let {
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     CmsInputField(
-                        value = bookCategory,
-                        onValueChange = { bookCategory = it; bookError = null },
+                        value = modal.category,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookCategory(it)) },
                         label = "Kategori Buku"
                     )
 
                     CmsInputField(
-                        value = bookDescription,
-                        onValueChange = { bookDescription = it },
+                        value = modal.description,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookDescription(it)) },
                         label = "Sinopsis & Deskripsi",
                         isSingleLine = false,
                         minLines = 3
                     )
 
                     CmsInputField(
-                        value = bookPdfUrl,
-                        onValueChange = { bookPdfUrl = it },
+                        value = modal.pdfUrl,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookPdfUrl(it)) },
                         label = "PDF Reader URL"
                     )
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         CmsInputField(
-                            value = bookReadingTime,
-                            onValueChange = { bookReadingTime = it },
+                            value = modal.readingTime,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookReadingTime(it)) },
                             label = "Estimasi Baca",
                             modifier = Modifier.weight(1f)
                         )
                         CmsInputField(
-                            value = bookPages,
-                            onValueChange = { bookPages = it },
+                            value = modal.pages,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookPages(it)) },
                             label = "Jumlah Hal",
                             modifier = Modifier.weight(1f)
                         )
                     }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CmsInputField(
+                            value = modal.year,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookYear(it)) },
+                            label = "Tahun Terbit",
+                            modifier = Modifier.weight(1f)
+                        )
+                        CmsInputField(
+                            value = modal.language,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookLanguage(it)) },
+                            label = "Bahasa",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    CmsInputField(
+                        value = modal.publishedDate,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookPublishedDate(it)) },
+                        label = "Tanggal Rilis (e.g. 12 Januari 2026)"
+                    )
                 }
             },
             confirmButton = {
                 Button(
-                    onClick = {
-                        val performSave = {
-                            val updated = b.copy(
-                                category = bookCategory.trim(),
-                                description = bookDescription.trim(),
-                                pdfUrl = bookPdfUrl.trim().ifBlank { null },
-                                readingTime = bookReadingTime.trim(),
-                                pages = bookPages.trim().toIntOrNull() ?: b.pages,
-                                year = bookYear.trim(),
-                                language = bookLanguage.trim(),
-                                publishedDate = bookPublishedDate.trim(),
-                                whatsInside = bookWhatsInside
-                            )
-                            scope.launch {
-                                saveBookUseCase(updated)
-                                syncService.triggerLocalUpdate()
-                                refreshData()
-                                showBookDialog = false
-                            }
-                        }
-
-                        if (onActionWithProductionGuard != null) {
-                            onActionWithProductionGuard("Simpan Metadata Web Buku", b.title, false) {
-                                performSave()
-                            }
-                        } else {
-                            performSave()
-                        }
-                    },
+                    onClick = { onIntent(ProductRegistryIntent.SaveActiveModal) },
                     colors = ButtonDefaults.buttonColors(containerColor = CmsBrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
@@ -245,20 +211,21 @@ fun ProductRegistryScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showBookDialog = false }) {
+                TextButton(onClick = { onIntent(ProductRegistryIntent.DismissModal) }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
         )
     }
 
-    // Modal Product Suite Editor
-    if (showProductDialog) {
+    // 2. Modal Product Suite Editor
+    if (state.activeModal is ActiveModalState.SuiteProductModal) {
+        val modal = state.activeModal
         AlertDialog(
-            onDismissRequest = { showProductDialog = false },
+            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
             title = {
                 Text(
-                    text = if (editingProductId == null) "Tambah Intelligence Module" else "Edit Intelligence Module",
+                    text = if (modal.editingProductId == null) "Tambah Intelligence Module" else "Edit Intelligence Module",
                     fontFamily = getMontserratFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
@@ -270,89 +237,53 @@ fun ProductRegistryScreen(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    productError?.let {
+                    modal.validationError?.let {
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     CmsInputField(
-                        value = productName,
-                        onValueChange = { productName = it; productError = null },
+                        value = modal.name,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductName(it)) },
                         label = "Nama Produk"
                     )
 
                     CmsInputField(
-                        value = productCode,
-                        onValueChange = { productCode = it; productError = null },
+                        value = modal.code,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductCode(it)) },
                         label = "Kode Produk"
                     )
 
                     CmsInputField(
-                        value = productEyebrow,
-                        onValueChange = { productEyebrow = it },
+                        value = modal.categoryEyebrow,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductEyebrow(it)) },
                         label = "Category Eyebrow"
                     )
 
                     CmsInputField(
-                        value = productDesc,
-                        onValueChange = { productDesc = it },
+                        value = modal.description,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductDescription(it)) },
                         label = "Deskripsi Solusi",
                         isSingleLine = false,
                         minLines = 3
                     )
 
                     CmsInputField(
-                        value = productFeaturesText,
-                        onValueChange = { productFeaturesText = it },
+                        value = modal.featuresText,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductFeaturesText(it)) },
                         label = "Fitur Utama (Pisahkan dengan koma)",
                         placeholder = "e.g. Analytics, AI Forecast, Edge IoT"
                     )
 
                     CmsImageUploader(
-                        imageBase64 = productCoverImage,
-                        onImageSelected = { productCoverImage = it },
+                        imageBase64 = modal.coverImageBase64,
+                        onImageSelected = { onIntent(ProductRegistryIntent.UpdateProductCoverImage(it)) },
                         label = "Icon / Cover Modul Intelligence"
                     )
                 }
             },
             confirmButton = {
                 Button(
-                    onClick = {
-                        if (productName.isBlank() || productCode.isBlank()) {
-                            productError = "Nama dan Kode produk tidak boleh kosong"
-                            return@Button
-                        }
-                        val performSave = {
-                            val id = editingProductId ?: "p-${kotlin.random.Random.nextInt(1000, 9999)}"
-                            val feats = productFeaturesText.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                            val prod = AdminProduct(
-                                id = id,
-                                code = productCode.trim().uppercase(),
-                                name = productName.trim(),
-                                categoryEyebrow = productEyebrow.trim(),
-                                description = productDesc.trim(),
-                                features = feats,
-                                iconUrlOrBase64 = productCoverImage.ifBlank { null }
-                            )
-                            scope.launch {
-                                saveProductUseCase(prod)
-                                syncService.triggerLocalUpdate()
-                                refreshData()
-                                showProductDialog = false
-                            }
-                        }
-
-                        if (onActionWithProductionGuard != null) {
-                            onActionWithProductionGuard(
-                                if (editingProductId == null) "Tambah Produk" else "Edit Produk",
-                                productName.trim(),
-                                false
-                            ) {
-                                performSave()
-                            }
-                        } else {
-                            performSave()
-                        }
-                    },
+                    onClick = { onIntent(ProductRegistryIntent.SaveActiveModal) },
                     colors = ButtonDefaults.buttonColors(containerColor = CmsBrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
@@ -360,20 +291,21 @@ fun ProductRegistryScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showProductDialog = false }) {
+                TextButton(onClick = { onIntent(ProductRegistryIntent.DismissModal) }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
         )
     }
 
-    // Modal Merchandise Editor
-    if (showMerchDialog) {
+    // 3. Modal Merchandise Editor
+    if (state.activeModal is ActiveModalState.MerchModal) {
+        val modal = state.activeModal
         AlertDialog(
-            onDismissRequest = { showMerchDialog = false },
+            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
             title = {
                 Text(
-                    text = if (editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise",
+                    text = if (modal.editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise",
                     fontFamily = getMontserratFontFamily(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
@@ -385,84 +317,48 @@ fun ProductRegistryScreen(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    merchError?.let {
+                    modal.validationError?.let {
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
                     CmsInputField(
-                        value = merchTitle,
-                        onValueChange = { merchTitle = it; merchError = null },
-                        label = "Nama Item"
+                        value = modal.title,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchTitle(it)) },
+                        label = "Nama Produk Merchandise"
                     )
 
-                    CmsInputField(
-                        value = merchCategory,
-                        onValueChange = { merchCategory = it },
-                        label = "Kategori Merchandise"
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CmsInputField(
+                            value = modal.category,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchCategory(it)) },
+                            label = "Kategori",
+                            modifier = Modifier.weight(1f)
+                        )
+                        CmsInputField(
+                            value = modal.seriesName,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchSeriesName(it)) },
+                            label = "Nama Series",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
                     CmsInputField(
-                        value = merchSeriesName,
-                        onValueChange = { merchSeriesName = it },
-                        label = "Nama Seri / Koleksi"
-                    )
-
-                    CmsInputField(
-                        value = merchPrice,
-                        onValueChange = { merchPrice = it; merchError = null },
-                        label = "Harga ($ USD)"
+                        value = modal.price,
+                        onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchPrice(it)) },
+                        label = "Harga (USD)",
+                        placeholder = "e.g. 29.99"
                     )
 
                     CmsImageUploader(
-                        imageBase64 = merchImageUrl,
-                        onImageSelected = { merchImageUrl = it },
-                        label = "Foto Merchandise"
+                        imageBase64 = modal.imageBase64,
+                        onImageSelected = { onIntent(ProductRegistryIntent.UpdateMerchImage(it)) },
+                        label = "Foto Produk Merchandise"
                     )
                 }
             },
             confirmButton = {
                 Button(
-                    onClick = {
-                        val price = merchPrice.toDoubleOrNull()
-                        if (merchTitle.isBlank()) {
-                            merchError = "Nama item tidak boleh kosong"
-                            return@Button
-                        }
-                        if (price == null || price <= 0.0) {
-                            merchError = "Harga harus berupa angka valid lebih dari 0"
-                            return@Button
-                        }
-                        val performSave = {
-                            val id = editingMerchId ?: "m-${kotlin.random.Random.nextInt(1000, 9999)}"
-                            val m = AdminMerch(
-                                id = id,
-                                title = merchTitle.trim(),
-                                category = merchCategory.trim(),
-                                seriesName = merchSeriesName.trim(),
-                                price = price,
-                                rating = 5.0,
-                                imageUrl = merchImageUrl.ifBlank { null }
-                            )
-                            scope.launch {
-                                saveMerchUseCase(m)
-                                syncService.triggerLocalUpdate()
-                                refreshData()
-                                showMerchDialog = false
-                            }
-                        }
-
-                        if (onActionWithProductionGuard != null) {
-                            onActionWithProductionGuard(
-                                if (editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise",
-                                merchTitle.trim(),
-                                false
-                            ) {
-                                performSave()
-                            }
-                        } else {
-                            performSave()
-                        }
-                    },
+                    onClick = { onIntent(ProductRegistryIntent.SaveActiveModal) },
                     colors = ButtonDefaults.buttonColors(containerColor = CmsBrandTeal),
                     shape = RoundedCornerShape(50)
                 ) {
@@ -470,7 +366,7 @@ fun ProductRegistryScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showMerchDialog = false }) {
+                TextButton(onClick = { onIntent(ProductRegistryIntent.DismissModal) }) {
                     Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
                 }
             }
@@ -481,64 +377,54 @@ fun ProductRegistryScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         CmsActionHeader(
             title = "Product Registry",
-            subtitle = "Repositori terpadu katalog buku (${books.size}), intelligence suite (${products.size}), dan merchandise (${merchList.size}).",
+            subtitle = "Repositori terpadu katalog buku (${state.books.size}), intelligence suite (${state.products.size}), dan merchandise (${state.merchList.size}).",
             windowWidth = windowWidth,
-            actionLabel = "Tambah Item",
-            onAction = {
-                when (selectedFilter) {
-                    ProductTypeFilter.ALL, ProductTypeFilter.SUITE -> {
-                        editingProductId = null
-                        productName = ""
-                        productCode = ""
-                        productEyebrow = "Enterprise"
-                        productDesc = ""
-                        productCoverImage = ""
-                        productFeaturesText = ""
-                        showProductDialog = true
-                    }
-                    ProductTypeFilter.MERCHANDISE -> {
-                        editingMerchId = null
-                        merchTitle = ""
-                        merchCategory = "Apparel"
-                        merchSeriesName = "The Urban Collaborator"
-                        merchPrice = ""
-                        merchImageUrl = ""
-                        showMerchDialog = true
-                    }
-                    ProductTypeFilter.BOOKS -> {
-                        // Invariant: Book identity is managed by telemetry/bookinteractiontool
-                    }
-                }
-            },
+            actionLabel = if (state.selectedFilter == ProductTypeFilter.BOOKS) null else "Tambah Item",
+            onAction = { onIntent(ProductRegistryIntent.OpenCreateModal) },
             secondaryLabel = "Refresh Data",
-            onSecondaryAction = { refreshData() }
+            onSecondaryAction = { onIntent(ProductRegistryIntent.Refresh) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Responsive Filter Bar & Search Box (Rule 11: Zero Collision & Adaptive Layout)
+        // Responsive Filter Bar & Search Box
         if (windowWidth.isCompact) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { Text("Cari produk, buku, atau kategori...", fontSize = 12.sp) },
+                    value = state.searchQuery,
+                    onValueChange = { onIntent(ProductRegistryIntent.SetSearchQuery(it)) },
+                    placeholder = {
+                        Text(
+                            text = "Cari produk, buku, atau kategori...",
+                            fontFamily = getDmSansFontFamily(),
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 13.sp,
+                        color = CmsInkNavy
+                    ),
                     singleLine = true,
                     shape = RoundedCornerShape(50),
-                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
+                // Responsive Horizontal Scroll on mobile to prevent chip collision
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     ProductTypeFilter.values().forEach { filter ->
                         FilterChip(
-                            selected = selectedFilter == filter,
-                            onClick = { selectedFilter = filter },
+                            selected = state.selectedFilter == filter,
+                            onClick = { onIntent(ProductRegistryIntent.SetFilter(filter)) },
                             label = {
                                 Text(
                                     text = filter.title.replace("Registry", "").replace("Intelligence ", "").trim(),
@@ -563,8 +449,8 @@ fun ProductRegistryScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ProductTypeFilter.values().forEach { filter ->
                         FilterChip(
-                            selected = selectedFilter == filter,
-                            onClick = { selectedFilter = filter },
+                            selected = state.selectedFilter == filter,
+                            onClick = { onIntent(ProductRegistryIntent.SetFilter(filter)) },
                             label = {
                                 Text(
                                     text = filter.title,
@@ -581,8 +467,8 @@ fun ProductRegistryScreen(
                 }
 
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    value = state.searchQuery,
+                    onValueChange = { onIntent(ProductRegistryIntent.SetSearchQuery(it)) },
                     placeholder = {
                         Text(
                             text = "Cari produk atau buku...",
@@ -605,8 +491,9 @@ fun ProductRegistryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Unified Adaptive Grid
-        if (registryItems.isEmpty()) {
+        // Unified Adaptive Grid with 280dp minSize for optimal mobile and medium layouts
+        val items = state.filteredItems
+        if (items.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = "Tidak ada entitas yang sesuai dengan filter/pencarian.",
@@ -617,87 +504,28 @@ fun ProductRegistryScreen(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 320.dp),
+                columns = GridCells.Adaptive(minSize = 280.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(registryItems, key = { it.id }) { item ->
+                items(items, key = { it.id }) { item ->
                     RegistryCardItem(
                         item = item,
                         onEdit = {
                             when (item) {
-                                is RegistryItem.Book -> {
-                                    targetBook = item.book
-                                    bookCategory = item.book.category
-                                    bookDescription = item.book.description
-                                    bookPdfUrl = item.book.pdfUrl ?: ""
-                                    bookReadingTime = item.book.readingTime
-                                    bookPages = item.book.pages.toString()
-                                    bookYear = item.book.year
-                                    bookLanguage = item.book.language
-                                    bookPublishedDate = item.book.publishedDate
-                                    bookWhatsInside = item.book.whatsInside
-                                    showBookDialog = true
-                                }
-                                is RegistryItem.SuiteProduct -> {
-                                    editingProductId = item.product.id
-                                    productName = item.product.name
-                                    productCode = item.product.code
-                                    productEyebrow = item.product.categoryEyebrow
-                                    productDesc = item.product.description
-                                    productCoverImage = item.product.iconUrlOrBase64 ?: ""
-                                    productFeaturesText = item.product.features.joinToString(", ")
-                                    showProductDialog = true
-                                }
-                                is RegistryItem.Merch -> {
-                                    editingMerchId = item.merch.id
-                                    merchTitle = item.merch.title
-                                    merchCategory = item.merch.category
-                                    merchSeriesName = item.merch.seriesName
-                                    merchPrice = item.merch.price.toString()
-                                    merchImageUrl = item.merch.imageUrl ?: ""
-                                    showMerchDialog = true
-                                }
+                                is RegistryItem.Book -> onIntent(ProductRegistryIntent.OpenEditBookModal(item.book))
+                                is RegistryItem.SuiteProduct -> onIntent(ProductRegistryIntent.OpenEditProductModal(item.product))
+                                is RegistryItem.Merch -> onIntent(ProductRegistryIntent.OpenEditMerchModal(item.merch))
                             }
                         },
                         onDelete = {
                             when (item) {
                                 is RegistryItem.Book -> {
-                                    // Read-only invariant: Book identity cannot be deleted manually by CMS operator
+                                    // Invariant: Book identity is telemetry-managed
                                 }
-                                is RegistryItem.SuiteProduct -> {
-                                    val performDelete = {
-                                        scope.launch {
-                                            deleteProductUseCase(item.product.id)
-                                            syncService.triggerLocalUpdate()
-                                            refreshData()
-                                        }
-                                    }
-                                    if (onActionWithProductionGuard != null) {
-                                        onActionWithProductionGuard("Hapus Modul Suite", item.product.name, true) {
-                                            performDelete()
-                                        }
-                                    } else {
-                                        performDelete()
-                                    }
-                                }
-                                is RegistryItem.Merch -> {
-                                    val performDelete = {
-                                        scope.launch {
-                                            deleteMerchUseCase(item.merch.id)
-                                            syncService.triggerLocalUpdate()
-                                            refreshData()
-                                        }
-                                    }
-                                    if (onActionWithProductionGuard != null) {
-                                        onActionWithProductionGuard("Hapus Merchandise", item.merch.title, true) {
-                                            performDelete()
-                                        }
-                                    } else {
-                                        performDelete()
-                                    }
-                                }
+                                is RegistryItem.SuiteProduct -> onIntent(ProductRegistryIntent.RequestDeleteProduct(item.product))
+                                is RegistryItem.Merch -> onIntent(ProductRegistryIntent.RequestDeleteMerch(item.merch))
                             }
                         }
                     )
@@ -877,5 +705,17 @@ fun ProductRegistryPreview() {
                 onDelete = {}
             )
         }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductRegistryEmptyPreview() {
+    MaterialTheme {
+        ProductRegistryContent(
+            state = ProductRegistryState(),
+            windowWidth = WindowWidth.Expanded,
+            onIntent = {}
+        )
     }
 }
