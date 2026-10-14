@@ -260,17 +260,16 @@ private fun FooterContent(
                     title = companyTitle,
                     items = visibleCompany,
                     onItemClick = { item ->
-                        when (item.urlOrCode.uppercase()) {
-                            "EBOOK", "CATALOG" -> onNavigate(Screen.Catalog)
-                            "MERCH", "MERCHANDISE" -> onNavigate(Screen.Merchandise)
-                            "CONTACT", "KONTAK" -> onKontakClick()
-                            else -> {
-                                if (item.urlOrCode.startsWith("http://") || item.urlOrCode.startsWith("https://")) {
-                                    try { uriHandler.openUri(item.urlOrCode) } catch (_: Exception) {}
-                                } else {
-                                    onNavigate(Screen.Landing)
-                                }
+                        when (val dest = com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(item.urlOrCode)) {
+                            is com.sekota.features.navigation.domain.model.AppDestination.Catalog -> onNavigate(Screen.Catalog)
+                            is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> onNavigate(Screen.Merchandise)
+                            is com.sekota.features.navigation.domain.model.AppDestination.KontakSection -> onKontakClick()
+                            is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection -> onNavigate(Screen.Landing)
+                            is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection -> onNavigate(Screen.Landing)
+                            is com.sekota.features.navigation.domain.model.AppDestination.External -> {
+                                try { uriHandler.openUri(dest.url) } catch (_: Exception) {}
                             }
+                            else -> onNavigate(Screen.Landing)
                         }
                     },
                     labelTransformer = ::resolveItemLabel
@@ -327,17 +326,16 @@ private fun FooterContent(
                         title = companyTitle,
                         items = visibleCompany,
                         onItemClick = { item ->
-                            when (item.urlOrCode.uppercase()) {
-                                "EBOOK", "CATALOG" -> onNavigate(Screen.Catalog)
-                                "MERCH", "MERCHANDISE" -> onNavigate(Screen.Merchandise)
-                                "CONTACT", "KONTAK" -> onKontakClick()
-                                else -> {
-                                    if (item.urlOrCode.startsWith("http://") || item.urlOrCode.startsWith("https://")) {
-                                        try { uriHandler.openUri(item.urlOrCode) } catch (_: Exception) {}
-                                    } else {
-                                        onNavigate(Screen.Landing)
-                                    }
+                            when (val dest = com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(item.urlOrCode)) {
+                                is com.sekota.features.navigation.domain.model.AppDestination.Catalog -> onNavigate(Screen.Catalog)
+                                is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> onNavigate(Screen.Merchandise)
+                                is com.sekota.features.navigation.domain.model.AppDestination.KontakSection -> onKontakClick()
+                                is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection -> onNavigate(Screen.Landing)
+                                is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection -> onNavigate(Screen.Landing)
+                                is com.sekota.features.navigation.domain.model.AppDestination.External -> {
+                                    try { uriHandler.openUri(dest.url) } catch (_: Exception) {}
                                 }
+                                else -> onNavigate(Screen.Landing)
                             }
                         },
                         labelTransformer = ::resolveItemLabel

@@ -96,36 +96,37 @@ fun Navbar(
     }
 
     val handleNavClick: (String) -> Unit = { route ->
-        val cleanRoute = route.trim()
-        when {
-            cleanRoute == "#solusi" || cleanRoute == "solusi" -> onSolusiClick()
-            cleanRoute == "#produk" || cleanRoute == "produk" -> onProdukClick()
-            cleanRoute == "#kontak" || cleanRoute == "kontak" -> onKontakClick()
-            cleanRoute == "/catalog" || cleanRoute == "catalog" || cleanRoute == "#catalog" -> onNavigate(Screen.Catalog)
-            cleanRoute == "/merchandise" || cleanRoute == "merchandise" || cleanRoute == "#merchandise" -> onNavigate(Screen.Merchandise)
-            cleanRoute == "/profile" || cleanRoute == "profile" -> onNavigate(Screen.Profile)
-            cleanRoute == "/login" || cleanRoute == "login" -> onNavigate(Screen.Login)
-            cleanRoute == "/" || cleanRoute == "#beranda" || cleanRoute == "home" -> onNavigate(Screen.Landing)
-            else -> onNavigate(Screen.Landing)
+        when (val dest = com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(route)) {
+            is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection -> onSolusiClick()
+            is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection -> onProdukClick()
+            is com.sekota.features.navigation.domain.model.AppDestination.KontakSection -> onKontakClick()
+            is com.sekota.features.navigation.domain.model.AppDestination.Catalog -> onNavigate(Screen.Catalog)
+            is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> onNavigate(Screen.Merchandise)
+            is com.sekota.features.navigation.domain.model.AppDestination.Profile -> onNavigate(Screen.Profile)
+            is com.sekota.features.navigation.domain.model.AppDestination.Login -> onNavigate(Screen.Login)
+            is com.sekota.features.navigation.domain.model.AppDestination.Signup -> onNavigate(Screen.Signup)
+            is com.sekota.features.navigation.domain.model.AppDestination.Admin -> onNavigate(Screen.Admin)
+            is com.sekota.features.navigation.domain.model.AppDestination.Landing -> onNavigate(Screen.Landing)
+            is com.sekota.features.navigation.domain.model.AppDestination.External -> {}
+            is com.sekota.features.navigation.domain.model.AppDestination.Unknown -> onNavigate(Screen.Landing)
         }
     }
 
     val isRouteActive: (String) -> Boolean = { route ->
-        val cleanRoute = route.trim().lowercase()
-        when {
-            cleanRoute == "#solusi" || cleanRoute == "solusi" ->
+        when (com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(route)) {
+            is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection ->
                 currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.SOLUSI
-            cleanRoute == "#produk" || cleanRoute == "produk" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection ->
                 currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.PRODUK
-            cleanRoute == "#kontak" || cleanRoute == "kontak" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.KontakSection ->
                 currentScreen == Screen.Landing && activeLandingSection == NavbarActiveSection.KONTAK
-            cleanRoute == "/catalog" || cleanRoute == "catalog" || cleanRoute == "#catalog" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.Catalog ->
                 currentScreen == Screen.Catalog
-            cleanRoute == "/merchandise" || cleanRoute == "merchandise" || cleanRoute == "#merchandise" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.Merchandise ->
                 currentScreen == Screen.Merchandise
-            cleanRoute == "/profile" || cleanRoute == "profile" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.Profile ->
                 currentScreen == Screen.Profile
-            cleanRoute == "/login" || cleanRoute == "login" ->
+            is com.sekota.features.navigation.domain.model.AppDestination.Login ->
                 currentScreen == Screen.Login
             else -> false
         }
