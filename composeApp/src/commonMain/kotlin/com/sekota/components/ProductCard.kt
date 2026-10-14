@@ -41,6 +41,7 @@ fun ProductCard(
     // is much narrower than a full-bleed compact card and needs a shorter cover.
     cardHeight: androidx.compose.ui.unit.Dp = 520.dp,
     coverHeight: androidx.compose.ui.unit.Dp = 340.dp,
+    placeholderIcon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     val bitmap: ImageBitmap? = remember(imageUrlOrBase64) {
@@ -84,7 +85,11 @@ fun ProductCard(
                             modifier = Modifier.size(68.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                SekotaApparelVectorIcon(size = 36.dp, tint = Color.White)
+                                if (placeholderIcon != null) {
+                                    placeholderIcon()
+                                } else {
+                                    BookEditionVectorIcon(size = 36.dp, tint = Color.White)
+                                }
                             }
                         }
                     }

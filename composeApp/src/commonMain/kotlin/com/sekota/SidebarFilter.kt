@@ -28,6 +28,7 @@ import sekota.composeapp.generated.resources.magnifying_glass
 fun SidebarFilter(
     onNavigate: (Screen) -> Unit,
     isMerchandise: Boolean = false,
+    isMerchandiseVisible: Boolean = true,
     searchQuery: String = "",
     onSearchChange: (String) -> Unit = {},
     selectedSort: String = "Newest",
@@ -93,8 +94,8 @@ fun SidebarFilter(
             onClick = onConsultationClick
         )
 
-        if (!isMerchandise) {
-            // Promo 2: Executive Presence (only for E-Books to lead to Merchandise)
+        if (!isMerchandise && isMerchandiseVisible) {
+            // Promo 2: Executive Presence (only for E-Books when Merchandise is enabled in SiteConfig)
             PromoBox(
                 title = "Executive Presence",
                 description = "Lebih dari Sekadar Merchandise, Ini Adalah Pesan Strategis.",

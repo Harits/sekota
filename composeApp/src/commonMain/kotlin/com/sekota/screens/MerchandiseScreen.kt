@@ -254,6 +254,9 @@ fun MerchContent(
                             imageUrlOrBase64 = item.imageUrl,
                             cardHeight = if (columns >= 3) 520.dp else 480.dp,
                             coverHeight = if (columns >= 3) 340.dp else 300.dp,
+                            placeholderIcon = {
+                                com.sekota.components.SekotaApparelVectorIcon(size = 36.dp, tint = Color.White)
+                            },
                             modifier = Modifier.weight(1f),
                             onClick = { 
                                 if (isLoggedIn) {

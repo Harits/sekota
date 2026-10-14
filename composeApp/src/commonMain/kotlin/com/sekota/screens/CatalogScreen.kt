@@ -38,19 +38,35 @@ fun CatalogScreen(
     val repository = remember { AdminRepositoryImpl() }
     val getBooksUseCase = remember { GetAdminBooksUseCase(repository) }
     val getCategoriesUseCase = remember { com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase(repository) }
+    val getNavigationItemsUseCase = remember { com.sekota.features.admin.domain.usecase.GetAdminNavigationItemsUseCase(repository) }
     var books by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
     var categories by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isMerchandiseVisible by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedSort by remember { mutableStateOf("Newest") }
     var selectedOptions by remember { mutableStateOf(listOf("All")) }
     var selectedYears by remember { mutableStateOf(listOf("2025")) }
 
     LaunchedEffect(Unit) {
+        val checkMerchVisibility: suspend () -> Unit = {
+            val navItems = getNavigationItemsUseCase()
+            val merchItem = navItems.find { item ->
+                when (com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(item.route)) {
+                    is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> true
+                    else -> false
+                }
+            }
+            isMerchandiseVisible = merchItem?.isVisible ?: true
+        }
+
         books = getBooksUseCase()
         categories = getCategoriesUseCase()
+        checkMerchVisibility()
+
         syncService.syncEventFlow.collect {
             books = getBooksUseCase()
             categories = getCategoriesUseCase()
+            checkMerchVisibility()
         }
     }
 
@@ -93,6 +109,7 @@ fun CatalogScreen(
                             modifier = Modifier.fillMaxWidth(),
                             onNavigate = onNavigate,
                             isMerchandise = false,
+                            isMerchandiseVisible = isMerchandiseVisible,
                             searchQuery = searchQuery,
                             onSearchChange = { searchQuery = it },
                             selectedSort = selectedSort,
@@ -117,6 +134,7 @@ fun CatalogScreen(
                         SidebarFilter(
                             onNavigate = onNavigate,
                             isMerchandise = false,
+                            isMerchandiseVisible = isMerchandiseVisible,
                             searchQuery = searchQuery,
                             onSearchChange = { searchQuery = it },
                             selectedSort = selectedSort,
