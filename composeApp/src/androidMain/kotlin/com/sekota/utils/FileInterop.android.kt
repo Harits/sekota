@@ -12,6 +12,6 @@ actual fun decodeImageToBitmap(bytes: ByteArray): ImageBitmap? {
     }
 }
 
-actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
+actual fun selectAndReadImageFile(onFileRead: (String) -> Unit, onCancel: () -> Unit) {
     // Android image selection can be hooked to Activity Result launcher if needed
 }
