@@ -114,5 +114,15 @@ trigger: always_on
       1. Perbarui seluruh child tasks terlebih dahulu dengan `startDate`, `dueDate`, `percentageDone = 100`, dan status Closed (`/api/v3/statuses/12`).
       2. Perbarui parent User Story HANYA dengan `lockVersion`, status Closed (`/api/v3/statuses/12`), dan `comment` ringkasan jurnal.
 
+19. **Centralized Domain Navigation & Sync Payload Invariants**:
+    - **Domain Navigation Intent Decoupling**:
+      - Composable UI components (`Navbar.kt`, `Footer.kt`, Drawer/Dialogs) DILARANG keras melakukan matching string URL langsung (seperti `route == "/merchandise"`) atau token teks opaque (seperti `urlOrCode == "MERCH"`).
+      - Seluruh penanganan navigasi wajib mengalir melalui domain sealed class `AppDestination` (`Landing`, `SolusiSection`, `ProdukSection`, `KontakSection`, `Catalog`, `Merchandise`, `Login`, `Profile`, dll.) dan dievaluasi via `NavigationRouter.parseDestination(rawRouteOrCode)`.
+    - **Bi-Directional Route Mapping**:
+      - Pemetaan intent domain ke URL hash atau web route dikelola terpusat di `NavigationRouter.getRoute(destination)` sehingga perubahan skema URL tidak mengubah kode Composable UI.
+    - **Sync Server Payload Completeness Invariant**:
+      - Setiap kali entitas baru ditambahkan ke CMS (seperti `navigationItems`, `footerConfig`, `valueLoopConfig`), endpoint `GET /api/v1/sync` dan `POST /api/v1/sync` pada `CmsSyncServer.kt` WAJIB menyertakan entitas tersebut di dalam `SyncDataPayload`.
+      - Web reader polling dilarang keras menimpa state lokal dengan nilai canonical default akibat ketiadaan field pada payload sinkronisasi.
+
 
 
