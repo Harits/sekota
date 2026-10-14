@@ -77,16 +77,14 @@ fun CmsImageUploader(
                 .aspectRatio(aspectRatio)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable(enabled = !isReadOnly && !isUploading) {
-                    scope.launch {
-                        isUploading = true
-                        try {
-                            selectAndReadImageFile { base64Data ->
-                                onImageSelected(base64Data)
-                                isUploading = false
-                            }
-                        } catch (e: Exception) {
+                    isUploading = true
+                    try {
+                        selectAndReadImageFile { base64Data ->
+                            onImageSelected(base64Data)
                             isUploading = false
                         }
+                    } catch (e: Exception) {
+                        isUploading = false
                     }
                 }
         ) {

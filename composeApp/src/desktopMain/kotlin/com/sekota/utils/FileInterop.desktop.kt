@@ -16,25 +16,30 @@ actual fun decodeImageToBitmap(bytes: ByteArray): ImageBitmap? {
 }
 
 actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
-    val fileChooser = JFileChooser().apply {
-        fileFilter = FileNameExtensionFilter("Image files", "png", "jpg", "jpeg", "gif", "webp")
-        dialogTitle = "Pilih Gambar"
-    }
-    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+    // Run file chooser in a background thread so it does not block the Skiko FlushCoroutineDispatcher / AWT EventQueue
+    Thread {
         try {
-            val file = fileChooser.selectedFile
-            val bytes = file.readBytes()
-            val base64String = Base64.getEncoder().encodeToString(bytes)
-            val ext = file.extension.lowercase()
-            val mimeType = when (ext) {
-                "png" -> "image/png"
-                "gif" -> "image/gif"
-                "webp" -> "image/webp"
-                else -> "image/jpeg"
+            val fileChooser = JFileChooser().apply {
+                fileFilter = FileNameExtensionFilter("Image files", "png", "jpg", "jpeg", "gif", "webp")
+                dialogTitle = "Pilih Gambar"
             }
-            onFileRead("data:$mimeType;base64,$base64String")
+            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                val file = fileChooser.selectedFile
+                val bytes = file.readBytes()
+                val base64String = Base64.getEncoder().encodeToString(bytes)
+                val ext = file.extension.lowercase()
+                val mimeType = when (ext) {
+                    "png" -> "image/png"
+                    "gif" -> "image/gif"
+                    "webp" -> "image/webp"
+                    else -> "image/jpeg"
+                }
+                javax.swing.SwingUtilities.invokeLater {
+                    onFileRead("data:$mimeType;base64,$base64String")
+                }
+            }
         } catch (e: Exception) {
             println("Desktop Image Pick Error: ${e.message}")
         }
-    }
+    }.start()
 }
