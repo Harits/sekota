@@ -73,9 +73,11 @@ trigger: always_on
     - Wajib menggunakan `GridCells.Adaptive(minSize = 280.dp .. 320.dp)` untuk mendukung multi-form factor (Desktop, Tablet, Mobile) tanpa pemotongan isi kartu atau horizontal overflow.
 
 12. **MVI Presentation Architecture & Idiomatic Pure KMP Dependency Injection**:
-    - **Single Source of Truth**: Seluruh state navigasi layar, pill aktif, target dialog auth, dan seleksi entitas wajib dikelola secara terpusat oleh MVI `NavigationCoordinator` via `StateFlow<NavigationState>`.
-    - **Intent-Driven UI Interactions**: Komponen UI dilarang melakukan mutasi state navigasi secara langsung. Setiap interaksi pengguna (klik navbar, CTA Hero, navigasi detail produk/buku, request konsultasi) wajib dipancarkan sebagai `NavigationIntent` melalui `NavigationCoordinator.processIntent(...)`.
-    - **Buffered Side-Effect Channel**: Efek samping navigasi satu kali jalan (seperti request scroll ke section tertentu saat berpindah layar) wajib dialirkan melalui `Channel<NavigationEffect>(Channel.BUFFERED)` untuk menjamin eksekusi deterministik setelah layar target selesai di-mount.
+    - **Single Source of Truth**: Seluruh state navigasi layar publik maupun workspace kompleks di CMS (seperti `ProductRegistryScreen`) wajib dikelola secara terpusat menggunakan pola MVI:
+      - **State**: Data class immutable tunggal (misal `ProductRegistryState`) yang memodelkan seluruh daftar entitas, filter aktif, query pencarian, status loading, dan sealed interface modal aktif (`ActiveModalState: None | BookMetadataModal | SuiteProductModal | MerchModal`) untuk mencegah benturan atau kebocoran state antar-modal.
+      - **Intent**: Sealed interface aksi pengguna (misal `ProductRegistryIntent` atau `NavigationIntent`) untuk seluruh mutasi, pergantian filter, input field form, dan aksi CRUD. UI dilarang memutasikan state secara langsung.
+      - **Side-Effect Channel**: Efek samping satu kali jalan (seperti Snackbar toast atau interceptor dialog konfirmasi production guard) dialirkan melalui `Channel<Effect>(Channel.BUFFERED)`.
+      - **ViewModel**: Dedicated ViewModel mengelola `StateFlow<State>` dan memancarkan efek, memisahkan logika bisnis dari Composable rendering.
     - **Lightweight Idiomatic DI Container**: Dependency injection pada level client KMP diimplementasikan menggunakan `AppContainer` murni berbasis `by lazy` instantiations untuk Service, Repository, UseCase, dan Coordinator. HINDARI overhead library DI eksternal yang menambah ukuran bundle Wasm.
 
 13. **Landing Page & Public Section Horizontal Alignment Standard**:
@@ -89,5 +91,15 @@ trigger: always_on
     - **CMS Workbench Management**: Seluruh kolom tautan (Produk, Perusahaan, Legal), sosial media, tagline, afiliasi, dan hak cipta dikelola melalui modul "Footer Content Management" di CMS tanpa perlu re-deploy kode sumber.
     - **Multi-Language Dynamic Resolution**: Pergantian bahasa via Language Switcher (`BAHASA INDONESIA` / `ENGLISH`) wajib menerjemahkan judul kolom, label navigasi standar, tagline, dan copyright secara dinamis melalui kamus lokal tanpa hardcoding statis terpisah.
     - **Resilience & Graceful Fallback**: Komponen Footer wajib dilengkapi penanganan error/fallback bawaan canonical `FooterConfig()` agar tata letak halaman utama tidak rusak (*zero broken layout*) ketika koneksi sinkronisasi terputus.
+
+15. **Desktop AWT / Swing Interoperability & Non-Blocking Coroutine Invariant**:
+    - **Zero-Block Skiko Dispatcher**: Dialog modal berbasis Swing/AWT (seperti `JFileChooser`, `JOptionPane`, atau `JColorChooser`) DILARANG KERAS dipanggil secara sinkron di dalam coroutine thread Skiko (`Dispatchers.Main` / `FlushCoroutineDispatcher`). Pemanggilan modal sinkron akan memblokir AWT event queue dan merusak coroutine continuation machinery (`Fatal exception in coroutines machinery for DispatchedContinuation`).
+    - **Background Thread Offload**: Operasi dialog file picker wajib di-offload ke background thread (`Thread { ... }.start()`) dan hasilnya dikembalikan ke thread UI secara aman via `SwingUtilities.invokeLater`.
+    - **Explicit Cancellation & Error Recovery**: File picker lintas platform (`FileInterop`) wajib menyediakan callback `onCancel: () -> Unit` (atau memanggil callback dengan nilai null) agar indikator loading / progress spinner (`isUploading`) dapat di-reset deterministik saat operator membatalkan dialog.
+
+16. **CMS Workbench Responsive Dialog & Form Layout Standards**:
+    - **Zero Screen Edge Collision on Compact**: Seluruh baris chip filter, switcher subtab pill, dan action bar di CMS wajib dilengkapi `.horizontalScroll(rememberScrollState())` ketika dirender pada layar compact (`windowWidth.isCompact` / <600dp) untuk mencegah terpotongnya elemen UI di tepi layar.
+    - **Mandatory Keyboard-Safe Vertical Scroll in Dialogs**: Seluruh modal dialog CMS (`AlertDialog`, `Dialog`, form editor) WAJIB membungkus isi form di dalam `Modifier.verticalScroll(rememberScrollState())`. Hal ini mencegah tombol konfirmasi/batal dan input field bawah terpotong saat keyboard virtual (IME) mobile terbuka atau pada orientasi landscape.
+    - **Dialog Responsive Width Bounds**: Dialog kustom dilarang menggunakan `minWidth` hardcoded besar (seperti `min = 600.dp`). Wajib menggunakan lebar responsif dengan batas maksimum (`Modifier.fillMaxWidth(0.92f .. 0.95f).widthIn(max = ...dp)`).
 
 
