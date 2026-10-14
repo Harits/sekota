@@ -20,6 +20,7 @@ node_modules/
 **/.env
 yarn.lock
 web-dist/
+.artifacts
 
 # Local agent skills (keep repo-native sekota-workflow tracked)
 .agents/skills/*
