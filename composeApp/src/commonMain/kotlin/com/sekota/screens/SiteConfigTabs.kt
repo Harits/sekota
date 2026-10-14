@@ -331,6 +331,38 @@ fun AppBarManagementTab(
                                         )
                                     }
 
+                                    // Quick Toggle Visibility
+                                    IconButton(
+                                        onClick = {
+                                            val updated = items.map {
+                                                if (it.id == item.id) it.copy(isVisible = !it.isVisible) else it
+                                            }
+                                            val executeToggle: () -> Unit = {
+                                                scope.launch {
+                                                    val res = saveNavigationItemsUseCase(updated)
+                                                    if (res.isSuccess) {
+                                                        items = res.getOrThrow()
+                                                        val stateText = if (!item.isVisible) "ditampilkan" else "disembunyikan"
+                                                        statusFeedback = CmsStatusFeedback.success("Item '${item.label}' berhasil $stateText pada AppBar.")
+                                                        syncService.triggerLocalUpdate()
+                                                    }
+                                                }
+                                            }
+                                            if (onActionWithProductionGuard != null) {
+                                                onActionWithProductionGuard("Ubah Visibilitas Navigasi", item.label, false, executeToggle)
+                                            } else {
+                                                executeToggle()
+                                            }
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        if (item.isVisible) {
+                                            com.sekota.components.SekotaEyeVectorIcon(size = 18.dp, tint = InkNavy)
+                                        } else {
+                                            com.sekota.components.SekotaEyeOffVectorIcon(size = 18.dp, tint = Color(0xFFF43F5E))
+                                        }
+                                    }
+
                                     // Edit
                                     OutlinedButton(
                                         onClick = {

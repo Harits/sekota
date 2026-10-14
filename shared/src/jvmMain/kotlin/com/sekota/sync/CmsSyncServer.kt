@@ -55,6 +55,7 @@ object CmsSyncServer {
                                 whySekota = repository.getWhySekota(),
                                 contactConfig = repository.getStrategicConversation(),
                                 footerConfig = repository.getFooter(),
+                                navigationItems = repository.getNavigationItems(),
                                 version = versionCounter.get()
                             )
                         }
@@ -79,6 +80,7 @@ object CmsSyncServer {
                             storage.saveWhySekotaJson(json.encodeToString(payload.whySekota))
                             storage.saveContactConfigJson(json.encodeToString(payload.contactConfig))
                             storage.saveFooterConfigJson(json.encodeToString(payload.footerConfig))
+                            storage.saveNavigationItemsJson(json.encodeToString(payload.navigationItems))
                             versionCounter.incrementAndGet()
                             exchange.sendResponseHeaders(200, -1)
                         } catch (e: Exception) {
