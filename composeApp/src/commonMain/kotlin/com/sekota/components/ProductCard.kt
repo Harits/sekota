@@ -72,27 +72,19 @@ fun ProductCard(
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                } else if (!imageUrlOrBase64.isNullOrBlank() && imageUrlOrBase64.length < 10) {
-                    // Render emoji icon like 👕 or ☕
-                    Text(text = imageUrlOrBase64, fontSize = 64.sp)
                 } else {
-                    // Fallback sleek placeholder
+                    // Fallback sleek vector placeholder
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             color = Color.White.copy(alpha = 0.2f),
-                            modifier = Modifier.size(64.dp)
+                            modifier = Modifier.size(68.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = if (title.isNotBlank()) title.take(1).uppercase() else "✦",
-                                    fontSize = 28.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
+                                SekotaApparelVectorIcon(size = 36.dp, tint = Color.White)
                             }
                         }
                     }
@@ -190,8 +182,7 @@ fun ProductCardCustomButtonPreview() {
             title = "Sekota Ceramic Mug - Edition 01",
             authorOrSubtitle = "LIMITED MERCHANDISE",
             rating = 5.0,
-            buttonText = "Order Now",
-            imageUrlOrBase64 = "☕"
+            buttonText = "Order Now"
         ) {}
     }
 }
@@ -209,8 +200,7 @@ fun ProductCardDarkBackgroundPreview() {
                 title = "Sekota Signature Hoodie",
                 authorOrSubtitle = "APPAREL & MERCH",
                 rating = 4.7,
-                buttonText = "View Details",
-                imageUrlOrBase64 = "👕"
+                buttonText = "View Details"
             ) {}
         }
     }

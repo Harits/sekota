@@ -194,14 +194,14 @@ private fun FooterContent(
                 }
                 if (visibleSocials.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(24.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         visibleSocials.forEach { social ->
-                            Text(
-                                text = social.platform.uppercase(),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF94A3B8),
-                                fontFamily = getDmSansFontFamily(),
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 modifier = Modifier
                                     .pointerHoverIcon(PointerIcon.Hand)
                                     .clickable {
@@ -209,7 +209,20 @@ private fun FooterContent(
                                             try { uriHandler.openUri(social.url) } catch (_: Exception) {}
                                         }
                                     }
-                            )
+                            ) {
+                                com.sekota.components.SekotaSocialVectorIcon(
+                                    platform = social.platform,
+                                    size = 14.dp,
+                                    tint = Color(0xFF94A3B8)
+                                )
+                                Text(
+                                    text = social.platform.uppercase(),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF94A3B8),
+                                    fontFamily = getDmSansFontFamily()
+                                )
+                            }
                         }
                     }
                 }

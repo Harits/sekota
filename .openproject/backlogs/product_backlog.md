@@ -166,6 +166,13 @@ This file contains the high-level roadmap, user stories, and architectural bound
     - `#22518` [CMS-05-14-01] Update CMS NavigationRail & Routing Enums for Clustered Workspaces
     - `#22519` [CMS-05-14-02] Migrate Legacy Inlined Composables to Feature Screens & Remove Dead Code
 
+- [ ] **WP-045: [UI-05-15] - Type-Safe Icon System, Resource Migration & Raw Emoji Deprecation** (OpenProject ID: 22522)
+  - *Description*: Sebagai Pengguna & Pengembang Sekota Web, Saya ingin memigrasikan seluruh icon hardcoded, raw emoji, dan literal karakter teks ke sistem icon berbasis Compose Resource (Res.drawable) dan native vector mappers, Sehingga identitas visual tampil tajam, konsisten, dan profesional di semua platform (Desktop JVM, Android, dan Web Wasm) tanpa risiko glyph rusak atau tampilan emoji yang berbeda antar-sistem operasi.
+  - *Child Tasks*:
+    - `#22523` [UI-05-15-01] Provision Missing Action & UI Vector Drawables in composeResources
+    - `#22524` [UI-05-15-02] Refactor CMS Modals, Action Buttons & Feedback Banners
+    - `#22525` [UI-05-15-03] Migrate Glyphs & Fallback Emojis in ProductCard & Reader Screens
+
 ---
 
 

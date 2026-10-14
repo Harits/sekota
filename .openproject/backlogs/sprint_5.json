@@ -799,6 +799,61 @@
       "percentageDone": 100,
       "startDate": "2026-07-04",
       "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-045",
+      "opId": 22522,
+      "subject": "[UI-05-15] Type-Safe Icon System, Resource Migration & Raw Emoji Deprecation",
+      "type": "User story",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Sebagai Pengguna & Pengembang Sekota Web, Saya ingin memigrasikan seluruh icon hardcoded, raw emoji, dan literal karakter teks ke sistem icon berbasis Compose Resource (Res.drawable) dan native vector mappers, Sehingga identitas visual tampil tajam, konsisten, dan profesional di semua platform (Desktop JVM, Android, dan Web Wasm) tanpa risiko glyph rusak atau tampilan emoji yang berbeda antar-sistem operasi.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-045-1",
+      "opId": 22523,
+      "parentId": 22522,
+      "subject": "[UI-05-15-01] Provision Missing Action & UI Vector Drawables in composeResources",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Menambahkan XML vector drawables untuk Save, Add, Refresh, Close, Merchandise Apparel, dan social link icons ke dalam composeApp/src/commonMain/composeResources/drawable/ serta membuat helper centralized icon resolver.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-045-2",
+      "opId": 22524,
+      "parentId": 22522,
+      "subject": "[UI-05-15-02] Refactor CMS Modals, Action Buttons & Feedback Banners",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Membersihkan raw emoji dari tombol modal di ProductRegistryScreen, action button label di BrandStoryTabs dan SiteConfigTabs, serta menstandarisasi deteksi feedback banner dari emoji string prefix ke structured status model.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
+    },
+    {
+      "localId": "WP-045-3",
+      "opId": 22525,
+      "parentId": 22522,
+      "subject": "[UI-05-15-03] Migrate Glyphs & Fallback Emojis in ProductCard & Reader Screens",
+      "type": "Task",
+      "status": "Closed",
+      "lockVersion": 1,
+      "description": "Mengganti fallback emoji dan simbol Unicode (panah kembali di ProductDetailsScreen, tombol tutup di ContentMappingGuideDialog, dan glyph di ProductCard) dengan Compose vector icons dan Res.drawable resmi.",
+      "assignee": "Harits Suherman",
+      "percentageDone": 100,
+      "startDate": "2026-07-04",
+      "dueDate": "2026-07-04"
     }
   ]
 }

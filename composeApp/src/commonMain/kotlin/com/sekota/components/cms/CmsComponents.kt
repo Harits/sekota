@@ -160,8 +160,6 @@ fun CmsActionHeader(
                     shape = RoundedCornerShape(50),
                     modifier = if (isCompact) Modifier.weight(1f) else Modifier
                 ) {
-                    Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = actionLabel,
                         fontFamily = getDmSansFontFamily(),
@@ -192,6 +190,55 @@ fun CmsActionHeader(
             if (actionLabel != null || secondaryLabel != null) {
                 actions(Modifier)
             }
+        }
+    }
+}
+
+/**
+ * Structured Status Feedback Model eliminating string-based success/error branching.
+ */
+data class CmsStatusFeedback(
+    val isSuccess: Boolean,
+    val message: String
+) {
+    companion object {
+        fun success(message: String) = CmsStatusFeedback(isSuccess = true, message = message)
+        fun error(message: String) = CmsStatusFeedback(isSuccess = false, message = message)
+    }
+}
+
+/**
+ * Standardized Status Feedback Banner for CMS workspaces.
+ */
+@Composable
+fun CmsStatusBanner(
+    feedback: CmsStatusFeedback?,
+    modifier: Modifier = Modifier
+) {
+    if (feedback == null) return
+    Surface(
+        color = if (feedback.isSuccess) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, if (feedback.isSuccess) Color(0xFFA5D6A7) else Color(0xFFFFCDD2)),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            if (feedback.isSuccess) {
+                com.sekota.components.SekotaCheckmarkVectorIcon(size = 18.dp, tint = Color(0xFF2E7D32))
+            } else {
+                com.sekota.components.SekotaWarningVectorIcon(size = 18.dp, tint = Color(0xFFC62828))
+            }
+            Text(
+                text = feedback.message,
+                fontFamily = getDmSansFontFamily(),
+                color = if (feedback.isSuccess) Color(0xFF2E7D32) else Color(0xFFC62828),
+                fontSize = 13.sp,
+                lineHeight = 18.sp
+            )
         }
     }
 }

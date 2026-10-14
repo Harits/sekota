@@ -331,6 +331,134 @@ fun SekotaExitVectorIcon(
     }
 }
 
+@Composable
+fun SekotaSaveVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color.White,
+    modifier: Modifier = Modifier
+) {
+    val savePath = remember {
+        PathParser().parsePathString("M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(savePath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaRefreshVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = InkNavy,
+    modifier: Modifier = Modifier
+) {
+    val refreshPath = remember {
+        PathParser().parsePathString("M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(refreshPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaCloseVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFF64748B),
+    modifier: Modifier = Modifier
+) {
+    val closePath = remember {
+        PathParser().parsePathString("M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(closePath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaPlusVectorIcon(
+    size: Dp = 16.dp,
+    tint: Color = Color.White,
+    modifier: Modifier = Modifier
+) {
+    val plusPath = remember {
+        PathParser().parsePathString("M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(plusPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaGearVectorIcon(
+    size: Dp = 20.dp,
+    tint: Color = Color(0xFF9333EA),
+    modifier: Modifier = Modifier
+) {
+    val gearPath = remember {
+        PathParser().parsePathString("M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(gearPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaApparelVectorIcon(
+    size: Dp = 20.dp,
+    tint: Color = Color(0xFF2563EB),
+    modifier: Modifier = Modifier
+) {
+    val apparelPath = remember {
+        PathParser().parsePathString("M16 2l-4 3-4-3-6 4 3 4 3-1v12h12V8l3 1 3-4-7-4zm-4 4.5l2-1.5 2 1.5-2 2-2-2z").toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(apparelPath, color = tint)
+        }
+    }
+}
+
+@Composable
+fun SekotaSocialVectorIcon(
+    platform: String,
+    size: Dp = 14.dp,
+    tint: Color = Color(0xFF94A3B8),
+    modifier: Modifier = Modifier
+) {
+    val pathData = remember(platform) {
+        when (platform.trim().uppercase()) {
+            "LINKEDIN" -> "M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.64a1.66 1.66 0 0 0-1.66 1.66c0 .92.74 1.66 1.66 1.66.92 0 1.66-.74 1.66-1.66 0-.92-.74-1.66-1.66-1.66z"
+            "TWITTER", "X" -> "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+            "INSTAGRAM" -> "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+            else -> "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+        }
+    }
+    val socialPath = remember(pathData) {
+        PathParser().parsePathString(pathData).toPath()
+    }
+    Canvas(modifier = modifier.size(size)) {
+        val scaleFactor = this.size.minDimension / 24f
+        scale(scaleFactor, pivot = Offset.Zero) {
+            drawPath(socialPath, color = tint)
+        }
+    }
+}
+
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun BookEditionVectorIconPreview() {
@@ -348,6 +476,15 @@ fun BookEditionVectorIconPreview() {
             SekotaArrowUpVectorIcon(size = 20.dp)
             SekotaArrowDownVectorIcon(size = 20.dp)
             SekotaTrashVectorIcon(size = 20.dp)
+            SekotaSaveVectorIcon(size = 20.dp, tint = Color.Black)
+            SekotaRefreshVectorIcon(size = 20.dp)
+            SekotaCloseVectorIcon(size = 20.dp)
+            SekotaPlusVectorIcon(size = 20.dp, tint = Color.Black)
+            SekotaGearVectorIcon(size = 20.dp)
+            SekotaApparelVectorIcon(size = 20.dp)
+            SekotaSocialVectorIcon(platform = "LINKEDIN", size = 20.dp)
+            SekotaSocialVectorIcon(platform = "X", size = 20.dp)
+            SekotaSocialVectorIcon(platform = "INSTAGRAM", size = 20.dp)
         }
     }
 }

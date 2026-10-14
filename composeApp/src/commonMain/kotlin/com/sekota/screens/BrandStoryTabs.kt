@@ -25,6 +25,11 @@ import org.jetbrains.compose.resources.painterResource
 import com.sekota.components.cms.CmsActionHeader
 import com.sekota.components.cms.CmsInputField
 import com.sekota.components.cms.CmsImageUploader
+import com.sekota.components.cms.CmsStatusBanner
+import com.sekota.components.cms.CmsStatusFeedback
+import com.sekota.components.SekotaSaveVectorIcon
+import com.sekota.components.SekotaRefreshVectorIcon
+import com.sekota.components.SekotaPlusVectorIcon
 import com.sekota.features.admin.domain.model.ValueLoopConfig
 import com.sekota.features.admin.domain.model.AdminValueLoopStep
 import com.sekota.features.admin.domain.model.WhySekotaConfig
@@ -44,7 +49,7 @@ fun ValueLoopTab(
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.ValueLoopConfig()) }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -69,19 +74,7 @@ fun ValueLoopTab(
 
         statusFeedback?.let {
             Spacer(modifier = Modifier.height(16.dp))
-            Surface(
-                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = it,
-                    fontFamily = getDmSansFontFamily(),
-                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 14.sp
-                )
-            }
+            CmsStatusBanner(feedback = it)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -246,9 +239,9 @@ fun ValueLoopTab(
                             val result = saveValueLoopUseCase(config)
                             isSaving = false
                             if (result.isSuccess) {
-                                statusFeedback = "✅ Strategic Value Loop berhasil diperbarui dan disinkronkan!"
+                                statusFeedback = CmsStatusFeedback.success("Strategic Value Loop berhasil diperbarui dan disinkronkan!")
                             } else {
-                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                                statusFeedback = CmsStatusFeedback.error("Gagal memperbarui: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     }
@@ -266,27 +259,39 @@ fun ValueLoopTab(
                 enabled = !isSaving,
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan",
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaSaveVectorIcon(size = 18.dp, tint = Color.White)
+                    Text(
+                        text = if (isSaving) "Menyimpan..." else "Simpan Perubahan",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             OutlinedButton(
                 onClick = {
                     config = com.sekota.features.admin.domain.model.ValueLoopConfig()
-                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                    statusFeedback = CmsStatusFeedback.success("Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)")
                 },
                 shape = RoundedCornerShape(100.dp),
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = "↺ Reset Bawaan",
-                    fontFamily = getDmSansFontFamily(),
-                    color = InkNavy
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaRefreshVectorIcon(size = 18.dp, tint = InkNavy)
+                    Text(
+                        text = "Reset Bawaan",
+                        fontFamily = getDmSansFontFamily(),
+                        color = InkNavy
+                    )
+                }
             }
         }
 
@@ -303,7 +308,7 @@ fun WhySekotaTab(
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(WhySekotaConfig()) }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -328,19 +333,7 @@ fun WhySekotaTab(
 
         statusFeedback?.let {
             Spacer(modifier = Modifier.height(16.dp))
-            Surface(
-                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = it,
-                    fontFamily = getDmSansFontFamily(),
-                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 14.sp
-                )
-            }
+            CmsStatusBanner(feedback = it)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -461,12 +454,18 @@ fun WhySekotaTab(
                 colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                 shape = RoundedCornerShape(100.dp)
             ) {
-                Text(
-                    text = "➕ Tambah Kartu Pilar",
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    SekotaPlusVectorIcon(size = 16.dp, tint = Color.White)
+                    Text(
+                        text = "Tambah Kartu Pilar",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
         }
 
@@ -570,7 +569,7 @@ fun WhySekotaTab(
                                             config = config.copy(cards = mutable)
                                             statusFeedback = null
                                         } else {
-                                            statusFeedback = "❌ Minimal harus ada 1 kartu pilar 'Why Sekota'"
+                                            statusFeedback = CmsStatusFeedback.error("Minimal harus ada 1 kartu pilar 'Why Sekota'")
                                         }
                                     },
                                     enabled = config.cards.size > 1
@@ -679,11 +678,11 @@ fun WhySekotaTab(
             Button(
                 onClick = {
                     if (config.title.isBlank()) {
-                        statusFeedback = "❌ Judul Utama / Headline tidak boleh kosong"
+                        statusFeedback = CmsStatusFeedback.error("Judul Utama / Headline tidak boleh kosong")
                         return@Button
                     }
                     if (config.cards.any { it.title.isBlank() }) {
-                        statusFeedback = "❌ Judul pada setiap kartu pilar tidak boleh kosong"
+                        statusFeedback = CmsStatusFeedback.error("Judul pada setiap kartu pilar tidak boleh kosong")
                         return@Button
                     }
                     val performSave = {
@@ -692,9 +691,9 @@ fun WhySekotaTab(
                             val result = saveWhySekotaUseCase(config)
                             isSaving = false
                             if (result.isSuccess) {
-                                statusFeedback = "✅ 'Why Sekota' berhasil diperbarui dan disinkronkan ke Web!"
+                                statusFeedback = CmsStatusFeedback.success("'Why Sekota' berhasil diperbarui dan disinkronkan ke Web!")
                             } else {
-                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                                statusFeedback = CmsStatusFeedback.error("Gagal memperbarui: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     }
@@ -712,27 +711,39 @@ fun WhySekotaTab(
                 enabled = !isSaving,
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan",
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaSaveVectorIcon(size = 18.dp, tint = Color.White)
+                    Text(
+                        text = if (isSaving) "Menyimpan..." else "Simpan Perubahan",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             OutlinedButton(
                 onClick = {
                     config = WhySekotaConfig()
-                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                    statusFeedback = CmsStatusFeedback.success("Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)")
                 },
                 shape = RoundedCornerShape(100.dp),
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = "↺ Reset Bawaan",
-                    fontFamily = getDmSansFontFamily(),
-                    color = InkNavy
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaRefreshVectorIcon(size = 18.dp, tint = InkNavy)
+                    Text(
+                        text = "Reset Bawaan",
+                        fontFamily = getDmSansFontFamily(),
+                        color = InkNavy
+                    )
+                }
             }
         }
 

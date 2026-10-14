@@ -24,7 +24,12 @@ import androidx.compose.ui.unit.sp
 import com.sekota.syncService
 import com.sekota.components.cms.CmsActionHeader
 import com.sekota.components.cms.CmsInputField
+import com.sekota.components.cms.CmsStatusBanner
+import com.sekota.components.cms.CmsStatusFeedback
 import com.sekota.components.SekotaTrashVectorIcon
+import com.sekota.components.SekotaSaveVectorIcon
+import com.sekota.components.SekotaRefreshVectorIcon
+import com.sekota.components.SekotaPlusVectorIcon
 import com.sekota.features.admin.domain.model.FooterColumnConfig
 import com.sekota.features.admin.domain.model.FooterConfig
 import com.sekota.features.admin.domain.model.FooterLinkItem
@@ -43,7 +48,7 @@ fun AppBarManagementTab(
 ) {
     val scope = rememberCoroutineScope()
     var items by remember { mutableStateOf<List<com.sekota.features.navigation.domain.model.NavigationItem>>(emptyList()) }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     var isSaving by remember { mutableStateOf(false) }
 
     var editingItem by remember { mutableStateOf<com.sekota.features.navigation.domain.model.NavigationItem?>(null) }
@@ -83,19 +88,7 @@ fun AppBarManagementTab(
 
         statusFeedback?.let {
             Spacer(modifier = Modifier.height(16.dp))
-            Surface(
-                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = it,
-                    fontFamily = getDmSansFontFamily(),
-                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 14.sp
-                )
-            }
+            CmsStatusBanner(feedback = it)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -139,10 +132,10 @@ fun AppBarManagementTab(
                                 val res = saveNavigationItemsUseCase(canonical)
                                 if (res.isSuccess) {
                                     items = res.getOrThrow()
-                                    statusFeedback = "✅ Berhasil mereset navigasi ke 5 tautan standar canonical!"
+                                    statusFeedback = CmsStatusFeedback.success("Berhasil mereset navigasi ke 5 tautan standar canonical!")
                                     syncService.triggerLocalUpdate()
                                 } else {
-                                    statusFeedback = "❌ Gagal reset: ${res.exceptionOrNull()?.message}"
+                                    statusFeedback = CmsStatusFeedback.error("Gagal reset: ${res.exceptionOrNull()?.message}")
                                 }
                                 isSaving = false
                             }
@@ -156,7 +149,13 @@ fun AppBarManagementTab(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandTeal)
                 ) {
-                    Text(text = "Reset Bawaan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        SekotaRefreshVectorIcon(size = 16.dp, tint = BrandTeal)
+                        Text(text = "Reset Bawaan", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -354,10 +353,10 @@ fun AppBarManagementTab(
                                                     val res = saveNavigationItemsUseCase(updated)
                                                     if (res.isSuccess) {
                                                         items = res.getOrThrow()
-                                                        statusFeedback = "✅ Item '${item.label}' berhasil dihapus."
+                                                        statusFeedback = CmsStatusFeedback.success("Item '${item.label}' berhasil dihapus.")
                                                         syncService.triggerLocalUpdate()
                                                     } else {
-                                                        statusFeedback = "❌ Gagal hapus: ${res.exceptionOrNull()?.message}"
+                                                        statusFeedback = CmsStatusFeedback.error("Gagal hapus: ${res.exceptionOrNull()?.message}")
                                                     }
                                                 }
                                             }
@@ -490,7 +489,7 @@ fun AppBarManagementTab(
                                 val res = saveNavigationItemsUseCase(currentList)
                                 if (res.isSuccess) {
                                     items = res.getOrThrow()
-                                    statusFeedback = "✅ Item '${updatedItem.label}' berhasil disimpan!"
+                                    statusFeedback = CmsStatusFeedback.success("Item '${updatedItem.label}' berhasil disimpan!")
                                     showDialog = false
                                     editingItem = null
                                     syncService.triggerLocalUpdate()
@@ -534,7 +533,7 @@ fun FooterManagementTab(
 ) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(com.sekota.features.admin.domain.model.FooterConfig()) }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -559,19 +558,7 @@ fun FooterManagementTab(
 
         statusFeedback?.let {
             Spacer(modifier = Modifier.height(16.dp))
-            Surface(
-                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = it,
-                    fontFamily = getDmSansFontFamily(),
-                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 14.sp
-                )
-            }
+            CmsStatusBanner(feedback = it)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -753,11 +740,11 @@ fun FooterManagementTab(
             Button(
                 onClick = {
                     if (config.tagline.isBlank()) {
-                        statusFeedback = "❌ Tagline tidak boleh kosong"
+                        statusFeedback = CmsStatusFeedback.error("Tagline tidak boleh kosong")
                         return@Button
                     }
                     if (config.copyrightText.isBlank()) {
-                        statusFeedback = "❌ Teks hak cipta tidak boleh kosong"
+                        statusFeedback = CmsStatusFeedback.error("Teks hak cipta tidak boleh kosong")
                         return@Button
                     }
                     val performSave = {
@@ -766,9 +753,9 @@ fun FooterManagementTab(
                             val result = saveFooterUseCase(config)
                             isSaving = false
                             if (result.isSuccess) {
-                                statusFeedback = "✅ Konten Footer berhasil diperbarui dan disinkronkan ke Web!"
+                                statusFeedback = CmsStatusFeedback.success("Konten Footer berhasil diperbarui dan disinkronkan ke Web!")
                             } else {
-                                statusFeedback = "❌ Gagal memperbarui: ${result.exceptionOrNull()?.message}"
+                                statusFeedback = CmsStatusFeedback.error("Gagal memperbarui: ${result.exceptionOrNull()?.message}")
                             }
                         }
                     }
@@ -786,27 +773,39 @@ fun FooterManagementTab(
                 enabled = !isSaving,
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = if (isSaving) "Menyimpan..." else "💾 Simpan Perubahan Footer",
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaSaveVectorIcon(size = 18.dp, tint = Color.White)
+                    Text(
+                        text = if (isSaving) "Menyimpan..." else "Simpan Perubahan Footer",
+                        fontFamily = getDmSansFontFamily(),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             OutlinedButton(
                 onClick = {
                     config = com.sekota.features.admin.domain.model.FooterConfig()
-                    statusFeedback = "ℹ️ Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)"
+                    statusFeedback = CmsStatusFeedback.success("Reset ke konfigurasi bawaan (Tekan Simpan untuk menerapkan)")
                 },
                 shape = RoundedCornerShape(100.dp),
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(
-                    text = "↺ Reset Bawaan",
-                    fontFamily = getDmSansFontFamily(),
-                    color = InkNavy
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SekotaRefreshVectorIcon(size = 18.dp, tint = InkNavy)
+                    Text(
+                        text = "Reset Bawaan",
+                        fontFamily = getDmSansFontFamily(),
+                        color = InkNavy
+                    )
+                }
             }
         }
 
@@ -858,7 +857,13 @@ fun FooterColumnEditorCard(
                     colors = ButtonDefaults.buttonColors(containerColor = BrandTeal),
                     shape = RoundedCornerShape(100.dp)
                 ) {
-                    Text("➕ Tambah Tautan", fontFamily = getDmSansFontFamily(), fontSize = 12.sp, color = Color.White)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        SekotaPlusVectorIcon(size = 14.dp, tint = Color.White)
+                        Text("Tambah Tautan", fontFamily = getDmSansFontFamily(), fontSize = 12.sp, color = Color.White)
+                    }
                 }
             }
 

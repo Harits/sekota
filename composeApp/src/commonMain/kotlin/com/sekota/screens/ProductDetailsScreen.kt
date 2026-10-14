@@ -126,13 +126,23 @@ fun ProductDetailsScreen(
                     onClick = onNavigateBack,
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        text = "← Kembali ke Ekosistem Produk",
-                        fontFamily = getDmSansFontFamily(),
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF334155),
-                        fontSize = 14.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.previous),
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "Kembali ke Ekosistem Produk",
+                            fontFamily = getDmSansFontFamily(),
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF334155),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 

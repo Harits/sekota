@@ -26,6 +26,8 @@ import com.sekota.syncService
 import com.sekota.features.admin.data.repository.AdminRepositoryImpl
 import com.sekota.components.cms.CmsActionHeader
 import com.sekota.components.cms.CmsInputField
+import com.sekota.components.cms.CmsStatusBanner
+import com.sekota.components.cms.CmsStatusFeedback
 import com.sekota.components.SekotaTrashVectorIcon
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
 import com.sekota.features.admin.domain.model.ClientInquiry
@@ -45,7 +47,7 @@ fun LiveMetricsTab(
     var accuracy by remember { mutableStateOf("99.8%") }
     var totalClients by remember { mutableStateOf("100+") }
     var establishedYear by remember { mutableStateOf("2021") }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -67,22 +69,7 @@ fun LiveMetricsTab(
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        statusFeedback?.let {
-            Surface(
-                color = Color(0xFFE8F5E9),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Text(
-                    text = it,
-                    color = Color(0xFF2E7D32),
-                    fontFamily = getDmSansFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-        }
+        CmsStatusBanner(feedback = statusFeedback)
 
         Spacer(modifier = Modifier.height(12.dp))
         
@@ -92,12 +79,14 @@ fun LiveMetricsTab(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val saveMetric: (String, String) -> Unit = { metricName, feedback ->
+            val saveMetric: (String, CmsStatusFeedback) -> Unit = { metricName, feedback ->
                 val performSave = {
                     scope.launch {
                         val result = saveLiveMetricsUseCase(AdminLiveMetrics(accuracy.trim(), totalClients.trim(), establishedYear.trim()))
                         if (result.isSuccess) {
                             statusFeedback = feedback
+                        } else {
+                            statusFeedback = CmsStatusFeedback.error("Gagal memperbarui $metricName: ${result.exceptionOrNull()?.message}")
                         }
                     }
                 }
@@ -116,21 +105,21 @@ fun LiveMetricsTab(
                 label = "Data Accuracy",
                 value = accuracy,
                 onValueChange = { accuracy = it; statusFeedback = null },
-                onSave = { saveMetric("Data Accuracy", "✅ Data Accuracy diperbarui ke '$accuracy'") }
+                onSave = { saveMetric("Data Accuracy", CmsStatusFeedback.success("Data Accuracy diperbarui ke '$accuracy'")) }
             )
             MetricCardEditor(
                 modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Total Clients",
                 value = totalClients,
                 onValueChange = { totalClients = it; statusFeedback = null },
-                onSave = { saveMetric("Total Clients", "✅ Total Clients diperbarui ke '$totalClients'") }
+                onSave = { saveMetric("Total Clients", CmsStatusFeedback.success("Total Clients diperbarui ke '$totalClients'")) }
             )
             MetricCardEditor(
                 modifier = if (windowWidth.isCompact) Modifier.fillMaxWidth() else Modifier,
                 label = "Established",
                 value = establishedYear,
                 onValueChange = { establishedYear = it; statusFeedback = null },
-                onSave = { saveMetric("Established Year", "✅ Tahun Didirikan diperbarui ke '$establishedYear'") }
+                onSave = { saveMetric("Established Year", CmsStatusFeedback.success("Tahun Didirikan diperbarui ke '$establishedYear'")) }
             )
         }
     }
@@ -194,7 +183,7 @@ fun ClientInquiriesTab(
     val scope = rememberCoroutineScope()
     var inquiries by remember { mutableStateOf<List<ClientInquiry>>(emptyList()) }
     var config by remember { mutableStateOf(StrategicConversationConfig()) }
-    var statusFeedback by remember { mutableStateOf<String?>(null) }
+    var statusFeedback by remember { mutableStateOf<CmsStatusFeedback?>(null) }
     var isSaving by remember { mutableStateOf(false) }
     var activeSubTab by remember { mutableStateOf(0) } // 0: "Pengaturan Konten Formulir", 1: "Daftar Pesan Masuk (Leads)"
 
@@ -279,19 +268,7 @@ fun ClientInquiriesTab(
 
         statusFeedback?.let {
             Spacer(modifier = Modifier.height(12.dp))
-            Surface(
-                color = if (it.startsWith("✅")) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = it,
-                    fontFamily = getDmSansFontFamily(),
-                    color = if (it.startsWith("✅")) Color(0xFF2E7D32) else Color(0xFFC62828),
-                    modifier = Modifier.padding(14.dp),
-                    fontSize = 14.sp
-                )
-            }
+            CmsStatusBanner(feedback = it)
         }
 
         if (activeSubTab == 0) {
@@ -610,9 +587,9 @@ fun ClientInquiriesTab(
                                     val result = saveStrategicConversationUseCase(config)
                                     isSaving = false
                                     if (result.isSuccess) {
-                                        statusFeedback = "Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!"
+                                        statusFeedback = CmsStatusFeedback.success("Konten formulir percakapan strategis berhasil disimpan dan disinkronkan!")
                                     } else {
-                                        statusFeedback = "Gagal menyimpan: ${result.exceptionOrNull()?.message}"
+                                        statusFeedback = CmsStatusFeedback.error("Gagal menyimpan: ${result.exceptionOrNull()?.message}")
                                     }
                                 }
                             }
@@ -629,28 +606,36 @@ fun ClientInquiriesTab(
                         shape = RoundedCornerShape(100.dp),
                         enabled = !isSaving
                     ) {
-                        Text(
-                            text = if (isSaving) "Menyimpan..." else "Simpan Perubahan",
-                            fontFamily = getDmSansFontFamily(),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            com.sekota.components.SekotaSaveVectorIcon(size = 16.dp, tint = Color.White)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (isSaving) "Menyimpan..." else "Simpan Perubahan",
+                                fontFamily = getDmSansFontFamily(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
 
                     OutlinedButton(
                         onClick = {
                             config = StrategicConversationConfig()
-                            statusFeedback = "Formulir dikembalikan ke nilai default. Klik 'Simpan Perubahan' untuk menerapkan."
+                            statusFeedback = CmsStatusFeedback.success("Formulir dikembalikan ke nilai default. Klik 'Simpan Perubahan' untuk menerapkan.")
                         },
                         shape = RoundedCornerShape(100.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = InkNavy)
                     ) {
-                        Text(
-                            text = "Reset ke Default",
-                            fontFamily = getDmSansFontFamily(),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            com.sekota.components.SekotaRefreshVectorIcon(size = 16.dp, tint = InkNavy)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Reset ke Default",
+                                fontFamily = getDmSansFontFamily(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 }
 
@@ -730,9 +715,9 @@ fun ClientInquiriesTab(
                                                 val res = deleteInquiryUseCase(inquiry.id)
                                                 if (res.isSuccess) {
                                                     inquiries = getInquiriesUseCase()
-                                                    statusFeedback = "Pesan dari ${inquiry.name} berhasil dihapus"
+                                                    statusFeedback = CmsStatusFeedback.success("Pesan dari ${inquiry.name} berhasil dihapus")
                                                 } else {
-                                                    statusFeedback = "Gagal menghapus pesan"
+                                                    statusFeedback = CmsStatusFeedback.error("Gagal menghapus pesan: ${res.exceptionOrNull()?.message ?: ""}")
                                                 }
                                             }
                                         }

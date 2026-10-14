@@ -89,7 +89,7 @@ fun ContentMappingGuideDialog(
                     }
 
                     IconButton(onClick = onDismiss) {
-                        Text("✕", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF94A3B8))
+                        SekotaCloseVectorIcon(size = 18.dp, tint = Color(0xFF64748B))
                     }
                 }
 
@@ -399,20 +399,32 @@ private fun GuideItemRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "✅ $good",
-                    fontFamily = getDmSansFontFamily(),
-                    fontSize = 11.sp,
-                    color = Color(0xFF15803D),
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "❌ $bad",
-                    fontFamily = getDmSansFontFamily(),
-                    fontSize = 11.sp,
-                    color = Color(0xFFB91C1C),
-                    modifier = Modifier.weight(1f)
-                )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    SekotaCheckmarkVectorIcon(size = 14.dp, tint = Color(0xFF15803D))
+                    Text(
+                        text = good,
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 11.sp,
+                        color = Color(0xFF15803D)
+                    )
+                }
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    SekotaCloseVectorIcon(size = 14.dp, tint = Color(0xFFB91C1C))
+                    Text(
+                        text = bad,
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 11.sp,
+                        color = Color(0xFFB91C1C)
+                    )
+                }
             }
         }
     }

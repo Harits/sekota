@@ -163,7 +163,7 @@ fun ProductRegistryContent(
                                 modifier = Modifier.size(44.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("⚙️", fontSize = 20.sp)
+                                    com.sekota.components.SekotaGearVectorIcon(size = 22.dp, tint = Color(0xFF9333EA))
                                 }
                             }
                             Column(modifier = Modifier.weight(1f)) {
@@ -207,7 +207,7 @@ fun ProductRegistryContent(
                                 modifier = Modifier.size(44.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("👕", fontSize = 20.sp)
+                                    com.sekota.components.SekotaApparelVectorIcon(size = 22.dp, tint = Color(0xFFD97706))
                                 }
                             }
                             Column(modifier = Modifier.weight(1f)) {
@@ -249,7 +249,7 @@ fun ProductRegistryContent(
                                 modifier = Modifier.size(44.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("📖", fontSize = 20.sp)
+                                    com.sekota.components.BookEditionVectorIcon(size = 22.dp, tint = Color(0xFF0284C7))
                                 }
                             }
                             Column(modifier = Modifier.weight(1f)) {
@@ -301,7 +301,7 @@ fun ProductRegistryContent(
             onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("ℹ️", fontSize = 20.sp)
+                    com.sekota.components.SekotaInfoVectorIcon(size = 20.dp, tint = CmsBrandTeal)
                     Text(
                         text = "Informasi Katalog Buku",
                         fontFamily = getMontserratFontFamily(),
