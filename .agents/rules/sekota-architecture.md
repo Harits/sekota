@@ -102,4 +102,17 @@ trigger: always_on
     - **Mandatory Keyboard-Safe Vertical Scroll in Dialogs**: Seluruh modal dialog CMS (`AlertDialog`, `Dialog`, form editor) WAJIB membungkus isi form di dalam `Modifier.verticalScroll(rememberScrollState())`. Hal ini mencegah tombol konfirmasi/batal dan input field bawah terpotong saat keyboard virtual (IME) mobile terbuka atau pada orientasi landscape.
     - **Dialog Responsive Width Bounds**: Dialog kustom dilarang menggunakan `minWidth` hardcoded besar (seperti `min = 600.dp`). Wajib menggunakan lebar responsif dengan batas maksimum (`Modifier.fillMaxWidth(0.92f .. 0.95f).widthIn(max = ...dp)`).
 
+17. **Type-Safe Icon System, Resource Migration & Raw Unicode Emoji Invariant**:
+    - **Deprecation of Raw Unicode Emojis**: DILARANG KERAS menggunakan raw unicode emoji (seperti `💾`, `↺`, `➕`, `⚙️`, `👕`, `📖`, `ℹ️`, `✅`, `❌`) atau karakter panah/simbol teks (seperti `←`, `✕`) di dalam label tombol, indikator status, emblem modal, atau fallback kartu visual pada target CMS maupun Web publik. Raw emoji menyebabkan rendering tidak konsisten antar-OS, missing glyph boxes, dan Skiko canvas invalidation issue pada Web Wasm.
+    - **Native Vector Icons & Drawables**: Wajib menggunakan vektor in-memory native Compose (`Sekota*VectorIcon` berbasis `Canvas` dan `PathParser`) atau `Res.drawable` resmi.
+    - **Structured Status Feedback Model**: DILARANG menggunakan string-based feedback check (seperti `if (status.startsWith("✅"))`). Wajib menggunakan data class immutable `CmsStatusFeedback(isSuccess: Boolean, message: String)` bersama komponen `CmsStatusBanner(feedback: CmsStatusFeedback?)`.
+
+18. **OpenProject Work Package Synchronization & Parent Aggregation Invariant**:
+    - **Optimistic Locking**: Setiap mutasi `PATCH /api/v3/work_packages/{id}` wajib menyertakan `lockVersion` terbaru yang diambil dari GET payload sebelum melakukan update.
+    - **Parent Work Package Read-Only Fields**: Pada work package bertipe User Story / Feature yang memiliki children tasks, properti `startDate`, `dueDate`, dan `percentageDone` bersifat turunan agregat (*read-only*). Percobaan menulis properti tersebut pada parent akan memicu HTTP 422 `PropertyIsReadOnly`.
+    - **Two-Phase Closure Protocol**:
+      1. Perbarui seluruh child tasks terlebih dahulu dengan `startDate`, `dueDate`, `percentageDone = 100`, dan status Closed (`/api/v3/statuses/12`).
+      2. Perbarui parent User Story HANYA dengan `lockVersion`, status Closed (`/api/v3/statuses/12`), dan `comment` ringkasan jurnal.
+
+
 
