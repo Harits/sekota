@@ -1,6 +1,8 @@
 package com.sekota.screens.cms
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -52,10 +54,12 @@ fun InsightsFeedbackScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sub-Tab Switcher
+        // Sub-Tab Switcher with horizontal scroll support on compact screens
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             InsightsFeedbackSubTab.values().forEach { tab ->
                 val isSelected = activeSubTab == tab
@@ -70,9 +74,9 @@ fun InsightsFeedbackScreen(
                         text = tab.title,
                         fontFamily = getDmSansFontFamily(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
+                        fontSize = if (windowWidth.isCompact) 12.sp else 13.sp,
                         color = if (isSelected) Color.White else CmsInkNavy,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
             }

@@ -516,40 +516,79 @@ fun ProductRegistryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Filter Bar & Search Box
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ProductTypeFilter.values().forEach { filter ->
-                    FilterChip(
-                        selected = selectedFilter == filter,
-                        onClick = { selectedFilter = filter },
-                        label = {
-                            Text(
-                                text = filter.title,
-                                fontFamily = getDmSansFontFamily(),
-                                fontSize = 12.sp
+        // Responsive Filter Bar & Search Box (Rule 11: Zero Collision & Adaptive Layout)
+        if (windowWidth.isCompact) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Cari produk, buku, atau kategori...", fontSize = 12.sp) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    ProductTypeFilter.values().forEach { filter ->
+                        FilterChip(
+                            selected = selectedFilter == filter,
+                            onClick = { selectedFilter = filter },
+                            label = {
+                                Text(
+                                    text = filter.title.replace("Registry", "").replace("Intelligence ", "").trim(),
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 11.sp
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = CmsBrandTeal.copy(alpha = 0.15f),
+                                selectedLabelColor = CmsBrandTeal
                             )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = CmsBrandTeal.copy(alpha = 0.15f),
-                            selectedLabelColor = CmsBrandTeal
                         )
-                    )
+                    }
                 }
             }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ProductTypeFilter.values().forEach { filter ->
+                        FilterChip(
+                            selected = selectedFilter == filter,
+                            onClick = { selectedFilter = filter },
+                            label = {
+                                Text(
+                                    text = filter.title,
+                                    fontFamily = getDmSansFontFamily(),
+                                    fontSize = 12.sp
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = CmsBrandTeal.copy(alpha = 0.15f),
+                                selectedLabelColor = CmsBrandTeal
+                            )
+                        )
+                    }
+                }
 
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("Cari produk atau buku...", fontSize = 12.sp) },
-                singleLine = true,
-                shape = RoundedCornerShape(50),
-                modifier = Modifier.widthIn(max = 260.dp).height(44.dp)
-            )
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Cari produk atau buku...", fontSize = 12.sp) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier.widthIn(max = 260.dp).height(44.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

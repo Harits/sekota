@@ -250,9 +250,16 @@ fun AdminDashboardScreen(
                             },
                             label = {
                                 Text(
-                                    text = title.split(" ").first(),
+                                    text = when (index) {
+                                        0 -> "Registry"
+                                        1 -> "Story"
+                                        2 -> "Config"
+                                        3 -> "Insights"
+                                        else -> title.split(" ").first()
+                                    },
                                     fontFamily = getDmSansFontFamily(),
                                     fontSize = 11.sp,
+                                    maxLines = 1,
                                     color = if (selectedTab == index) BrandTeal else Color.LightGray
                                 )
                             },
