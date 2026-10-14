@@ -583,10 +583,22 @@ fun ProductRegistryScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Cari produk atau buku...", fontSize = 12.sp) },
+                    placeholder = {
+                        Text(
+                            text = "Cari produk atau buku...",
+                            fontFamily = getDmSansFontFamily(),
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontFamily = getDmSansFontFamily(),
+                        fontSize = 12.sp,
+                        color = CmsInkNavy
+                    ),
                     singleLine = true,
                     shape = RoundedCornerShape(50),
-                    modifier = Modifier.widthIn(max = 260.dp).height(44.dp)
+                    modifier = Modifier.width(260.dp)
                 )
             }
         }
@@ -605,7 +617,7 @@ fun ProductRegistryScreen(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 300.dp),
+                columns = GridCells.Adaptive(minSize = 320.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
@@ -730,7 +742,8 @@ private fun RegistryCardItem(
                         is RegistryItem.Book -> Color(0xFFE0F2FE)
                         is RegistryItem.SuiteProduct -> Color(0xFFF3E8FF)
                         is RegistryItem.Merch -> Color(0xFFFEF3C7)
-                    }
+                    },
+                    modifier = Modifier.weight(1f, fill = false).padding(end = 8.dp)
                 ) {
                     Text(
                         text = when (item) {
@@ -741,6 +754,8 @@ private fun RegistryCardItem(
                         fontFamily = getDmSansFontFamily(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         color = when (item) {
                             is RegistryItem.Book -> Color(0xFF0369A1)
                             is RegistryItem.SuiteProduct -> Color(0xFF6B21A8)
@@ -754,7 +769,8 @@ private fun RegistryCardItem(
                     text = "ID: ${item.id}",
                     fontFamily = getDmSansFontFamily(),
                     fontSize = 11.sp,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    maxLines = 1
                 )
             }
 
