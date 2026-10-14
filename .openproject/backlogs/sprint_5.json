@@ -392,13 +392,13 @@
       "opId": 22486,
       "subject": "[CMS-05-08] Dynamic Main Navigation Bar (AppBar) Content Management",
       "type": "User story",
-      "status": "New",
+      "status": "Closed",
       "lockVersion": 1,
       "description": "Sebagai Content Manager / CMS Operator, Saya ingin mengelola item-item tautan pada navigasi utama (AppBar) melalui CMS Workbench, Sehingga saya dapat menambah, menghapus, menyusun ulang urutan (reorder), atau mengubah label tautan navigasi (seperti 'Solusi', 'Produk', 'E-Book', dll.) secara dinamis tanpa perlu deploy ulang kode aplikasi maupun update versi portal Web Sekota.",
       "assignee": "Harits Suherman",
-      "percentageDone": 0,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "percentageDone": 100,
+      "startDate": "2026-06-20",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-038-1",
@@ -406,13 +406,13 @@
       "parentId": 22486,
       "subject": "[CMS-05-08-01] Define Navigation Item Domain Model & CMS Schema",
       "type": "Task",
-      "status": "New",
+      "status": "Closed",
       "lockVersion": 1,
       "description": "Membuat data class NavigationItem (id, label, route, iconUrl, order) dan mendefinisikan skema kontrak JSON / payload sinkronisasi AppBar Configuration.",
       "assignee": "Harits Suherman",
-      "percentageDone": 0,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "percentageDone": 100,
+      "startDate": "2026-06-20",
+      "dueDate": "2026-06-23"
     },
     {
       "localId": "WP-038-2",
@@ -420,13 +420,13 @@
       "parentId": 22486,
       "subject": "[CMS-05-08-02] Implement Network Service, Storage Cache & Fallback Navigation",
       "type": "Task",
-      "status": "New",
+      "status": "Closed",
       "lockVersion": 1,
       "description": "Mengimplementasikan Ktor service dan repository layer dengan mekanisme caching lokal (LocalStore/DataStore) serta canonical hardcoded fallback navigation items.",
       "assignee": "Harits Suherman",
-      "percentageDone": 0,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "percentageDone": 100,
+      "startDate": "2026-06-23",
+      "dueDate": "2026-06-26"
     },
     {
       "localId": "WP-038-3",
@@ -434,13 +434,13 @@
       "parentId": 22486,
       "subject": "[CMS-05-08-03] Decouple AppBar to Dynamic List & Route State Handling",
       "type": "Task",
-      "status": "New",
+      "status": "Closed",
       "lockVersion": 1,
       "description": "Merefaktor Navbar Composable agar menerima List<NavigationItem> terurut dinamis dan menangani active indicator mapping sesuai route aktif.",
       "assignee": "Harits Suherman",
-      "percentageDone": 0,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "percentageDone": 100,
+      "startDate": "2026-06-26",
+      "dueDate": "2026-06-29"
     },
     {
       "localId": "WP-038-4",
@@ -448,13 +448,13 @@
       "parentId": 22486,
       "subject": "[CMS-05-08-04] Author Unit Tests, Multi-Item Compose Previews & Styling Verification",
       "type": "Task",
-      "status": "New",
+      "status": "Closed",
       "lockVersion": 1,
       "description": "Menulis pengujian repository (success, 404, fallback) dan menyusun multi-state desktop previews untuk verifikasi rendering 3-8 item tanpa overflow.",
       "assignee": "Harits Suherman",
-      "percentageDone": 0,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "percentageDone": 100,
+      "startDate": "2026-06-29",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-039",
@@ -466,8 +466,8 @@
       "description": "Sebagai Developer & Maintainer Sekota CMS, Saya ingin mengekstrak komponen UI repetitif (Form Input, Image Uploader, Action Header, Empty & Loading States) ke package com.sekota.components.cms dan menyiapkan kerangka arsitektur kluster CMS modular, Sehingga kompleksitas AdminDashboardScreen.kt berkurang drastis, kode komponen dapat digunakan ulang secara konsisten di seluruh cluster, dan mendukung multi-platform responsive preview (Desktop JVM & Android).",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-039-1",
@@ -480,8 +480,8 @@
       "description": "Ekstraksi field teks, dropdown selector, number counter, dan validator form ke CmsFormField.kt dan CmsSelectField.kt dengan dukungan label dan validation error messaging.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-06-23"
     },
     {
       "localId": "WP-039-2",
@@ -494,8 +494,8 @@
       "description": "Refaktor picker file gambar/ikon in-memory base64 preview ke CmsImageUploader.kt agar dipakai seragam oleh Books, Merchandise, dan Intelligence Suite.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-23",
+      "dueDate": "2026-06-26"
     },
     {
       "localId": "WP-039-3",
@@ -508,8 +508,8 @@
       "description": "Standarisasi bar aksi atas (Save, Discard, Sync Now, Environment Badge indicator) ke dalam header modular CmsActionHeader.kt yang mengintegrasikan interceptor safety dialog.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-26",
+      "dueDate": "2026-06-29"
     },
     {
       "localId": "WP-039-4",
@@ -522,8 +522,8 @@
       "description": "Menyusun @Preview mencakup loaded state, loading indicator, validation error state, dan compact variant sesuai aturan arsitektur Sekota.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-29",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-040",
@@ -659,8 +659,8 @@
       "description": "Sebagai Administrator Sistem Sekota CMS, Saya ingin mengelola pengaturan global situs (Dynamic AppBar Navigation, Global Footer Links, dan Legal/Copyright Policy) di panel terpusat 'Site Configuration', Sehingga pembaruan struktur navigasi dan tautan situs dapat dikelola dari satu panel kendali tanpa harus membuka tab terpisah.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-042-1",
@@ -673,8 +673,8 @@
       "description": "Mengintegrasikan usecase AppBar (NavigationItem) dan Footer (FooterConfig) ke SiteConfigViewModel.kt.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-06-24"
     },
     {
       "localId": "WP-042-2",
@@ -687,8 +687,8 @@
       "description": "Pembuatan layout SiteConfigScreen.kt yang memuat reorder / up-down item navigasi dan editor kolom footer dinamis.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-24",
+      "dueDate": "2026-06-28"
     },
     {
       "localId": "WP-042-3",
@@ -701,8 +701,8 @@
       "description": "Penyusunan @Preview varian desktop dan pengujian fallback canonical config saat koneksi terputus.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-28",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-043",
@@ -769,8 +769,8 @@
       "description": "Sebagai Lead Architect Sekota, Saya ingin merefaktor AdminDashboardScreen.kt menjadi root container tipis yang hanya mengelola NavigationRail/Drawer dan routing ke 4 cluster modular, Sehingga ukuran file berkurang >80%, recomposition lebih deterministik, dan bebas dari technical debt 'God File'.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-044-1",
@@ -783,8 +783,8 @@
       "description": "Memperbarui enum tab CMS menjadi 4 cluster utama dan menyesuaikan active pill indicator pada NavigationRail/NavigationBar.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-20",
+      "dueDate": "2026-06-25"
     },
     {
       "localId": "WP-044-2",
@@ -797,8 +797,8 @@
       "description": "Memindahkan Composable yang tadinya menumpuk di AdminDashboardScreen.kt ke screen masing-masing cluster dan membersihkan import yang tidak terpakai.",
       "assignee": "Harits Suherman",
       "percentageDone": 100,
-      "startDate": "2026-07-04",
-      "dueDate": "2026-07-04"
+      "startDate": "2026-06-25",
+      "dueDate": "2026-07-02"
     },
     {
       "localId": "WP-045",
