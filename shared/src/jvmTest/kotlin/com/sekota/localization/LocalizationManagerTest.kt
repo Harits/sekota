@@ -126,4 +126,236 @@ class LocalizationManagerTest {
         val substituted = LocalizationManager.getString("Hello {0}, you have {1} books", "Harits", 5)
         assertEquals("Hello Harits, you have 5 books", substituted)
     }
+
+    @Test
+    fun testIntelligenceSuiteAndProductLocalization() {
+        // Test in ID
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("EKOSISTEM PRODUK", LocalizationManager.getString("suite_eyebrow"))
+        assertEquals("Intelligence Suite.", LocalizationManager.getString("suite_title"))
+        assertEquals("Dirancang untuk saling terhubung dalam satu ekosistem data yang kohesif.", LocalizationManager.getString("suite_subtitle"))
+        assertEquals("Pelajari Selengkapnya", LocalizationManager.getString("suite_learn_more"))
+
+        val dummyVrd = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "p1",
+            code = "VRD",
+            name = "Veridia",
+            categoryEyebrow = "ESG & Carbon Intelligence",
+            description = "Desc in ID",
+            features = listOf("F1", "F2", "F3", "F4")
+        )
+        val localizedVrdId = LocalizationManager.getLocalizedProduct(dummyVrd)
+        assertEquals("ESG & Carbon Intelligence", localizedVrdId.categoryEyebrow)
+        assertEquals(
+            "Platform analitik komprehensif untuk pemantauan jejak karbon Scope 1, 2, dan 3, kepatuhan regulasi lingkungan, dan pelaporan ESG otomatis sesuai standar global.",
+            localizedVrdId.description
+        )
+        assertEquals(4, localizedVrdId.features.size)
+        assertEquals("Audit Jejak Karbon Scope 1, 2, & 3 Real-time", localizedVrdId.features[0])
+
+        // Test in EN
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("PRODUCT ECOSYSTEM", LocalizationManager.getString("suite_eyebrow"))
+        assertEquals("Intelligence Suite.", LocalizationManager.getString("suite_title"))
+        assertEquals("Designed to interconnect within a cohesive data ecosystem.", LocalizationManager.getString("suite_subtitle"))
+        assertEquals("Learn More", LocalizationManager.getString("suite_learn_more"))
+
+        val localizedVrdEn = LocalizationManager.getLocalizedProduct(dummyVrd)
+        assertEquals("ESG & Carbon Intelligence", localizedVrdEn.categoryEyebrow)
+        assertEquals(
+            "Comprehensive analytics platform for Scope 1, 2, and 3 carbon footprint tracking, environmental compliance, and automated ESG reporting aligned with global standards.",
+            localizedVrdEn.description
+        )
+        assertEquals(4, localizedVrdEn.features.size)
+        assertEquals("Real-time Scope 1, 2, & 3 Carbon Footprint Audit", localizedVrdEn.features[0])
+        assertEquals("Automated Sustainability Reporting (GRI, ISSB, IDX-ESG)", localizedVrdEn.features[1])
+        assertEquals("Predictive Decarbonization Scenario Modeling", localizedVrdEn.features[2])
+        assertEquals("Stakeholder Governance Dashboard", localizedVrdEn.features[3])
+
+        // Test Ascendio, Sociara, Ecoflow in EN
+        val dummyAsc = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "p2", code = "ASC", name = "Ascendio", categoryEyebrow = "", description = "", features = emptyList()
+        )
+        val localizedAscEn = LocalizationManager.getLocalizedProduct(dummyAsc)
+        assertEquals("Strategic Corporate Intelligence", localizedAscEn.categoryEyebrow)
+        assertEquals(
+            "Strategic business intelligence system for competitive market mapping, public policy sentiment analysis, and AI-powered reputation risk mitigation.",
+            localizedAscEn.description
+        )
+        assertEquals("24/7 Media Sentiment & Public Policy Monitoring", localizedAscEn.features[0])
+
+        val dummySoc = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "p3", code = "SOC", name = "Sociara", categoryEyebrow = "", description = "", features = emptyList()
+        )
+        val localizedSocEn = LocalizationManager.getLocalizedProduct(dummySoc)
+        assertEquals("Social Impact & Community Engagement", localizedSocEn.categoryEyebrow)
+        assertEquals(
+            "Social impact management and evaluation platform (Social Return on Investment / SROI), industrial community relations, and sustainable corporate CSR programs.",
+            localizedSocEn.description
+        )
+        assertEquals("SROI Measurement & CSR Impact Effectiveness Evaluation", localizedSocEn.features[0])
+
+        val dummyEco = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "p4", code = "ECO", name = "Ecoflow", categoryEyebrow = "", description = "", features = emptyList()
+        )
+        val localizedEcoEn = LocalizationManager.getLocalizedProduct(dummyEco)
+        assertEquals("Resource & Ecological Intelligence", localizedEcoEn.categoryEyebrow)
+        assertEquals(
+            "Resource flow monitoring solution for energy, water, and circular waste to drive industrial operational efficiency toward Net Zero targets.",
+            localizedEcoEn.description
+        )
+        assertEquals("Energy Consumption Monitoring & Operational Efficiency", localizedEcoEn.features[0])
+    }
+
+    @Test
+    fun testValueLoopSectionLocalization() {
+        // Indonesian
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("SOLUSI STRATEGIS", LocalizationManager.getString("valueloop_eyebrow"))
+        assertEquals("Siklus Nilai Berkelanjutan", LocalizationManager.getString("valueloop_title"))
+        assertEquals("Mengubah kompleksitas data menjadi dampak nyata terukur bagi organisasi dan masyarakat.", LocalizationManager.getString("valueloop_desc"))
+        assertEquals("Insight", LocalizationManager.getString("valueloop_step_1_title"))
+        assertEquals("Agregasi data multi-dimensi", LocalizationManager.getString("valueloop_step_1_subtitle"))
+        assertEquals("Integrasi", LocalizationManager.getString("valueloop_step_2_title"))
+        assertEquals("Unifikasi silo informasi", LocalizationManager.getString("valueloop_step_2_subtitle"))
+        assertEquals("Analisis", LocalizationManager.getString("valueloop_step_3_title"))
+        assertEquals("Pemodelan prediktif AI", LocalizationManager.getString("valueloop_step_3_subtitle"))
+        assertEquals("Aksi", LocalizationManager.getString("valueloop_step_4_title"))
+        assertEquals("Eksekusi keputusan presisi", LocalizationManager.getString("valueloop_step_4_subtitle"))
+        assertEquals("Dampak", LocalizationManager.getString("valueloop_step_5_title"))
+        assertEquals("Pengukuran nilai terverifikasi", LocalizationManager.getString("valueloop_step_5_subtitle"))
+
+        // English
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("STRATEGIC SOLUTIONS", LocalizationManager.getString("valueloop_eyebrow"))
+        assertEquals("Sustainable Value Loop", LocalizationManager.getString("valueloop_title"))
+        assertEquals("Transforming data complexity into tangible, measurable impact for organizations and communities.", LocalizationManager.getString("valueloop_desc"))
+        assertEquals("Insight", LocalizationManager.getString("valueloop_step_1_title"))
+        assertEquals("Multi-dimensional data aggregation", LocalizationManager.getString("valueloop_step_1_subtitle"))
+        assertEquals("Integrasi", LocalizationManager.getString("valueloop_step_2_title"))
+        assertEquals("Unification of information silos", LocalizationManager.getString("valueloop_step_2_subtitle"))
+        assertEquals("Analisis", LocalizationManager.getString("valueloop_step_3_title"))
+        assertEquals("AI predictive modeling", LocalizationManager.getString("valueloop_step_3_subtitle"))
+        assertEquals("Aksi", LocalizationManager.getString("valueloop_step_4_title"))
+        assertEquals("Precision decision execution", LocalizationManager.getString("valueloop_step_4_subtitle"))
+        assertEquals("Dampak", LocalizationManager.getString("valueloop_step_5_title"))
+        assertEquals("Verified value measurement", LocalizationManager.getString("valueloop_step_5_subtitle"))
+    }
+
+    @Test
+    fun testEBookPromoSectionLocalization() {
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("PERPUSTAKAAN DIGITAL", LocalizationManager.getString("ebook_promo_eyebrow"))
+        assertEquals("E-Book & Panduan\nStrategis.", LocalizationManager.getString("ebook_promo_title"))
+        assertEquals("Semua", LocalizationManager.getString("ebook_filter_all"))
+        assertEquals("Belum ada e-book untuk kategori ini.", LocalizationManager.getString("ebook_empty"))
+        assertEquals("Lihat Detail", LocalizationManager.getString("ebook_view_details"))
+
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("DIGITAL LIBRARY", LocalizationManager.getString("ebook_promo_eyebrow"))
+        assertEquals("E-Books & Strategic\nGuides.", LocalizationManager.getString("ebook_promo_title"))
+        assertEquals("All", LocalizationManager.getString("ebook_filter_all"))
+        assertEquals("No e-books available for this category.", LocalizationManager.getString("ebook_empty"))
+        assertEquals("View Details", LocalizationManager.getString("ebook_view_details"))
+    }
+
+    @Test
+    fun testWhySekotaSectionLocalization() {
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("MENGAPA SEKOTA", LocalizationManager.getString("why_sekota_eyebrow"))
+        assertEquals("Arsitektur Keputusan Berbasis Bukti.", LocalizationManager.getString("why_sekota_title"))
+        assertEquals(
+            "Kami memadukan kedalaman riset kebijakan, kecerdasan buatan terapan, dan metodologi dampak terverifikasi untuk memandu navigasi strategis korporasi di tengah lanskap risiko 2026.",
+            LocalizationManager.getString("why_sekota_desc")
+        )
+        assertEquals("Konsultasi Strategis", LocalizationManager.getString("why_sekota_cta"))
+        assertEquals("Presisi Analitik", LocalizationManager.getString("why_sekota_card_1_title"))
+        assertEquals("Kedalaman Riset & Data Nyata", LocalizationManager.getString("why_sekota_card_1_desc"))
+        assertEquals("Tata Kelola Terpercaya", LocalizationManager.getString("why_sekota_card_2_title"))
+        assertEquals("Standar Keamanan & Kepatuhan Tinggi", LocalizationManager.getString("why_sekota_card_2_desc"))
+        assertEquals("Dampak Terukur", LocalizationManager.getString("why_sekota_card_3_title"))
+        assertEquals("Metrik Keberlanjutan Sesuai Regulasi", LocalizationManager.getString("why_sekota_card_3_desc"))
+
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("WHY SEKOTA", LocalizationManager.getString("why_sekota_eyebrow"))
+        assertEquals("Evidence-Based Decision Architecture.", LocalizationManager.getString("why_sekota_title"))
+        assertEquals(
+            "We combine deep policy research, applied artificial intelligence, and verified impact methodologies to guide corporate strategic navigation amidst the 2026 risk landscape.",
+            LocalizationManager.getString("why_sekota_desc")
+        )
+        assertEquals("Strategic Consultation", LocalizationManager.getString("why_sekota_cta"))
+        assertEquals("Analytical Precision: Deep Research & Real-World Data", LocalizationManager.getString("why_sekota_card_1_title"))
+        assertEquals("Trusted Governance: High Security & Compliance Standards", LocalizationManager.getString("why_sekota_card_2_title"))
+        assertEquals("Measurable Impact: Regulatory-Aligned Sustainability Metrics", LocalizationManager.getString("why_sekota_card_3_title"))
+    }
+
+    @Test
+    fun testContactFormSectionLocalization() {
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("Mulai Diskusi Strategis.", LocalizationManager.getString("contact_title"))
+        assertEquals(
+            "Diskusikan tantangan analitik, kepatuhan ESG, atau tata kelola data organisasi Anda bersama tim konsultan Sekota.",
+            LocalizationManager.getString("contact_subtitle")
+        )
+        assertEquals("Nama Lengkap", LocalizationManager.getString("contact_name_label"))
+        assertEquals("Masukkan nama lengkap Anda", LocalizationManager.getString("contact_name_placeholder"))
+        assertEquals("Email Perusahaan", LocalizationManager.getString("contact_email_label"))
+        assertEquals("nama@perusahaan.com", LocalizationManager.getString("contact_email_placeholder"))
+        assertEquals("Nama Institusi / Korporasi", LocalizationManager.getString("contact_org_label"))
+        assertEquals("Contoh: PT Nusantara Daya", LocalizationManager.getString("contact_org_placeholder"))
+        assertEquals("Topik Kebutuhan", LocalizationManager.getString("contact_topic_label"))
+        assertEquals("Pesan / Catatan Tambahan", LocalizationManager.getString("contact_message_label"))
+        assertEquals(
+            "Jelaskan ringkas konteks kebutuhan atau permasalahan strategis Anda...",
+            LocalizationManager.getString("contact_message_placeholder")
+        )
+        assertEquals("Kirim Permintaan Konsultasi", LocalizationManager.getString("contact_submit_btn"))
+        assertEquals("Permintaan Konsultasi Diterima", LocalizationManager.getString("contact_success_title"))
+        assertEquals("Tim analis strategis kami akan menghubungi Anda dalam 1x24 jam kerja.", LocalizationManager.getString("contact_success_desc"))
+
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("Start a Strategic Discussion.", LocalizationManager.getString("contact_title"))
+        assertEquals(
+            "Discuss your organization's analytics, ESG compliance, or data governance challenges with Sekota consultants.",
+            LocalizationManager.getString("contact_subtitle")
+        )
+        assertEquals("Full Name", LocalizationManager.getString("contact_name_label"))
+        assertEquals("Enter your full name", LocalizationManager.getString("contact_name_placeholder"))
+        assertEquals("Corporate Email", LocalizationManager.getString("contact_email_label"))
+        assertEquals("name@company.com", LocalizationManager.getString("contact_email_placeholder"))
+        assertEquals("Organization / Corporation", LocalizationManager.getString("contact_org_label"))
+        assertEquals("e.g. Nusantara Energy Ltd.", LocalizationManager.getString("contact_org_placeholder"))
+        assertEquals("Topic of Inquiry", LocalizationManager.getString("contact_topic_label"))
+        assertEquals("Message / Additional Notes", LocalizationManager.getString("contact_message_label"))
+        assertEquals(
+            "Briefly outline your strategic requirements or challenges...",
+            LocalizationManager.getString("contact_message_placeholder")
+        )
+        assertEquals("Submit Consultation Request", LocalizationManager.getString("contact_submit_btn"))
+        assertEquals("Consultation Request Received", LocalizationManager.getString("contact_success_title"))
+        assertEquals("Our strategic analyst team will contact you within 1 business day.", LocalizationManager.getString("contact_success_desc"))
+    }
+
+    @Test
+    fun testCatalogAndBookDetailsLocalization() {
+        LocalizationManager.setLocale(AppLocale.ID)
+        assertEquals("PERPUSTAKAAN DIGITAL", LocalizationManager.getString("catalog_eyebrow"))
+        assertEquals("eBook Catalogue", LocalizationManager.getString("catalog_title"))
+        assertEquals("Tidak ada e-book yang cocok dengan filter Anda.", LocalizationManager.getString("catalog_empty"))
+        assertEquals("Baca Sekarang", LocalizationManager.getString("book_details_read_btn"))
+        assertEquals("Pratinjau PDF", LocalizationManager.getString("book_details_preview_pdf"))
+        assertEquals("Sinopsis Riset", LocalizationManager.getString("book_details_synopsis"))
+        assertEquals("Tentang Penulis", LocalizationManager.getString("book_details_about_author"))
+        assertEquals("Apa yang Ada di Dalam Buku?", LocalizationManager.getString("book_details_whats_inside"))
+
+        LocalizationManager.setLocale(AppLocale.EN)
+        assertEquals("DIGITAL LIBRARY", LocalizationManager.getString("catalog_eyebrow"))
+        assertEquals("eBook Catalogue", LocalizationManager.getString("catalog_title"))
+        assertEquals("No e-books match your active filters.", LocalizationManager.getString("catalog_empty"))
+        assertEquals("Read Now", LocalizationManager.getString("book_details_read_btn"))
+        assertEquals("PDF Preview", LocalizationManager.getString("book_details_preview_pdf"))
+        assertEquals("Research Synopsis", LocalizationManager.getString("book_details_synopsis"))
+        assertEquals("About the Author", LocalizationManager.getString("book_details_about_author"))
+        assertEquals("What's Inside the Book?", LocalizationManager.getString("book_details_whats_inside"))
+    }
 }

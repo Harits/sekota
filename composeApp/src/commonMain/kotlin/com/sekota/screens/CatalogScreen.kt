@@ -25,6 +25,10 @@ import com.sekota.ui.contentGridColumns
 import com.sekota.ui.gridSpacing
 import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.windowWidthOf
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
 
 @Composable
 fun CatalogScreen(
@@ -190,7 +194,7 @@ fun CatalogContent(windowWidth: WindowWidth, filteredBooks: List<AdminBook>, onB
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Membawa semangat sinergi ke dalam genggaman. E-book katalog ini adalah kurasi instrumen taktis yang dirancang untuk memperkuat konektivitas tim dan mitra strategis Anda. Mari orkestrasi identitas profesional bersama Sekota.",
+            text = stringResource("catalog_desc"),
             fontSize = 16.sp,
             color = Color.Black.copy(alpha = 0.7f),
             fontFamily = getDmSansFontFamily(),
@@ -221,7 +225,7 @@ fun CatalogContent(windowWidth: WindowWidth, filteredBooks: List<AdminBook>, onB
                 ) {
                     com.sekota.components.BookEditionVectorIcon(size = 36.dp, tint = Color.Gray)
                     Text(
-                        text = "Tidak ada e-book yang cocok dengan filter Anda.",
+                        text = stringResource("catalog_empty"),
                         fontFamily = getDmSansFontFamily(),
                         fontSize = 16.sp,
                         color = Color.Gray
@@ -339,6 +343,25 @@ fun CatalogContentEmptyPreview() {
             filteredBooks = emptyList(),
             onBookClick = {}
         )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun CatalogContentEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        MaterialTheme {
+            CatalogContent(
+                windowWidth = WindowWidth.Expanded,
+                filteredBooks = emptyList(),
+                onBookClick = {}
+            )
+        }
     }
 }
 

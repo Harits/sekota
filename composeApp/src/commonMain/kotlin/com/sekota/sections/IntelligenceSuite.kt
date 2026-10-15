@@ -41,6 +41,10 @@ import com.sekota.ui.gridSpacing
 import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.sectionVerticalPadding
 import com.sekota.ui.windowWidthOf
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
@@ -85,7 +89,7 @@ fun IntelligenceSuite(
                 SuiteHeaderTitle(windowWidth)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Dirancang untuk saling terhubung dalam satu ekosistem data yang kohesif.",
+                    text = stringResource("suite_subtitle"),
                     fontSize = 16.sp,
                     color = Color.Gray,
                     fontFamily = getDmSansFontFamily(),
@@ -101,7 +105,7 @@ fun IntelligenceSuite(
             ) {
                 Box(modifier = Modifier.weight(1f)) { SuiteHeaderTitle(windowWidth) }
                 Text(
-                    text = "Dirancang untuk saling terhubung dalam satu ekosistem data yang kohesif.",
+                    text = stringResource("suite_subtitle"),
                     fontSize = 16.sp,
                     color = Color.Gray,
                     fontFamily = getDmSansFontFamily(),
@@ -119,21 +123,22 @@ fun IntelligenceSuite(
                     horizontalArrangement = Arrangement.spacedBy(gridSpacing)
                 ) {
                     rowProducts.forEach { product ->
-                        val logo = when (product.code.uppercase()) {
+                        val localizedProduct = LocalizationManager.getLocalizedProduct(product)
+                        val logo = when (localizedProduct.code.uppercase()) {
                             "VRD" -> Res.drawable.icon_veridia
                             "ASC" -> Res.drawable.icon_acscendio
                             "SOC" -> Res.drawable.icon_sociara
                             "ECO" -> Res.drawable.icon_ecoflow
                             else -> Res.drawable.icon_veridia
                         }
-                        val defaultAccentColor = when (product.code.uppercase()) {
+                        val defaultAccentColor = when (localizedProduct.code.uppercase()) {
                             "VRD" -> Color(0xFF00BFA5)
                             "ASC" -> Color(0xFF1976D2)
                             "SOC" -> Color(0xFF8BC34A)
                             "ECO" -> Color(0xFF4CAF50)
                             else -> Color(0xFF00B5C8)
                         }
-                        val customHex = product.accentColorHex
+                        val customHex = localizedProduct.accentColorHex
                         val accentColor = if (!customHex.isNullOrBlank()) {
                             try {
                                 val cleanHex = customHex.removePrefix("#")
@@ -144,17 +149,17 @@ fun IntelligenceSuite(
                         } else defaultAccentColor
 
                         SuiteCard(
-                            category = product.categoryEyebrow.uppercase(),
-                            title = product.name.uppercase(),
-                            description = product.description,
-                            features = product.features,
+                            category = localizedProduct.categoryEyebrow.uppercase(),
+                            title = localizedProduct.name.uppercase(),
+                            description = localizedProduct.description,
+                            features = localizedProduct.features,
                             logo = logo,
                             accentColor = accentColor,
-                            customIconUrlOrBase64 = product.iconUrlOrBase64,
+                            customIconUrlOrBase64 = localizedProduct.iconUrlOrBase64,
                             compactPadding = windowWidth.isCompact,
                             minHeight = if (columns == 1) 0.dp else 480.dp,
                             modifier = Modifier.weight(1f).fillMaxHeight(),
-                            onClick = { onProductClick(product) }
+                            onClick = { onProductClick(localizedProduct) }
                         )
                     }
                     repeat(columns - rowProducts.size) {
@@ -171,7 +176,7 @@ fun IntelligenceSuite(
 private fun SuiteHeaderTitle(windowWidth: WindowWidth) {
     Column {
         Text(
-            text = "EKOSISTEM PRODUK",
+            text = stringResource("suite_eyebrow"),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF60BD65),
@@ -179,7 +184,7 @@ private fun SuiteHeaderTitle(windowWidth: WindowWidth) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Intelligence Suite.",
+            text = stringResource("suite_title"),
             fontSize = if (windowWidth.isCompact) 30.sp else 40.sp,
             lineHeight = if (windowWidth.isCompact) 38.sp else 48.sp,
             fontWeight = FontWeight.ExtraBold,
@@ -350,7 +355,7 @@ fun SuiteCard(
                     )
             ) {
                 Text(
-                    text = "Pelajari Selengkapnya",
+                    text = stringResource("suite_learn_more"),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00B5C8),
@@ -499,6 +504,21 @@ fun IntelligenceSuiteCustomIconCardPreview() {
 fun IntelligenceSuiteCompactMobilePreview() {
     androidx.compose.material3.MaterialTheme {
         Box(modifier = Modifier.width(375.dp)) {
+            IntelligenceSuite()
+        }
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun IntelligenceSuiteEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        androidx.compose.material3.MaterialTheme {
             IntelligenceSuite()
         }
     }

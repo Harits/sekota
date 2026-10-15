@@ -26,9 +26,12 @@ import com.sekota.features.admin.domain.model.WhySekotaConfig
 import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.WindowWidth
 import com.sekota.ui.cardPadding
-import com.sekota.ui.sectionHorizontalPadding
-import com.sekota.ui.sectionVerticalPadding
 import com.sekota.ui.windowWidthOf
+import com.sekota.ui.sectionVerticalPadding
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
@@ -79,6 +82,30 @@ private fun ValuePropDarkContent(
     // narrower than that the pair stacks beneath the headline.
     val stacked = windowWidth.isAtMostMedium
 
+    val isCanonicalConfig = config.preTitle.equals("MENGAPA SEKOTA", ignoreCase = true) ||
+        config.preTitle.equals("WHY SEKOTA", ignoreCase = true) ||
+        config.title.contains("Bukan Sekadar", ignoreCase = true) ||
+        config.title.contains("Decision Architecture", ignoreCase = true)
+
+    val displayPreTitle = if (isCanonicalConfig) stringResource("why_sekota_eyebrow") else config.preTitle
+    val displayTitle = if (isCanonicalConfig) stringResource("why_sekota_title") else config.title
+    val displayDesc = if (isCanonicalConfig) stringResource("why_sekota_desc") else config.description
+    val displayCtaLabel = if (isCanonicalConfig) stringResource("why_sekota_cta") else config.ctaLabel
+
+    val displayCards = remember(config.cards, isCanonicalConfig) {
+        if (isCanonicalConfig) {
+            config.cards.mapIndexed { idx, card ->
+                val cardIdx = idx + 1
+                card.copy(
+                    title = LocalizationManager.getString("why_sekota_card_${cardIdx}_title"),
+                    description = LocalizationManager.getString("why_sekota_card_${cardIdx}_desc")
+                )
+            }
+        } else {
+            config.cards
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,7 +118,7 @@ private fun ValuePropDarkContent(
         val copy = @Composable { modifier: Modifier ->
             Column(modifier = modifier) {
                 Text(
-                    text = config.preTitle,
+                    text = displayPreTitle,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A99D),
@@ -100,7 +127,7 @@ private fun ValuePropDarkContent(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = config.title,
+                    text = displayTitle,
                     fontSize = if (windowWidth.isCompact) 34.sp else 52.sp,
                     lineHeight = if (windowWidth.isCompact) 42.sp else 60.sp,
                     fontWeight = FontWeight.ExtraBold,
@@ -109,7 +136,7 @@ private fun ValuePropDarkContent(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = config.description,
+                    text = displayDesc,
                     fontSize = 18.sp,
                     lineHeight = 28.sp,
                     color = Color.Gray,
@@ -137,7 +164,7 @@ private fun ValuePropDarkContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = config.ctaLabel,
+                            text = displayCtaLabel,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontFamily = getDmSansFontFamily(),
@@ -154,7 +181,7 @@ private fun ValuePropDarkContent(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                config.cards.forEach { card ->
+                displayCards.forEach { card ->
                     ValuePropCard(
                         title = card.title,
                         description = card.description,
@@ -235,6 +262,21 @@ fun ValuePropCard(
 fun ValuePropDarkPreview() {
     MaterialTheme {
         ValuePropDark()
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ValuePropDarkEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        MaterialTheme {
+            ValuePropDark()
+        }
     }
 }
 

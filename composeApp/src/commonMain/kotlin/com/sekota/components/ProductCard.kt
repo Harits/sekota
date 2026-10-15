@@ -27,13 +27,14 @@ import sekota.composeapp.generated.resources.filled_star
 import androidx.compose.ui.layout.ContentScale
 import com.sekota.utils.decodeBase64ToBitmap
 import sekota.composeapp.generated.resources.stroke_star
+import com.sekota.localization.stringResource
 
 @Composable
 fun ProductCard(
     title: String,
     authorOrSubtitle: String,
     rating: Double,
-    buttonText: String = "View Details",
+    buttonText: String = stringResource("ebook_view_details"),
     imageColor: Color = Color(0xFFEEEEEE),
     imageUrlOrBase64: String? = null,
     modifier: Modifier = Modifier,

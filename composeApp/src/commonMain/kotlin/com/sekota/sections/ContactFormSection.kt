@@ -22,6 +22,10 @@ import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.Res
 import sekota.composeapp.generated.resources.*
 
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
 import com.sekota.ui.contentHorizontalPadding
 import com.sekota.ui.windowWidthOf
 import com.sekota.ui.sectionVerticalPadding
@@ -46,6 +50,13 @@ fun ContactFormSection(
     BoxWithConstraints {
         val isCompact = maxWidth < 840.dp
         val horizontalPadding = contentHorizontalPadding(maxWidth)
+        val isCanonical = liveConfig.title.contains("Mulai Percakapan", ignoreCase = true) ||
+            liveConfig.title.contains("Mulai Diskusi", ignoreCase = true) ||
+            liveConfig.title.contains("Start a Strategic Discussion", ignoreCase = true)
+
+        val displayTitle = if (isCanonical) stringResource("contact_title") else liveConfig.title
+        val displaySubtitle = if (isCanonical) stringResource("contact_subtitle") else liveConfig.subtitle
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,7 +71,7 @@ fun ContactFormSection(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = liveConfig.title,
+                            text = displayTitle,
                             fontSize = 36.sp,
                             lineHeight = 44.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -69,7 +80,7 @@ fun ContactFormSection(
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = liveConfig.subtitle,
+                            text = displaySubtitle,
                             fontSize = 18.sp,
                             lineHeight = 28.sp,
                             color = Color(0xFF64748B),
@@ -107,7 +118,7 @@ fun ContactFormSection(
                     // Left: Contact Info
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = liveConfig.title,
+                            text = displayTitle,
                             fontSize = 56.sp,
                             lineHeight = 64.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -116,7 +127,7 @@ fun ContactFormSection(
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = liveConfig.subtitle,
+                            text = displaySubtitle,
                             fontSize = 18.sp,
                             lineHeight = 28.sp,
                             color = Color(0xFF64748B),
@@ -180,6 +191,17 @@ fun ContactFormCard(
             var isSubmitting by remember { mutableStateOf(initialIsSubmitting) }
             val coroutineScope = rememberCoroutineScope()
 
+            val isCanonicalForm = config.nameLabel.contains("NAMA", ignoreCase = true) ||
+                config.nameLabel.contains("Full Name", ignoreCase = true)
+
+            val nameLabel = if (isCanonicalForm) stringResource("contact_name_label") else config.nameLabel
+            val namePlaceholder = if (isCanonicalForm) stringResource("contact_name_placeholder") else config.namePlaceholder
+            val emailLabel = if (isCanonicalForm) stringResource("contact_email_label") else config.emailLabel
+            val emailPlaceholder = if (isCanonicalForm) stringResource("contact_email_placeholder") else config.emailPlaceholder
+            val messageLabel = if (isCanonicalForm) stringResource("contact_message_label") else config.messageLabel
+            val messagePlaceholder = if (isCanonicalForm) stringResource("contact_message_placeholder") else config.messagePlaceholder
+            val submitBtnLabel = if (isCanonicalForm) stringResource("contact_submit_btn") else config.submitButtonLabel
+
             if (submissionSuccess) {
                 Surface(
                     color = Color(0xFFE8F5E9),
@@ -194,14 +216,14 @@ fun ContactFormCard(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = "Permintaan Konsultasi Diterima",
+                                text = stringResource("contact_success_title"),
                                 fontFamily = getDmSansFontFamily(),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 color = Color(0xFF2E7D32)
                             )
                             Text(
-                                text = "Tim analis strategis kami akan menghubungi Anda dalam 1x24 jam kerja.",
+                                text = stringResource("contact_success_desc"),
                                 fontFamily = getDmSansFontFamily(),
                                 fontSize = 14.sp,
                                 color = Color(0xFF388E3C)
@@ -239,15 +261,15 @@ fun ContactFormCard(
                     FormTextField(
                         value = name,
                         onValueChange = { name = it; validationError = null },
-                        label = config.nameLabel,
-                        placeholder = config.namePlaceholder,
+                        label = nameLabel,
+                        placeholder = namePlaceholder,
                         modifier = Modifier.fillMaxWidth()
                     )
                     FormTextField(
                         value = email,
                         onValueChange = { email = it; validationError = null },
-                        label = config.emailLabel,
-                        placeholder = config.emailPlaceholder,
+                        label = emailLabel,
+                        placeholder = emailPlaceholder,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -259,15 +281,15 @@ fun ContactFormCard(
                     FormTextField(
                         value = name,
                         onValueChange = { name = it; validationError = null },
-                        label = config.nameLabel,
-                        placeholder = config.namePlaceholder,
+                        label = nameLabel,
+                        placeholder = namePlaceholder,
                         modifier = Modifier.weight(1f)
                     )
                     FormTextField(
                         value = email,
                         onValueChange = { email = it; validationError = null },
-                        label = config.emailLabel,
-                        placeholder = config.emailPlaceholder,
+                        label = emailLabel,
+                        placeholder = emailPlaceholder,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -276,8 +298,8 @@ fun ContactFormCard(
             FormTextField(
                 value = message,
                 onValueChange = { message = it; validationError = null },
-                label = config.messageLabel,
-                placeholder = config.messagePlaceholder,
+                label = messageLabel,
+                placeholder = messagePlaceholder,
                 modifier = Modifier.fillMaxWidth(),
                 isTextArea = true
             )
@@ -359,7 +381,7 @@ fun ContactFormCard(
                     }
                 } else {
                     Text(
-                        text = config.submitButtonLabel,
+                        text = submitBtnLabel,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
@@ -455,6 +477,21 @@ fun FormTextField(
 fun ContactFormSectionPreview() {
     MaterialTheme {
         ContactFormSection(config = StrategicConversationConfig())
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ContactFormSectionEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        MaterialTheme {
+            ContactFormSection(config = StrategicConversationConfig())
+        }
     }
 }
 

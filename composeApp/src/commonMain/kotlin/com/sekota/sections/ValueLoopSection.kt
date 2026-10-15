@@ -28,6 +28,11 @@ import com.sekota.ui.windowWidthOf
 import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.sectionVerticalPadding
 
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
+
 @Composable
 fun ValueLoopSection(
     config: com.sekota.features.admin.domain.model.ValueLoopConfig? = null
@@ -58,6 +63,27 @@ private fun ValueLoopContent(
     windowWidth: WindowWidth,
     horizontalPadding: Dp
 ) {
+    // Check if liveConfig uses canonical default values or was customized in CMS
+    val isDefaultConfig = config.sectionEyebrow == "SOLUSI KAMI" || config.sectionEyebrow == "SOLUSI STRATEGIS" || config.sectionEyebrow.isBlank()
+
+    val displayEyebrow = if (isDefaultConfig) stringResource("valueloop_eyebrow") else config.sectionEyebrow
+    val displayTitle = if (isDefaultConfig && config.title == "Strategic Value Loop") stringResource("valueloop_title") else config.title
+    val displayDesc = if (isDefaultConfig && config.description.contains("siklus tertutup")) stringResource("valueloop_desc") else config.description
+
+    val displaySteps = remember(config.steps, isDefaultConfig) {
+        if (isDefaultConfig && config.steps.size == 5) {
+            config.steps.mapIndexed { idx, step ->
+                val stepIdx = idx + 1
+                step.copy(
+                    title = LocalizationManager.getString("valueloop_step_${stepIdx}_title"),
+                    subtitle = LocalizationManager.getString("valueloop_step_${stepIdx}_subtitle")
+                )
+            }
+        } else {
+            config.steps
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -68,7 +94,7 @@ private fun ValueLoopContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = config.sectionEyebrow,
+            text = displayEyebrow,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF14B8A6),
@@ -77,7 +103,7 @@ private fun ValueLoopContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = config.title,
+            text = displayTitle,
             fontSize = if (windowWidth.isCompact) 32.sp else 48.sp,
             lineHeight = if (windowWidth.isCompact) 40.sp else 56.sp,
             fontWeight = FontWeight.Bold,
@@ -87,7 +113,7 @@ private fun ValueLoopContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = config.description,
+            text = displayDesc,
             fontSize = 18.sp,
             color = Color(0xFF64748B),
             fontFamily = getDmSansFontFamily(),
@@ -104,7 +130,7 @@ private fun ValueLoopContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                config.steps.forEach { step ->
+                displaySteps.forEach { step ->
                     LoopStep(step.stepNumber, step.title, step.subtitle, modifier = Modifier.fillMaxWidth())
                 }
             }
@@ -113,7 +139,7 @@ private fun ValueLoopContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                config.steps.chunked(2).forEach { pair ->
+                displaySteps.chunked(2).forEach { pair ->
                     Row(
                         modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -132,7 +158,7 @@ private fun ValueLoopContent(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                config.steps.forEachIndexed { index, step ->
+                displaySteps.forEachIndexed { index, step ->
                     if (index > 0) LoopDivider()
                     LoopStep(step.stepNumber, step.title, step.subtitle, modifier = Modifier.weight(1f).fillMaxHeight())
                 }
@@ -219,6 +245,23 @@ fun ValueLoopSectionDefaultPreview() {
         ValueLoopSection(
             config = com.sekota.features.admin.domain.model.ValueLoopConfig()
         )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ValueLoopSectionEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        MaterialTheme {
+            ValueLoopSection(
+                config = com.sekota.features.admin.domain.model.ValueLoopConfig()
+            )
+        }
     }
 }
 

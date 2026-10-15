@@ -33,6 +33,10 @@ import com.sekota.ui.gridSpacing
 import com.sekota.ui.sectionHorizontalPadding
 import com.sekota.ui.sectionVerticalPadding
 import com.sekota.ui.windowWidthOf
+import com.sekota.localization.stringResource
+import com.sekota.localization.LocalizationManager
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.AppLocale
 
 @Composable
 fun EBookPromo(
@@ -57,7 +61,8 @@ private fun EBookPromoContent(
     val getCategoriesUseCase = remember { com.sekota.features.admin.domain.usecase.GetAdminCategoriesUseCase(repository) }
     var allBooks by remember { mutableStateOf<List<AdminBook>>(emptyList()) }
     var dynamicCategories by remember { mutableStateOf<List<String>>(emptyList()) }
-    var selectedFilter by remember { mutableStateOf("Semua") }
+    val allFilterLabel = stringResource("ebook_filter_all")
+    var selectedFilter by remember { mutableStateOf("ALL_DEFAULT") }
 
     LaunchedEffect(Unit) {
         allBooks = getBooksUseCase()
@@ -68,8 +73,8 @@ private fun EBookPromoContent(
         }
     }
 
-    val filteredBooks = remember(allBooks, selectedFilter) {
-        if (selectedFilter.equals("Semua", ignoreCase = true)) {
+    val filteredBooks = remember(allBooks, selectedFilter, allFilterLabel) {
+        if (selectedFilter == "ALL_DEFAULT" || selectedFilter.equals("Semua", ignoreCase = true) || selectedFilter.equals("All", ignoreCase = true) || selectedFilter.equals(allFilterLabel, ignoreCase = true)) {
             allBooks
         } else {
             allBooks.filter { it.category.contains(selectedFilter, ignoreCase = true) }
@@ -88,7 +93,7 @@ private fun EBookPromoContent(
     ) {
         // Subtitle
         Text(
-            text = "PERPUSTAKAAN DIGITAL",
+            text = stringResource("ebook_promo_eyebrow"),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF26A69A),
@@ -99,15 +104,15 @@ private fun EBookPromoContent(
         // Title and Filters. The pills wrap dynamically based on categories.
         val title = @Composable {
             Text(
-                text = "E-Book & Panduan\nStrategis.",
+                text = stringResource("ebook_promo_title"),
                 fontSize = if (isCompact) 32.sp else 48.sp,
                 fontWeight = FontWeight.ExtraBold,
                 fontFamily = getMontserratFontFamily(),
                 lineHeight = if (isCompact) 40.sp else 56.sp
             )
         }
-        val categoryList = remember(dynamicCategories) {
-            val list = mutableListOf("Semua")
+        val categoryList = remember(dynamicCategories, allFilterLabel) {
+            val list = mutableListOf(allFilterLabel)
             if (dynamicCategories.isNotEmpty()) {
                 list.addAll(dynamicCategories.filter { !it.equals("All", ignoreCase = true) && !it.equals("Semua", ignoreCase = true) })
             } else {
@@ -123,11 +128,17 @@ private fun EBookPromoContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                categoryList.forEach { filter ->
+                categoryList.forEachIndexed { idx, filter ->
+                    val isFirstAll = idx == 0
+                    val isActive = if (isFirstAll) {
+                        selectedFilter == "ALL_DEFAULT" || selectedFilter.equals("Semua", ignoreCase = true) || selectedFilter.equals("All", ignoreCase = true) || selectedFilter.equals(allFilterLabel, ignoreCase = true)
+                    } else {
+                        selectedFilter.equals(filter, ignoreCase = true)
+                    }
                     FilterPill(
                         text = filter,
-                        active = selectedFilter.equals(filter, ignoreCase = true),
-                        onClick = { selectedFilter = filter }
+                        active = isActive,
+                        onClick = { selectedFilter = if (isFirstAll) "ALL_DEFAULT" else filter }
                     )
                 }
             }
@@ -159,7 +170,7 @@ private fun EBookPromoContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Belum ada e-book untuk kategori ini.",
+                    text = stringResource("ebook_empty"),
                     fontFamily = getDmSansFontFamily(),
                     color = Color.Gray,
                     fontSize = 16.sp
@@ -186,7 +197,7 @@ private fun EBookPromoContent(
                                 title = book.title,
                                 authorOrSubtitle = "${book.author} • ${book.category}",
                                 rating = book.rating,
-                                buttonText = "Lihat Detail",
+                                buttonText = stringResource("ebook_view_details"),
                                 imageColor = color,
                                 imageUrlOrBase64 = book.coverImage,
                                 cardHeight = if (columns >= 3) 520.dp else 480.dp,
@@ -373,6 +384,21 @@ fun EBookCard(
 fun EBookPromoPreview() {
     androidx.compose.material3.MaterialTheme {
         EBookPromo()
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun EBookPromoEnglishPreview() {
+    val enManager = remember {
+        LocalizationManager.apply { setLocale(AppLocale.EN) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalLocalization provides enManager
+    ) {
+        androidx.compose.material3.MaterialTheme {
+            EBookPromo()
+        }
     }
 }
 
