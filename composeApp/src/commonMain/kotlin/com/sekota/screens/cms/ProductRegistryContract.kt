@@ -75,7 +75,11 @@ sealed interface ActiveModalState {
         val description: String = "",
         val coverImageBase64: String = "",
         val featuresText: String = "",
-        val validationError: String? = null
+        val validationError: String? = null,
+        val activeLanguageTab: String = "ID", // "ID" or "EN"
+        val categoryEyebrowEn: String = "",
+        val descriptionEn: String = "",
+        val featuresTextEn: String = ""
     ) : ActiveModalState
 
     data class MerchModal(
@@ -157,12 +161,16 @@ sealed interface ProductRegistryIntent {
     data class UpdateBookPublishedDate(val value: String) : ProductRegistryIntent
 
     // Suite Form Edits
+    data class SwitchSuiteModalLanguage(val lang: String) : ProductRegistryIntent
     data class UpdateProductName(val value: String) : ProductRegistryIntent
     data class UpdateProductCode(val value: String) : ProductRegistryIntent
     data class UpdateProductEyebrow(val value: String) : ProductRegistryIntent
     data class UpdateProductDescription(val value: String) : ProductRegistryIntent
     data class UpdateProductFeaturesText(val value: String) : ProductRegistryIntent
     data class UpdateProductCoverImage(val base64: String) : ProductRegistryIntent
+    data class UpdateProductEyebrowEn(val value: String) : ProductRegistryIntent
+    data class UpdateProductDescriptionEn(val value: String) : ProductRegistryIntent
+    data class UpdateProductFeaturesTextEn(val value: String) : ProductRegistryIntent
 
     // Merch Form Edits
     data class UpdateMerchTitle(val value: String) : ProductRegistryIntent

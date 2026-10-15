@@ -358,4 +358,61 @@ class LocalizationManagerTest {
         assertEquals("About the Author", LocalizationManager.getString("book_details_about_author"))
         assertEquals("What's Inside the Book?", LocalizationManager.getString("book_details_whats_inside"))
     }
+
+    @Test
+    fun testAdminProductBilingualResolution() {
+        val productWithEn = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "custom-1",
+            code = "CST",
+            name = "Custom Platform",
+            categoryEyebrow = "Kategori ID",
+            description = "Deskripsi dalam Bahasa Indonesia",
+            features = listOf("Fitur 1", "Fitur 2"),
+            categoryEyebrowEn = "Category EN",
+            descriptionEn = "Description in English",
+            featuresEn = listOf("Feature 1", "Feature 2")
+        )
+
+        // Resolve directly
+        val resolvedEn = productWithEn.resolveForLocale(AppLocale.EN)
+        assertEquals("Category EN", resolvedEn.categoryEyebrow)
+        assertEquals("Description in English", resolvedEn.description)
+        assertEquals(listOf("Feature 1", "Feature 2"), resolvedEn.features)
+
+        val resolvedId = productWithEn.resolveForLocale(AppLocale.ID)
+        assertEquals("Kategori ID", resolvedId.categoryEyebrow)
+        assertEquals("Deskripsi dalam Bahasa Indonesia", resolvedId.description)
+        assertEquals(listOf("Fitur 1", "Fitur 2"), resolvedId.features)
+
+        // Test through LocalizationManager.getLocalizedProduct
+        LocalizationManager.setLocale(AppLocale.EN)
+        val localizedEn = LocalizationManager.getLocalizedProduct(productWithEn)
+        assertEquals("Category EN", localizedEn.categoryEyebrow)
+        assertEquals("Description in English", localizedEn.description)
+        assertEquals(listOf("Feature 1", "Feature 2"), localizedEn.features)
+
+        LocalizationManager.setLocale(AppLocale.ID)
+        val localizedId = LocalizationManager.getLocalizedProduct(productWithEn)
+        assertEquals("Kategori ID", localizedId.categoryEyebrow)
+        assertEquals("Deskripsi dalam Bahasa Indonesia", localizedId.description)
+        assertEquals(listOf("Fitur 1", "Fitur 2"), localizedId.features)
+
+        // Test fallback to ID fields when EN fields are blank or null
+        val productPartial = com.sekota.features.admin.domain.model.AdminProduct(
+            id = "custom-2",
+            code = "CST2",
+            name = "Custom 2",
+            categoryEyebrow = "Kategori Tetap",
+            description = "Deskripsi Tetap",
+            features = listOf("Fitur Tetap"),
+            categoryEyebrowEn = "",
+            descriptionEn = null,
+            featuresEn = emptyList()
+        )
+        val fallbackEn = productPartial.resolveForLocale(AppLocale.EN)
+        assertEquals("Kategori Tetap", fallbackEn.categoryEyebrow)
+        assertEquals("Deskripsi Tetap", fallbackEn.description)
+        assertEquals(listOf("Fitur Tetap"), fallbackEn.features)
+    }
 }
+

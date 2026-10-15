@@ -3,6 +3,7 @@ package com.sekota.screens.cms
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -497,26 +499,136 @@ fun ProductRegistryContent(
                         label = "Kode Produk"
                     )
 
-                    CmsInputField(
-                        value = modal.categoryEyebrow,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductEyebrow(it)) },
-                        label = "Category Eyebrow"
-                    )
+                    // Bilingual Authoring Switcher & Translation Status
+                    val isEnTab = modal.activeLanguageTab == "EN"
+                    val hasEnContent = modal.categoryEyebrowEn.isNotBlank() || modal.descriptionEn.isNotBlank() || modal.featuresTextEn.isNotBlank()
 
-                    CmsInputField(
-                        value = modal.description,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductDescription(it)) },
-                        label = "Deskripsi Solusi",
-                        isSingleLine = false,
-                        minLines = 3
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Language segmented pill switcher
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color(0xFFF1F5F9))
+                                .padding(3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // ID Tab Pill
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (!isEnTab) CmsBrandTeal else Color.Transparent,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable { onIntent(ProductRegistryIntent.SwitchSuiteModalLanguage("ID")) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "\uD83C\uDDEE\uD83C\uDDE9 Bahasa Indonesia",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = if (!isEnTab) FontWeight.Bold else FontWeight.Medium,
+                                        fontSize = 11.sp,
+                                        color = if (!isEnTab) Color.White else Color(0xFF64748B)
+                                    )
+                                }
+                            }
 
-                    CmsInputField(
-                        value = modal.featuresText,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateProductFeaturesText(it)) },
-                        label = "Fitur Utama (Pisahkan dengan koma)",
-                        placeholder = "e.g. Analytics, AI Forecast, Edge IoT"
-                    )
+                            // EN Tab Pill
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (isEnTab) CmsBrandTeal else Color.Transparent,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable { onIntent(ProductRegistryIntent.SwitchSuiteModalLanguage("EN")) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "\uD83C\uDDEC\uD83C\uDDE7 English",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = if (isEnTab) FontWeight.Bold else FontWeight.Medium,
+                                        fontSize = 11.sp,
+                                        color = if (isEnTab) Color.White else Color(0xFF64748B)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Subtle Translation Status Badge
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (hasEnContent) Color(0xFFE8F5E9) else Color(0xFFFFF8E1),
+                            border = BorderStroke(1.dp, if (hasEnContent) Color(0xFFA5D6A7) else Color(0xFFFFE082))
+                        ) {
+                            Text(
+                                text = if (hasEnContent) "Status: Lengkap (ID + EN)" else "Status: EN Fallback",
+                                fontFamily = getDmSansFontFamily(),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 10.sp,
+                                color = if (hasEnContent) Color(0xFF2E7D32) else Color(0xFFB78103),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    if (!isEnTab) {
+                        // ID Inputs
+                        CmsInputField(
+                            value = modal.categoryEyebrow,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductEyebrow(it)) },
+                            label = "Category Eyebrow (ID)",
+                            placeholder = "e.g. Enterprise, Government, Smart City"
+                        )
+
+                        CmsInputField(
+                            value = modal.description,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductDescription(it)) },
+                            label = "Deskripsi Solusi (ID)",
+                            isSingleLine = false,
+                            minLines = 3,
+                            placeholder = "Deskripsi modul solusi dalam Bahasa Indonesia"
+                        )
+
+                        CmsInputField(
+                            value = modal.featuresText,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductFeaturesText(it)) },
+                            label = "Fitur Utama (ID) - Pisahkan dengan koma",
+                            placeholder = "e.g. Analisis Waktu Nyata, Integrasi IoT, Prediksi AI"
+                        )
+                    } else {
+                        // EN Inputs
+                        CmsInputField(
+                            value = modal.categoryEyebrowEn,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductEyebrowEn(it)) },
+                            label = "Category Eyebrow (EN)",
+                            placeholder = "(English translation - leave empty to fallback to ID)"
+                        )
+
+                        CmsInputField(
+                            value = modal.descriptionEn,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductDescriptionEn(it)) },
+                            label = "Solution Description (EN)",
+                            isSingleLine = false,
+                            minLines = 3,
+                            placeholder = "(English translation - leave empty to fallback to ID)"
+                        )
+
+                        CmsInputField(
+                            value = modal.featuresTextEn,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateProductFeaturesTextEn(it)) },
+                            label = "Core Features (EN) - Comma separated",
+                            placeholder = "(English translation - leave empty to fallback to ID)"
+                        )
+                    }
 
                     CmsImageUploader(
                         imageBase64 = modal.coverImageBase64,
@@ -968,6 +1080,56 @@ fun ProductRegistryEmptyPreview() {
     MaterialTheme {
         ProductRegistryContent(
             state = ProductRegistryState(),
+            windowWidth = WindowWidth.Expanded,
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductRegistrySuiteModalIdPreview() {
+    MaterialTheme {
+        ProductRegistryContent(
+            state = ProductRegistryState(
+                activeModal = ActiveModalState.SuiteProductModal(
+                    editingProductId = "prod-01",
+                    name = "Sekota CityPulse Analytics",
+                    code = "PULSE",
+                    categoryEyebrow = "Enterprise Platform",
+                    description = "Platform analitik prediktif mobilitas perkotaan berbasis sensor spasial dan AI.",
+                    featuresText = "Mobilitas Cerdas, Sensor Spasial, Prediksi Kemacetan",
+                    activeLanguageTab = "ID",
+                    categoryEyebrowEn = "Enterprise Platform",
+                    descriptionEn = "Predictive urban mobility analytics platform powered by spatial sensors and AI.",
+                    featuresTextEn = "Smart Mobility, Spatial Sensor, Traffic Forecast"
+                )
+            ),
+            windowWidth = WindowWidth.Expanded,
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductRegistrySuiteModalEnPreview() {
+    MaterialTheme {
+        ProductRegistryContent(
+            state = ProductRegistryState(
+                activeModal = ActiveModalState.SuiteProductModal(
+                    editingProductId = "prod-01",
+                    name = "Sekota CityPulse Analytics",
+                    code = "PULSE",
+                    categoryEyebrow = "Enterprise Platform",
+                    description = "Platform analitik prediktif mobilitas perkotaan berbasis sensor spasial dan AI.",
+                    featuresText = "Mobilitas Cerdas, Sensor Spasial, Prediksi Kemacetan",
+                    activeLanguageTab = "EN",
+                    categoryEyebrowEn = "Enterprise Platform",
+                    descriptionEn = "Predictive urban mobility analytics platform powered by spatial sensors and AI.",
+                    featuresTextEn = "Smart Mobility, Spatial Sensor, Traffic Forecast"
+                )
+            ),
             windowWidth = WindowWidth.Expanded,
             onIntent = {}
         )

@@ -439,10 +439,19 @@ object LocalizationManager {
     )
 
     /**
-     * Resolves localized version of canonical products (Veridia, Ascendio, Sociara, Ecoflow).
-     * Translates categoryEyebrow, description, and features if they match canonical keys or standard product codes.
+     * Resolves localized version of canonical products (Veridia, Ascendio, Sociara, Ecoflow) or dynamic products.
+     * First checks if product bilingual fields (descriptionEn or featuresEn) are present and current locale is EN.
+     * Otherwise falls back to canonical dictionary lookups.
      */
     fun getLocalizedProduct(product: com.sekota.features.admin.domain.model.AdminProduct): com.sekota.features.admin.domain.model.AdminProduct {
+        val locale = _currentLocale.value
+        if (locale == AppLocale.EN) {
+            val hasEnContent = (!product.descriptionEn.isNullOrBlank()) || product.featuresEn.isNotEmpty() || (!product.categoryEyebrowEn.isNullOrBlank())
+            if (hasEnContent) {
+                return product.resolveForLocale(AppLocale.EN)
+            }
+        }
+
         val codeKey = when (product.code.uppercase().trim()) {
             "VRD" -> "vrd"
             "ASC" -> "asc"

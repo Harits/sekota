@@ -66,12 +66,16 @@ class ProductRegistryViewModel(
             is ProductRegistryIntent.UpdateBookPublishedDate -> updateBookModal { it.copy(publishedDate = intent.value) }
 
             // Suite Edits
+            is ProductRegistryIntent.SwitchSuiteModalLanguage -> updateSuiteModal { it.copy(activeLanguageTab = intent.lang) }
             is ProductRegistryIntent.UpdateProductName -> updateSuiteModal { it.copy(name = intent.value, validationError = null) }
             is ProductRegistryIntent.UpdateProductCode -> updateSuiteModal { it.copy(code = intent.value, validationError = null) }
             is ProductRegistryIntent.UpdateProductEyebrow -> updateSuiteModal { it.copy(categoryEyebrow = intent.value) }
             is ProductRegistryIntent.UpdateProductDescription -> updateSuiteModal { it.copy(description = intent.value) }
             is ProductRegistryIntent.UpdateProductFeaturesText -> updateSuiteModal { it.copy(featuresText = intent.value) }
             is ProductRegistryIntent.UpdateProductCoverImage -> updateSuiteModal { it.copy(coverImageBase64 = intent.base64) }
+            is ProductRegistryIntent.UpdateProductEyebrowEn -> updateSuiteModal { it.copy(categoryEyebrowEn = intent.value) }
+            is ProductRegistryIntent.UpdateProductDescriptionEn -> updateSuiteModal { it.copy(descriptionEn = intent.value) }
+            is ProductRegistryIntent.UpdateProductFeaturesTextEn -> updateSuiteModal { it.copy(featuresTextEn = intent.value) }
 
             // Merch Edits
             is ProductRegistryIntent.UpdateMerchTitle -> updateMerchModal { it.copy(title = intent.value, validationError = null) }
@@ -157,7 +161,11 @@ class ProductRegistryViewModel(
                     categoryEyebrow = product.categoryEyebrow,
                     description = product.description,
                     coverImageBase64 = product.iconUrlOrBase64 ?: "",
-                    featuresText = product.features.joinToString(", ")
+                    featuresText = product.features.joinToString(", "),
+                    activeLanguageTab = "ID",
+                    categoryEyebrowEn = product.categoryEyebrowEn ?: "",
+                    descriptionEn = product.descriptionEn ?: "",
+                    featuresTextEn = product.featuresEn.joinToString(", ")
                 )
             )
         }
@@ -234,6 +242,7 @@ class ProductRegistryViewModel(
         }
         val id = modal.editingProductId ?: "p-${Random.nextInt(1000, 9999)}"
         val feats = modal.featuresText.split(",").map { it.trim() }.filter { it.isNotBlank() }
+        val featsEn = modal.featuresTextEn.split(",").map { it.trim() }.filter { it.isNotBlank() }
         val prod = AdminProduct(
             id = id,
             code = modal.code.trim().uppercase(),
@@ -241,7 +250,10 @@ class ProductRegistryViewModel(
             categoryEyebrow = modal.categoryEyebrow.trim(),
             description = modal.description.trim(),
             features = feats,
-            iconUrlOrBase64 = modal.coverImageBase64.ifBlank { null }
+            iconUrlOrBase64 = modal.coverImageBase64.ifBlank { null },
+            categoryEyebrowEn = modal.categoryEyebrowEn.trim().ifBlank { null },
+            descriptionEn = modal.descriptionEn.trim().ifBlank { null },
+            featuresEn = featsEn
         )
         val actionLabel = if (modal.editingProductId == null) "Tambah Modul Suite" else "Edit Modul Suite"
         executeWithProductionGuard(actionLabel, prod.name, false) {

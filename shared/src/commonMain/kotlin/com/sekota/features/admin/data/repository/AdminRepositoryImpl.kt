@@ -174,6 +174,14 @@ class AdminRepositoryImpl(
                 "Pelaporan Keberlanjutan Otomatis (GRI, ISSB, IDX-ESG)",
                 "Pemodelan Skenario Dekarbonisasi Prediktif",
                 "Dashboard Tata Kelola Pemangku Kepentingan"
+            ),
+            categoryEyebrowEn = "ESG & Carbon Intelligence",
+            descriptionEn = "Comprehensive analytics platform for Scope 1, 2, and 3 carbon footprint tracking, environmental compliance, and automated ESG reporting aligned with global standards.",
+            featuresEn = listOf(
+                "Real-time Scope 1, 2, & 3 Carbon Footprint Audit",
+                "Automated Sustainability Reporting (GRI, ISSB, IDX-ESG)",
+                "Predictive Decarbonization Scenario Modeling",
+                "Stakeholder Governance Dashboard"
             )
         ),
         AdminProduct(
@@ -186,6 +194,14 @@ class AdminRepositoryImpl(
                 "Pemantauan Sentimen Media & Kebijakan Publik 24/7",
                 "Pemetaan Risiko Reputasi & Mitigasi Krisis B2B/B2G",
                 "Analisis Lanskap Regulasi & Pemangku Kepentingan",
+                "Executive Briefing & AI Strategic Recommendations"
+            ),
+            categoryEyebrowEn = "Strategic Corporate Intelligence",
+            descriptionEn = "Strategic business intelligence system for competitive market mapping, public policy sentiment analysis, and AI-powered reputation risk mitigation.",
+            featuresEn = listOf(
+                "24/7 Media Sentiment & Public Policy Monitoring",
+                "Reputation Risk Mapping & B2B/B2G Crisis Mitigation",
+                "Regulatory & Stakeholder Landscape Analysis",
                 "Executive Briefing & AI Strategic Recommendations"
             )
         ),
@@ -200,6 +216,14 @@ class AdminRepositoryImpl(
                 "Pemetaan Sosial & Dinamika Komunitas Lingkar Industri",
                 "Manajemen Keluhan & Relasi Pemangku Kepentingan Lokal",
                 "Pelaporan Keterlibatan Sosial Terverifikasi Audit"
+            ),
+            categoryEyebrowEn = "Social Impact & Community Engagement",
+            descriptionEn = "Social impact management and evaluation platform (Social Return on Investment / SROI), industrial community relations, and sustainable corporate CSR programs.",
+            featuresEn = listOf(
+                "SROI Measurement & CSR Impact Effectiveness Evaluation",
+                "Social Mapping & Community Dynamics Around Industrial Rings",
+                "Grievance Management & Local Stakeholder Relations",
+                "Audit-Verified Social Engagement Reporting"
             )
         ),
         AdminProduct(
@@ -213,6 +237,14 @@ class AdminRepositoryImpl(
                 "Manajemen Sirkularitas Limbah & Daur Ulang Industri",
                 "Pelacakan Konsumsi & Kualitas Neraca Air Industri",
                 "Integrasi Sertifikasi Green Building & ISO 14001"
+            ),
+            categoryEyebrowEn = "Resource & Ecological Intelligence",
+            descriptionEn = "Resource flow monitoring solution for energy, water, and circular waste to drive industrial operational efficiency toward Net Zero targets.",
+            featuresEn = listOf(
+                "Energy Consumption Monitoring & Operational Efficiency",
+                "Industrial Waste Circularity & Recycling Management",
+                "Industrial Water Balance Quality & Consumption Tracking",
+                "Green Building & ISO 14001 Certification Integration"
             )
         )
     )
