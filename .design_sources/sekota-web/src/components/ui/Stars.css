@@ -1,0 +1,33 @@
+.stars {
+  display: flex;
+  align-items: center;
+  font: 700 12px/12px var(--font-ui);
+  letter-spacing: 0.6px;
+  color: var(--color-catalog-muted);
+}
+
+.stars__icons {
+  display: flex;
+}
+
+.stars--sm .stars__icons {
+  gap: 4px;
+}
+
+.stars--sm img {
+  width: 13.33px;
+  height: 12.67px;
+}
+
+.stars--lg img {
+  width: 20px;
+  height: 19px;
+}
+
+.stars--sm .stars__label {
+  padding-left: 8px;
+}
+
+.stars--lg .stars__label {
+  padding-left: 12px;
+}

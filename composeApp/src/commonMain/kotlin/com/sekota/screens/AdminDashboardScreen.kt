@@ -57,6 +57,9 @@ import com.sekota.components.SekotaInfoVectorIcon
 
 val InkNavy = Color(0xFF0D1F2D)
 val BrandTeal = Color(0xFF00B5C8)
+val BrandGreen = Color(0xFF60BD65)
+val SurfacePure = Color(0xFFFFFFFF)
+val SurfaceAlt = Color(0xFFF7FAFB)
 
 @Composable
 fun AdminDashboardScreen(

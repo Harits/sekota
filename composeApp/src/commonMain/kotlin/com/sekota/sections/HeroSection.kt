@@ -43,6 +43,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import com.sekota.components.SekotaIconMark
 import com.sekota.ui.contentHorizontalPadding
+import com.sekota.localization.stringResource
 
 private val InkNavy = Color(0xFF0D1F2D)
 
@@ -114,7 +115,7 @@ fun HeroSection(
                                 .background(Color(0xFF02B6CF), CircleShape)
                         )
                         Text(
-                            text = "TRUSTED INTELLIGENCE. MEASURED IMPACT.",
+                            text = stringResource("hero_eyebrow"),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF02B6CF),
@@ -129,7 +130,7 @@ fun HeroSection(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Ekosistem Produk",
+                            text = stringResource("hero_title_part1"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -137,7 +138,7 @@ fun HeroSection(
                             fontFamily = getMontserratFontFamily()
                         )
                         Text(
-                            text = "Intelligence Suite",
+                            text = stringResource("hero_title_part2"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -151,7 +152,7 @@ fun HeroSection(
                             )
                         )
                         Text(
-                            text = "Sekota Sinergi Indonesia",
+                            text = stringResource("hero_title_part3"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -163,7 +164,7 @@ fun HeroSection(
 
                     // Description
                     Text(
-                        text = "Sekota menghadirkan Intelligence Suite: ekosistem produk berbasis data yang dirancang untuk membantu korporasi memetakan risiko sosial, mengukur dampak keberlanjutan, dan memperkuat relasi pemangku kepentingan.",
+                        text = stringResource("hero_description"),
                         fontSize = 15.sp,
                         lineHeight = 24.sp,
                         color = Color(0xFF4B5563),
@@ -191,7 +192,7 @@ fun HeroSection(
                                 .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
-                                text = "Eksplorasi Produk",
+                                text = stringResource("hero_cta_explore"),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = getDmSansFontFamily()
@@ -211,7 +212,7 @@ fun HeroSection(
                                 .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
-                                text = "Hubungi Tim Ahli",
+                                text = stringResource("hero_cta_contact"),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 fontFamily = getDmSansFontFamily()
@@ -259,7 +260,7 @@ fun HeroSection(
                                 .background(Color(0xFF02B6CF), CircleShape)
                         )
                         Text(
-                            text = "TRUSTED INTELLIGENCE. MEASURED IMPACT.",
+                            text = stringResource("hero_eyebrow"),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF02B6CF),
@@ -271,7 +272,7 @@ fun HeroSection(
                     // Headline
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = "Ekosistem Produk",
+                            text = stringResource("hero_title_part1"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -279,7 +280,7 @@ fun HeroSection(
                             fontFamily = getMontserratFontFamily()
                         )
                         Text(
-                            text = "Intelligence Suite",
+                            text = stringResource("hero_title_part2"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -293,7 +294,7 @@ fun HeroSection(
                             )
                         )
                         Text(
-                            text = "Sekota Sinergi Indonesia",
+                            text = stringResource("hero_title_part3"),
                             fontSize = headlineFontSize,
                             lineHeight = headlineLineHeight,
                             fontWeight = FontWeight.ExtraBold,
@@ -304,7 +305,7 @@ fun HeroSection(
 
                     // Description
                     Text(
-                        text = "Sekota menghadirkan Intelligence Suite: ekosistem produk berbasis data yang dirancang untuk membantu korporasi memetakan risiko sosial, mengukur dampak keberlanjutan, dan memperkuat relasi pemangku kepentingan.",
+                        text = stringResource("hero_description"),
                         fontSize = 17.sp,
                         lineHeight = 28.sp,
                         color = Color(0xFF4B5563),
@@ -329,7 +330,7 @@ fun HeroSection(
                                 .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
-                                 text = "Eksplorasi Produk",
+                                 text = stringResource("hero_cta_explore"),
                                  fontSize = 15.sp,
                                  fontWeight = FontWeight.Bold,
                                  fontFamily = getDmSansFontFamily(),
@@ -349,7 +350,7 @@ fun HeroSection(
                                 .pointerHoverIcon(PointerIcon.Hand)
                         ) {
                             Text(
-                                text = "Hubungi Tim Ahli",
+                                text = stringResource("hero_cta_contact"),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 fontFamily = getDmSansFontFamily(),
@@ -570,7 +571,7 @@ fun MetricsGraphic(
                 }
 
                 Text(
-                    "INTELLIGENCE SUITE\nPRODUCTS",
+                    stringResource("hero_suite_badge"),
                     color = Color.White,
                     fontSize = if (isCompact) 13.sp else 15.sp,
                     lineHeight = if (isCompact) 17.sp else 19.sp,
@@ -615,7 +616,7 @@ fun MetricsGraphic(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "LIVE METRICS",
+                        stringResource("hero_metric_title"),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray,
@@ -662,7 +663,7 @@ fun MetricsGraphic(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Data Accuracy",
+                            stringResource("hero_metric_accuracy"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
                             fontFamily = getMontserratFontFamily()
@@ -706,7 +707,7 @@ fun MetricsGraphic(
                             color = Color(0xFF111827)
                         )
                         Text(
-                            "KLIEN & MITRA",
+                            stringResource("hero_metric_clients"),
                             fontSize = 10.sp,
                             color = Color.Gray,
                             fontWeight = FontWeight.Bold,
@@ -722,7 +723,7 @@ fun MetricsGraphic(
                             color = Color(0xFF111827)
                         )
                         Text(
-                            "TAHUN BERDIRI",
+                            stringResource("hero_metric_established"),
                             fontSize = 10.sp,
                             color = Color.Gray,
                             fontWeight = FontWeight.Bold,
@@ -748,6 +749,44 @@ fun HeroSectionPreview() {
 fun HeroSectionDesktopPreview() {
     androidx.compose.material3.MaterialTheme {
         HeroSection()
+    }
+}
+
+@Preview(backgroundColor = 0xffffffff, showBackground = true, device = DESKTOP)
+@Composable
+fun HeroSectionMultiLanguageDesktopPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            // Indonesian Variant
+            androidx.compose.runtime.CompositionLocalProvider(
+                com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+                    setLocale(com.sekota.localization.AppLocale.ID)
+                }
+            ) {
+                Text(
+                    "Bahasa Indonesia (Default):",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    fontFamily = getMontserratFontFamily()
+                )
+                HeroSection()
+            }
+
+            // English Variant
+            androidx.compose.runtime.CompositionLocalProvider(
+                com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+                    setLocale(com.sekota.localization.AppLocale.EN)
+                }
+            ) {
+                Text(
+                    "English (Localized):",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    fontFamily = getMontserratFontFamily()
+                )
+                HeroSection()
+            }
+        }
     }
 }
 

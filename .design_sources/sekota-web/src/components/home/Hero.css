@@ -1,0 +1,231 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-white);
+  scroll-margin-top: var(--nav-h);
+}
+
+.hero__blur {
+  position: absolute;
+  top: -96px;
+  right: -96px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: rgba(0, 181, 200, 0.05);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.hero__container {
+  position: relative;
+  padding-block: 96px;
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 48px;
+  align-items: center;
+  min-height: 572.5px;
+}
+
+.hero__text {
+  grid-column: 1 / span 7;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.hero__title {
+  font: 800 var(--text-hero-size) / var(--text-hero-lh) var(--font-display);
+  letter-spacing: -3px;
+  color: var(--color-azure-11);
+}
+
+.hero__title span {
+  display: block;
+}
+
+.hero__lead {
+  max-width: 576px;
+  font: 300 20px/34px var(--font-body);
+  color: var(--ink-60);
+}
+
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 16px;
+}
+
+/* ---------- Floating card ---------- */
+.hero__float {
+  grid-column: 10 / span 3;
+  justify-self: end;
+  position: relative;
+  width: 389px;
+}
+
+.hero__ring {
+  position: absolute;
+  top: -42.25px;
+  left: -42px;
+  width: 84px;
+  height: 84px;
+  border: 8px solid var(--color-green);
+  border-radius: 50%;
+}
+
+.hero__badge {
+  position: absolute;
+  left: -69.33px;
+  bottom: -77.75px;
+  width: 192px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-badge);
+  color: var(--color-white);
+}
+
+.hero__badge b {
+  font: 700 30px/36px var(--font-body);
+}
+
+.hero__badge small {
+  font: 700 10px/15px var(--font-body);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.metric-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 33px;
+  border: 1px solid var(--navy-05);
+  border-radius: var(--radius-xl);
+  background: var(--color-white);
+  box-shadow: var(--shadow-float);
+}
+
+.metric-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-card__head span {
+  font: 700 12px/16px var(--font-body);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-40);
+}
+
+.metric-card__dots {
+  display: flex;
+  gap: 4px;
+}
+
+.metric-card__dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+}
+
+.metric-card__dots i + i {
+  background: rgba(0, 181, 200, 0.3);
+}
+
+.metric-card__row {
+  display: flex;
+  justify-content: space-between;
+  font: 700 14px/20px var(--font-body);
+  color: var(--color-azure-11);
+}
+
+.metric-card__bar {
+  height: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--navy-05);
+}
+
+.metric-card__bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gradient-primary);
+}
+
+.metric-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 17px;
+  border-top: 1px solid var(--navy-05);
+}
+
+.metric-card__stats b {
+  display: block;
+  font: 700 24px/32px var(--font-body);
+  color: var(--color-azure-11);
+}
+
+.metric-card__stats small {
+  font: 700 10px/15px var(--font-body);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-50);
+}
+
+@media (max-width: 1100px) {
+  .hero__text {
+    grid-column: 1 / span 12;
+  }
+
+  .hero__float {
+    grid-column: 1 / span 12;
+    justify-self: center;
+    margin: 48px 0 80px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero__container {
+    padding-block: 56px;
+  }
+
+  .hero__title {
+    letter-spacing: -1.5px;
+  }
+
+  .hero__lead {
+    font-size: 18px;
+    line-height: 30px;
+  }
+
+  .hero__float {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .hero__ring {
+    left: -12px;
+  }
+
+  .hero__badge {
+    left: -8px;
+    bottom: -72px;
+    width: 170px;
+  }
+}

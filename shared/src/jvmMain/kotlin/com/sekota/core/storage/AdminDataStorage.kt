@@ -121,4 +121,12 @@ actual class AdminDataStorage actual constructor() {
     actual fun getNavigationItemsJson(): String? {
         return read("navigation_items_json")
     }
+
+    actual fun saveReadingProgressJson(bookId: String, json: String) {
+        write("reading_progress_$bookId", json)
+    }
+
+    actual fun getReadingProgressJson(bookId: String): String? {
+        return read("reading_progress_$bookId")
+    }
 }

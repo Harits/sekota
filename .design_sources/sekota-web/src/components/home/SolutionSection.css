@@ -1,0 +1,79 @@
+.loop {
+  position: relative;
+  margin-top: 40px;
+}
+
+/* Garis horizontal yang menghubungkan kartu */
+.loop::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + 0.75px);
+  height: 1px;
+  background: var(--navy-10);
+}
+
+.loop__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.loop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 33px 16px;
+  border: 1px solid var(--navy-10);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.loop-card__num {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: var(--color-white);
+  font: 700 12px/16px var(--font-body);
+}
+
+.loop-card b {
+  padding-top: 20px;
+  font: 700 14px/20px var(--font-body);
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--color-azure-11);
+}
+
+.loop-card small {
+  font: 500 11px/16.5px var(--font-body);
+  color: var(--ink-50);
+}
+
+@media (max-width: 1100px) {
+  .loop__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .loop::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .loop__grid {
+    grid-template-columns: 1fr;
+  }
+}

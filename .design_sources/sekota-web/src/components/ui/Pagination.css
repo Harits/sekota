@@ -1,0 +1,42 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-family: var(--font-ui);
+}
+
+.pagination__arrow {
+  display: flex;
+  padding: 9px;
+  border: 1px solid var(--lilac-30);
+  border-radius: var(--radius-sm);
+}
+
+.pagination__arrow img {
+  width: 7.4px;
+  height: 12px;
+}
+
+.pagination__nums {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination__nums button,
+.pagination__nums span {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font: 400 16px/24px var(--font-ui);
+  color: var(--color-catalog-ink);
+}
+
+.pagination__nums button.is-active {
+  background: var(--gradient-primary);
+  color: var(--color-white);
+  font-weight: 700;
+}

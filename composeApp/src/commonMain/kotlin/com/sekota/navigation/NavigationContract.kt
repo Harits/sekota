@@ -23,6 +23,7 @@ sealed interface NavigationIntent {
     data class RequestConsultation(val fromScreen: Screen? = null) : NavigationIntent
     data class SelectProduct(val productCode: String) : NavigationIntent
     data class SelectBook(val bookId: String) : NavigationIntent
+    data class OpenBookReader(val bookId: String, val chapterIndex: Int = 0) : NavigationIntent
     data class SetLanguage(val language: String) : NavigationIntent
     data class OpenAuthGate(val onAuthenticated: () -> Unit) : NavigationIntent
     data object CloseAuthGate : NavigationIntent

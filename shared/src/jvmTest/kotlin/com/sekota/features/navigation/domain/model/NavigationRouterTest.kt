@@ -64,6 +64,18 @@ class NavigationRouterTest {
         assertEquals("/signup", NavigationRouter.getRoute(AppDestination.Signup))
         assertEquals("/profile", NavigationRouter.getRoute(AppDestination.Profile))
         assertEquals("/admin", NavigationRouter.getRoute(AppDestination.Admin))
+        assertEquals("/reader/blind-spot-radar", NavigationRouter.getRoute(AppDestination.BookReader("blind-spot-radar")))
         assertEquals("https://sekota.id", NavigationRouter.getRoute(AppDestination.External("https://sekota.id")))
+    }
+
+    @Test
+    fun testParseBookReaderDestinations() {
+        val dest1 = NavigationRouter.parseDestination("/reader/blind-spot-radar")
+        assertTrue(dest1 is AppDestination.BookReader)
+        assertEquals("blind-spot-radar", dest1.bookId)
+
+        val dest2 = NavigationRouter.parseDestination("/ebook/manifesto-ekuitas-lahan/baca")
+        assertTrue(dest2 is AppDestination.BookReader)
+        assertEquals("manifesto-ekuitas-lahan", dest2.bookId)
     }
 }

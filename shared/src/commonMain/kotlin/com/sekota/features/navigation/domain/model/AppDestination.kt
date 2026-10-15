@@ -15,6 +15,7 @@ sealed class AppDestination {
     data object Signup : AppDestination()
     data object Profile : AppDestination()
     data object Admin : AppDestination()
+    data class BookReader(val bookId: String, val chapterIndex: Int = 0) : AppDestination()
     data class External(val url: String) : AppDestination()
     data class Unknown(val raw: String) : AppDestination()
 }
@@ -35,6 +36,7 @@ object NavigationRouter {
         AppDestination.Signup -> "/signup"
         AppDestination.Profile -> "/profile"
         AppDestination.Admin -> "/admin"
+        is AppDestination.BookReader -> "/reader/${destination.bookId}"
         is AppDestination.External -> destination.url
         is AppDestination.Unknown -> destination.raw
     }
@@ -44,6 +46,14 @@ object NavigationRouter {
         val upper = clean.uppercase()
         return when {
             clean.startsWith("http://") || clean.startsWith("https://") -> AppDestination.External(clean)
+            clean.startsWith("/reader/") -> {
+                val id = clean.removePrefix("/reader/").trim('/')
+                AppDestination.BookReader(id)
+            }
+            clean.startsWith("/ebook/") && clean.endsWith("/baca") -> {
+                val id = clean.removePrefix("/ebook/").removeSuffix("/baca").trim('/')
+                AppDestination.BookReader(id)
+            }
             clean == "#solusi" || clean.equals("solusi", ignoreCase = true) -> AppDestination.SolusiSection
             clean == "#produk" || clean.equals("produk", ignoreCase = true) -> AppDestination.ProdukSection
             clean == "#kontak" || clean.equals("kontak", ignoreCase = true) || upper == "CONTACT" -> AppDestination.KontakSection

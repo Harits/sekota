@@ -28,6 +28,7 @@ import com.sekota.ui.windowWidthOf
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import sekota.composeapp.generated.resources.*
+import com.sekota.localization.stringResource
 
 @Composable
 fun FeatureGrid() {
@@ -51,7 +52,7 @@ fun FeatureGrid() {
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = "TANTANGAN 2026",
+                    text = stringResource("features_eyebrow"),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A99D),
@@ -60,7 +61,7 @@ fun FeatureGrid() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Data Melimpah,\nKeputusan Masih Kabur.",
+                    text = stringResource("features_title"),
                     fontSize = titleSize,
                     lineHeight = titleLineHeight,
                     fontWeight = FontWeight.ExtraBold,
@@ -70,7 +71,7 @@ fun FeatureGrid() {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Di tahun 2026, organisasi modern menghadapi paradoks data, volume informasi yang belum pernah sebesar ini, namun kepercayaan terhadap data justru semakin menipis.",
+                    text = stringResource("features_subtitle"),
                     fontSize = 18.sp,
                     color = Color(0xFF122329).copy(alpha = 0.6f),
                     fontFamily = getDmSansFontFamily(),
@@ -86,8 +87,8 @@ fun FeatureGrid() {
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         FeatureCard(
-                            title = "Data Tidak Terintegrasi",
-                            description = "Silo data antar departemen dan sistem yang tidak terhubung menghasilkan insight yang fragmentaris dan tidak dapat diandalkan untuk keputusan level eksekutif.",
+                            title = stringResource("feature_1_title"),
+                            description = stringResource("feature_1_desc"),
                             icon = Res.drawable.icon,
                             iconBgColor = Color(0xFFFEE2E2),
                             iconTintColor = Color(0xFFE24B4A),
@@ -95,8 +96,8 @@ fun FeatureGrid() {
                             modifier = Modifier.fillMaxWidth()
                         )
                         FeatureCard(
-                            title = "AI Tanpa Transparansi",
-                            description = "Penggunaan AI yang tidak dapat dijelaskan (black-box) memicu krisis kepercayaan internal dan eksternal, serta risiko kepatuhan regulasi yang semakin ketat.",
+                            title = stringResource("feature_2_title"),
+                            description = stringResource("feature_2_desc"),
                             icon = Res.drawable.icon_1,
                             iconBgColor = Color(0xFFFEF3C7),
                             iconTintColor = Color(0xFFEF9F27),
@@ -104,8 +105,8 @@ fun FeatureGrid() {
                             modifier = Modifier.fillMaxWidth()
                         )
                         FeatureCard(
-                            title = "ESG Hanya Beban Administratif",
-                            description = "Pelaporan ESG yang terpisah dari operasional bisnis menjadikannya beban birokrasi, bukan kompas strategis yang mendorong nilai jangka panjang.",
+                            title = stringResource("feature_3_title"),
+                            description = stringResource("feature_3_desc"),
                             icon = Res.drawable.icon_2,
                             iconBgColor = Color(0xFFDBEAFE),
                             iconTintColor = Color(0xFF378ADD),
@@ -119,24 +120,24 @@ fun FeatureGrid() {
                         horizontalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         FeatureCard(
-                            title = "Data Tidak Terintegrasi",
-                            description = "Silo data antar departemen dan sistem yang tidak terhubung menghasilkan insight yang fragmentaris dan tidak dapat diandalkan untuk keputusan level eksekutif.",
+                            title = stringResource("feature_1_title"),
+                            description = stringResource("feature_1_desc"),
                             icon = Res.drawable.icon,
                             iconBgColor = Color(0xFFFEE2E2),
                             iconTintColor = Color(0xFFE24B4A),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                         FeatureCard(
-                            title = "AI Tanpa Transparansi",
-                            description = "Penggunaan AI yang tidak dapat dijelaskan (black-box) memicu krisis kepercayaan internal dan eksternal, serta risiko kepatuhan regulasi yang semakin ketat.",
+                            title = stringResource("feature_2_title"),
+                            description = stringResource("feature_2_desc"),
                             icon = Res.drawable.icon_1,
                             iconBgColor = Color(0xFFFEF3C7),
                             iconTintColor = Color(0xFFEF9F27),
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                         FeatureCard(
-                            title = "ESG Hanya Beban Administratif",
-                            description = "Pelaporan ESG yang terpisah dari operasional bisnis menjadikannya beban birokrasi, bukan kompas strategis yang mendorong nilai jangka panjang.",
+                            title = stringResource("feature_3_title"),
+                            description = stringResource("feature_3_desc"),
                             icon = Res.drawable.icon_2,
                             iconBgColor = Color(0xFFDBEAFE),
                             iconTintColor = Color(0xFF378ADD),
@@ -209,6 +210,44 @@ fun FeatureCard(
 fun FeatureGridPreview() {
     androidx.compose.material3.MaterialTheme {
         FeatureGrid()
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true, backgroundColor = 0xFFF8FAFB)
+@Composable
+fun FeatureGridMultiLanguageDesktopPreview() {
+    androidx.compose.material3.MaterialTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            // Indonesian Variant
+            androidx.compose.runtime.CompositionLocalProvider(
+                com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+                    setLocale(com.sekota.localization.AppLocale.ID)
+                }
+            ) {
+                Text(
+                    "Bahasa Indonesia (Default):",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    fontFamily = getMontserratFontFamily()
+                )
+                FeatureGrid()
+            }
+
+            // English Variant
+            androidx.compose.runtime.CompositionLocalProvider(
+                com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+                    setLocale(com.sekota.localization.AppLocale.EN)
+                }
+            ) {
+                Text(
+                    "English (Localized):",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    fontFamily = getMontserratFontFamily()
+                )
+                FeatureGrid()
+            }
+        }
     }
 }
 

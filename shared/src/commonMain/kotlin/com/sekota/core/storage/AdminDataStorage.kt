@@ -33,5 +33,8 @@ expect class AdminDataStorage() {
 
     fun saveNavigationItemsJson(json: String)
     fun getNavigationItemsJson(): String?
+
+    fun saveReadingProgressJson(bookId: String, json: String)
+    fun getReadingProgressJson(bookId: String): String?
 }
 

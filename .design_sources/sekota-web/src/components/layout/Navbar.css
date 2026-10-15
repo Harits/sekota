@@ -1,0 +1,110 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--nav-h);
+  background: var(--white-80);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--navy-05);
+}
+
+.navbar__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.navbar__logo img {
+  width: 133px;
+  height: 42px;
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.navbar__links a {
+  font: 500 14px/20px var(--font-body);
+  color: var(--ink-70);
+  transition: color 0.2s;
+}
+
+.navbar__links a:hover {
+  color: var(--color-azure-11);
+}
+
+.navbar__links a.is-active {
+  font-weight: 900;
+  color: var(--color-cyan-active);
+}
+
+/* Hamburger (hanya tampil di mobile) */
+.navbar__toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--navy-05);
+}
+
+.navbar__toggle span,
+.navbar__toggle span::before,
+.navbar__toggle span::after {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-azure-11);
+  content: '';
+}
+
+.navbar__toggle span::before {
+  position: absolute;
+  top: -5px;
+}
+
+.navbar__toggle span::after {
+  position: absolute;
+  top: 5px;
+}
+
+@media (max-width: 860px) {
+  .navbar__links {
+    position: absolute;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 16px var(--gutter) 24px;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--navy-05);
+  }
+
+  .navbar.is-open .navbar__links {
+    display: flex;
+  }
+
+  .navbar__links a {
+    padding-block: 10px;
+    font-size: 16px;
+  }
+
+  .navbar__toggle {
+    display: flex;
+  }
+
+  .navbar__cta {
+    display: none;
+  }
+}

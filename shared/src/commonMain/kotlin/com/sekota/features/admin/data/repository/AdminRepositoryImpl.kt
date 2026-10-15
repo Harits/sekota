@@ -749,5 +749,58 @@ class AdminRepositoryImpl(
     private fun persistNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>) {
         dataStorage.saveNavigationItemsJson(json.encodeToString(items))
     }
+
+    override suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit> {
+        return try {
+            val progressJson = json.encodeToString(progress)
+            dataStorage.saveReadingProgressJson(progress.bookId, progressJson)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getReadingProgress(bookId: String): com.sekota.features.reader.domain.model.BookReadingProgress? {
+        val storedJson = dataStorage.getReadingProgressJson(bookId)
+        if (!storedJson.isNullOrBlank()) {
+            try {
+                return json.decodeFromString<com.sekota.features.reader.domain.model.BookReadingProgress>(storedJson)
+            } catch (_: Exception) {}
+        }
+        return null
+    }
+
+    override suspend fun recordReadingTelemetry(bookId: String, chapterIndex: Int, chapterTitle: String): Result<Boolean> {
+        val token = tokenStorage.getToken()
+        val candidateUrls = listOf(
+            "${LOCAL_API_BASE_URL}api/v1/interaction",
+            "${AUTH_BASE_URL}interaction"
+        )
+        for (url in candidateUrls) {
+            try {
+                val httpResponse = NetworkClient.authClient.post(url) {
+                    contentType(ContentType.Application.Json)
+                    if (token != null) {
+                        header(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    setBody(
+                        RemoteUserActivityDto(
+                            email = token ?: "reader@sekota.id",
+                            bookTitle = bookId,
+                            toolName = "Reader_Chapter_${chapterIndex + 1}",
+                            timestamp = "",
+                            data = "Chapter $chapterIndex: $chapterTitle"
+                        )
+                    )
+                }
+                if (httpResponse.status.isSuccess()) {
+                    return Result.success(true)
+                }
+            } catch (_: Exception) {
+                // Ignore remote network failure gracefully per Rule 6
+            }
+        }
+        return Result.success(true)
+    }
 }
 

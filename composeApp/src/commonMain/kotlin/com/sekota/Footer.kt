@@ -40,6 +40,7 @@ import com.sekota.features.admin.domain.model.FooterConfig
 import com.sekota.features.admin.domain.model.FooterLinkItem
 import com.sekota.features.admin.domain.model.FooterColumnConfig
 import com.sekota.features.admin.domain.model.FooterSocialLink
+import com.sekota.localization.stringResource
 
 @Composable
 fun Footer(
@@ -112,24 +113,15 @@ private fun FooterContent(
         val isEn = selectedLanguage.equals("ENGLISH", ignoreCase = true)
         val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
 
-        val localizedTagline = if (isEn) {
-            "Trusted Intelligence for Sustainable Impact. Empowering strategic decisions through data."
-        } else {
-            config.tagline
-        }
-
-        val localizedAffiliation = if (isEn) "eBdesk Group Affiliation" else config.affiliationText
-        val localizedAffiliationSubtext = if (isEn) "NATIONWIDE PARTNER" else config.affiliationSubtext
-        val localizedCopyright = if (isEn) {
-            "© 2025 PT. SEKOTA SINERGI INDONESIA. PART OF EBDESK GROUP."
-        } else {
-            config.copyrightText
-        }
+        val localizedTagline = if (isEn) stringResource("footer_tagline") else config.tagline
+        val localizedAffiliation = if (isEn) stringResource("footer_affiliation") else config.affiliationText
+        val localizedAffiliationSubtext = if (isEn) stringResource("footer_affiliation_subtext") else config.affiliationSubtext
+        val localizedCopyright = if (isEn) stringResource("footer_copyright") else config.copyrightText
 
         // Column Titles
-        val productTitle = if (isEn) "PRODUCTS" else config.productColumn.title
-        val companyTitle = if (isEn) "COMPANY" else config.companyColumn.title
-        val legalTitle = if (isEn) "LEGAL" else config.legalColumn.title
+        val productTitle = if (isEn) stringResource("footer_col_products") else config.productColumn.title
+        val companyTitle = if (isEn) stringResource("footer_col_company") else config.companyColumn.title
+        val legalTitle = if (isEn) stringResource("footer_col_legal") else config.legalColumn.title
 
         // Column Items sorted and filtered by visibility
         val visibleProducts = config.productColumn.items.filter { it.isVisible }.sortedBy { it.sortOrder }
@@ -140,11 +132,14 @@ private fun FooterContent(
         fun resolveItemLabel(rawLabel: String): String {
             if (!isEn) return rawLabel
             return when (rawLabel.trim().lowercase()) {
-                "tentang kami" -> "About Us"
-                "kontak" -> "Contact"
-                "privasi" -> "Privacy Policy"
-                "syarat & ketentuan" -> "Terms & Conditions"
-                else -> rawLabel
+                "tentang kami" -> com.sekota.localization.LocalizationManager.getString("footer_link_about")
+                "e-book" -> com.sekota.localization.LocalizationManager.getString("footer_link_ebook")
+                "merchandise" -> com.sekota.localization.LocalizationManager.getString("footer_link_merch")
+                "insights" -> com.sekota.localization.LocalizationManager.getString("footer_link_insights")
+                "kontak" -> com.sekota.localization.LocalizationManager.getString("footer_link_contact")
+                "privasi" -> com.sekota.localization.LocalizationManager.getString("footer_link_privacy")
+                "syarat & ketentuan" -> com.sekota.localization.LocalizationManager.getString("footer_link_terms")
+                else -> com.sekota.localization.LocalizationManager.getString(rawLabel)
             }
         }
 
@@ -387,7 +382,10 @@ private fun FooterContent(
                     modifier = Modifier
                         .pointerHoverIcon(PointerIcon.Hand)
                         .clip(RoundedCornerShape(4.dp))
-                        .clickable { onLanguageChange("ENGLISH") }
+                        .clickable {
+                            com.sekota.localization.LocalizationManager.setLocale(com.sekota.localization.AppLocale.EN)
+                            onLanguageChange("ENGLISH")
+                        }
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
@@ -400,7 +398,10 @@ private fun FooterContent(
                     modifier = Modifier
                         .pointerHoverIcon(PointerIcon.Hand)
                         .clip(RoundedCornerShape(4.dp))
-                        .clickable { onLanguageChange("BAHASA INDONESIA") }
+                        .clickable {
+                            com.sekota.localization.LocalizationManager.setLocale(com.sekota.localization.AppLocale.ID)
+                            onLanguageChange("BAHASA INDONESIA")
+                        }
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                 )
             }
@@ -484,16 +485,28 @@ fun FooterColumnPreview() {
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun FooterDefaultPreview() {
-    MaterialTheme {
-        Footer(selectedLanguage = "BAHASA INDONESIA")
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+            setLocale(com.sekota.localization.AppLocale.ID)
+        }
+    ) {
+        MaterialTheme {
+            Footer(selectedLanguage = "BAHASA INDONESIA")
+        }
     }
 }
 
 @Preview(device = DESKTOP, showBackground = true)
 @Composable
 fun FooterEnglishActivePreview() {
-    MaterialTheme {
-        Footer(selectedLanguage = "ENGLISH")
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
+            setLocale(com.sekota.localization.AppLocale.EN)
+        }
+    ) {
+        MaterialTheme {
+            Footer(selectedLanguage = "ENGLISH")
+        }
     }
 }
 

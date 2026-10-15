@@ -1,0 +1,70 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: var(--radius-pill);
+  font: 700 16px/24px var(--font-body);
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, filter 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sizes */
+.btn--md {
+  padding: 20.5px 40px 21.5px;
+}
+
+.btn--sm {
+  padding: 10px 24px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Variants */
+.btn--dark {
+  background: var(--color-azure-11);
+  color: var(--color-white);
+}
+
+.btn--dark:hover {
+  box-shadow: 0 10px 24px -10px rgba(13, 31, 45, 0.6);
+}
+
+.btn--outline {
+  border: 1px solid var(--navy-10);
+  color: var(--color-azure-11);
+}
+
+.btn--outline.btn--md {
+  padding: 20px 40px;
+}
+
+.btn--outline:hover {
+  border-color: var(--navy-20);
+  background: var(--color-grey-98);
+}
+
+.btn--gradient {
+  background: var(--gradient-primary);
+  color: var(--color-white);
+}
+
+.btn--gradient:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 24px -12px rgba(2, 182, 207, 0.7);
+}
+
+.btn__icon {
+  width: 8.75px;
+  height: 8.75px;
+}

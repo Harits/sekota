@@ -118,12 +118,11 @@ fun BookDetailsScreen(
                         isMobile = true,
                         isLoggedIn = isLoggedIn,
                         onReadNowClick = {
-                            val targetUrl = book.pdfUrl ?: "https://sekota.id/reader/${book.id}"
                             if (isLoggedIn) {
-                                readSuccessMessage = "Membuka manuscript e-book: $targetUrl"
+                                onNavigate(Screen.BookReader(book.id, 0))
                             } else {
                                 onRequestAuth {
-                                    readSuccessMessage = "Autentikasi terverifikasi. Mengakses naskah: $targetUrl"
+                                    onNavigate(Screen.BookReader(book.id, 0))
                                 }
                             }
                         },
@@ -166,12 +165,11 @@ fun BookDetailsScreen(
                             isMobile = false,
                             isLoggedIn = isLoggedIn,
                             onReadNowClick = {
-                                val targetUrl = book.pdfUrl ?: "https://sekota.id/reader/${book.id}"
                                 if (isLoggedIn) {
-                                    readSuccessMessage = "Membuka manuscript e-book: $targetUrl"
+                                    onNavigate(Screen.BookReader(book.id, 0))
                                 } else {
                                     onRequestAuth {
-                                        readSuccessMessage = "Autentikasi terverifikasi. Mengakses naskah: $targetUrl"
+                                        onNavigate(Screen.BookReader(book.id, 0))
                                     }
                                 }
                             },

@@ -157,12 +157,18 @@ fun App(
         container.syncService.connect(coroutineScope)
     }
     
-    MaterialTheme {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFFAFAFA))
-        ) {
+    val currentLocale by com.sekota.localization.LocalizationManager.currentLocale.collectAsState()
+
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager
+    ) {
+        androidx.compose.runtime.key(currentLocale) {
+            SekotaTheme {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFFAFAFA))
+                ) {
             val windowWidth = windowWidthOf(maxWidth)
             // Screen Content Container
             Box(
@@ -263,6 +269,25 @@ fun App(
                                 }
                             )
                         }
+                    }
+                    is Screen.BookReader -> {
+                        val readerScreen = navState.currentScreen as Screen.BookReader
+                        BookReaderScreen(
+                            bookId = readerScreen.bookId,
+                            initialChapterIndex = readerScreen.chapterIndex,
+                            onNavigateBack = {
+                                container.navigationCoordinator.processIntent(
+                                    NavigationIntent.SelectBook(readerScreen.bookId)
+                                )
+                            },
+                            onNavigate = { screen ->
+                                container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
+                            },
+                            adminRepository = container.adminRepository,
+                            saveReadingProgressUseCase = container.saveReadingProgressUseCase,
+                            getReadingProgressUseCase = container.getReadingProgressUseCase,
+                            recordReadingTelemetryUseCase = container.recordReadingTelemetryUseCase
+                        )
                     }
                     Screen.ProductDetails -> {
                         val productDetailsScroll = rememberScrollState()
@@ -365,6 +390,10 @@ fun App(
                 activeLandingSection = navState.activeLandingSection,
                 isLoggedIn = isLoggedIn,
                 syncState = syncState,
+                selectedLanguage = navState.selectedLanguage,
+                onLanguageChange = { lang ->
+                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
@@ -411,9 +440,13 @@ fun App(
         }
     }
 }
+}
+}
 
 @Preview(device = DESKTOP)
 @Composable
 fun AppPreview() {
-    App()
+    SekotaTheme {
+        App()
+    }
 }

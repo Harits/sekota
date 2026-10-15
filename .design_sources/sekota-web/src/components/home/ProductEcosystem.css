@@ -1,0 +1,32 @@
+/* .split-head dipakai juga oleh EbookShowcase */
+.split-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.split-head__side {
+  max-width: 320px;
+  color: var(--ink-50);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 80px;
+}
+
+@media (max-width: 860px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .product-grid {
+    margin-top: 48px;
+  }
+}

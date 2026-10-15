@@ -48,5 +48,9 @@ interface AdminRepository {
 
     suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem>
     suspend fun saveNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>>
+
+    suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit>
+    suspend fun getReadingProgress(bookId: String): com.sekota.features.reader.domain.model.BookReadingProgress?
+    suspend fun recordReadingTelemetry(bookId: String, chapterIndex: Int, chapterTitle: String): Result<Boolean>
 }
 

@@ -175,6 +175,31 @@ This file contains the high-level roadmap, user stories, and architectural bound
 
 ---
 
+## 🎨 Phase 3: Experience Refinement, Reader Workspace & Multi-Localization (Sprint 6 - Closed)
+- [x] **WP-046: [WEB-06-01] - Unified Design Tokens & Component Library Polish** (OpenProject ID: 22539)
+  - *Description*: Sebagai Pengguna Web Sekota, Saya ingin antarmuka publik memiliki hierarki token desain yang konsisten, varian tombol terstandarisasi, dan navbar sticky responsif, Sehingga pengalaman visual dan interaksi terasa mulus, elegan, dan profesional di seluruh perangkat (Desktop, Tablet, dan Foldable).
+  - *Child Tasks*:
+    - `#22540` [WEB-06-01-01] Refine M3 Theme Tokens, Focus Mode Styles & Elevation Palette
+    - `#22541` [WEB-06-01-02] Standardize Button Variants (Primary, Secondary, Outline, Ghost) with Loading States
+    - `#22542` [WEB-06-01-03] Modernize Sticky Navbar with Glassmorphism & Adaptive Mobile Drawer
+    - `#22543` [WEB-06-01-04] Author Multi-State Compose Previews for Design System & Component Library
+- [x] **WP-047: [WEB-06-02] - Immersive In-App Book Reader Workspace** (OpenProject ID: 22544)
+  - *Description*: Sebagai Pembaca Terdaftar Sekota, Saya ingin membaca publikasi dan e-book langsung di dalam platform dengan Table of Contents (TOC), progress persistence, dan mode fokus minim distraksi, Sehingga saya dapat membaca naskah riset Sekota dengan nyaman tanpa harus mengunduh file eksternal.
+  - *Child Tasks*:
+    - `#22545` [WEB-06-02-01] Build Dedicated BookReaderScreen with Immersive Focus Mode
+    - `#22546` [WEB-06-02-02] Implement Table of Contents (TOC) Quick-Jump Navigation Sidebar
+    - `#22547` [WEB-06-02-03] Implement Reading Progress Local Persistence & Telemetry Integration
+    - `#22548` [WEB-06-02-04] Author Multi-State Compose Previews & Verify Wasm/Desktop Compilation
+- [x] **WP-048: [CORE-06-01] - Shared Multi-Localization Architecture & Language Switcher** (OpenProject ID: 22549)
+  - *Description*: Sebagai Pengguna Global Sekota Web, Saya ingin dapat mengganti bahasa portal (Bahasa Indonesia dan English) secara instan melalui Language Switcher di Navbar, Sehingga seluruh copy landing page, navigasi, dan katalog tersaji dalam bahasa pilihan saya dengan fallback default yang aman.
+  - *Child Tasks*:
+    - `#22550` [CORE-06-01-01] Implement LocalizationManager & Supported Locales in Shared Module
+    - `#22551` [CORE-06-01-02] Inject CompositionLocal LocalizationProvider into Compose Root App
+    - `#22552` [CORE-06-01-03] Migrate Public Screens & Sections to Localized String Keys
+    - `#22553` [CORE-06-01-04] Unit Test Localization Resolution & Multi-Language Compose Previews
+
+---
+
 
 
 

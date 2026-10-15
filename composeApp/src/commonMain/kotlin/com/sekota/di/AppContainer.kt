@@ -80,5 +80,18 @@ class AppContainer(
         com.sekota.features.admin.domain.usecase.SaveAdminNavigationItemsUseCase(adminRepository)
     }
 
+    val getBookByIdUseCase: com.sekota.features.admin.domain.usecase.GetBookByIdUseCase by lazy {
+        com.sekota.features.admin.domain.usecase.GetBookByIdUseCase(adminRepository)
+    }
+    val saveReadingProgressUseCase: com.sekota.features.reader.domain.usecase.SaveReadingProgressUseCase by lazy {
+        com.sekota.features.reader.domain.usecase.SaveReadingProgressUseCase(adminRepository)
+    }
+    val getReadingProgressUseCase: com.sekota.features.reader.domain.usecase.GetReadingProgressUseCase by lazy {
+        com.sekota.features.reader.domain.usecase.GetReadingProgressUseCase(adminRepository)
+    }
+    val recordReadingTelemetryUseCase: com.sekota.features.reader.domain.usecase.RecordReadingTelemetryUseCase by lazy {
+        com.sekota.features.reader.domain.usecase.RecordReadingTelemetryUseCase(adminRepository)
+    }
+
     val navigationCoordinator: NavigationCoordinator by lazy { NavigationCoordinator() }
 }

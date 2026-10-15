@@ -99,5 +99,14 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_navigation_items_json")
         return if (data == null) null else data
     }
+
+    actual fun saveReadingProgressJson(bookId: String, json: String) {
+        setStorageItem("admin_reading_progress_$bookId", json)
+    }
+
+    actual fun getReadingProgressJson(bookId: String): String? {
+        val data = getStorageItem("admin_reading_progress_$bookId")
+        return if (data == null) null else data
+    }
 }
 

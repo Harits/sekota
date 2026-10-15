@@ -10,3 +10,8 @@ const val LOCAL_API_BASE_URL = "http://localhost:8080/"
 
 // Default Base URL for primary operations
 const val BASE_URL = AUTH_BASE_URL
+
+// Supported Locales and Default Settings
+const val DEFAULT_LOCALE_CODE = "id"
+const val DEFAULT_LOCALE_DISPLAY = "BAHASA INDONESIA"
+

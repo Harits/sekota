@@ -57,7 +57,16 @@ class NavigationCoordinator {
                     )
                 }
             }
+            is NavigationIntent.OpenBookReader -> {
+                _state.update {
+                    it.copy(
+                        selectedBookId = intent.bookId,
+                        currentScreen = Screen.BookReader(intent.bookId, intent.chapterIndex)
+                    )
+                }
+            }
             is NavigationIntent.SetLanguage -> {
+                com.sekota.localization.LocalizationManager.setLocale(intent.language)
                 _state.update {
                     it.copy(selectedLanguage = intent.language)
                 }

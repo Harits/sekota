@@ -1,0 +1,125 @@
+/* =========================================================
+   GLOBAL STYLES — reset + utility class yang dipakai di banyak tempat.
+   Style khusus komponen ada di file .css di sebelah komponennya.
+   ========================================================= */
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-white);
+  color: var(--color-azure-17);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, p, ul, blockquote {
+  margin: 0;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-cyan-active);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- Utilities ---------- */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+  scroll-margin-top: var(--nav-h);
+}
+
+.bg-white { background: var(--color-white); }
+.bg-soft { background: var(--color-grey-98); }
+.bg-page { background: var(--color-page); }
+
+.grad-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-title {
+  font: 800 var(--text-title-size) / var(--text-title-lh) var(--font-display);
+  color: var(--color-azure-11);
+}
+
+/* Label kecil uppercase di atas judul, contoh "SOLUSI KAMI" */
+.eyebrow {
+  font: 700 14px/16.5px var(--font-body);
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+}
+
+/* Link "← Kembali ke ..." */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 14px/20px var(--font-body);
+  color: var(--color-teal);
+}
+
+.back-link:hover {
+  color: var(--color-sociara);
+}
+
+.text-lead {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--ink-60);
+}

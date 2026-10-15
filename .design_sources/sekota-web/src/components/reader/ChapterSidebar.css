@@ -1,0 +1,112 @@
+.chapter-sidebar {
+  position: sticky;
+  top: calc(var(--nav-h) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 24px;
+  border: 1px solid var(--navy-05);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-card);
+}
+
+.chapter-sidebar__eyebrow {
+  margin-bottom: 10px;
+  font: 700 11px/16px var(--font-body);
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--color-teal);
+}
+
+.chapter-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chapter-sidebar__list button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-align: left;
+  font: 500 14px/20px var(--font-body);
+  color: var(--ink-70);
+  transition: background 0.2s, color 0.2s;
+}
+
+.chapter-sidebar__list button:hover {
+  background: var(--color-grey-98);
+}
+
+.chapter-sidebar__list i {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface);
+  font: 700 11px/14px var(--font-body);
+  font-style: normal;
+  color: var(--ink-60);
+}
+
+.chapter-sidebar__list button.is-active {
+  background: rgba(53, 161, 144, 0.08);
+  color: var(--color-azure-11);
+  font-weight: 700;
+}
+
+.chapter-sidebar__list button.is-active i {
+  background: var(--gradient-primary);
+  color: var(--color-white);
+}
+
+.chapter-sidebar__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.chapter-sidebar__progress-row {
+  display: flex;
+  justify-content: space-between;
+  font: 700 10px/15px var(--font-body);
+  letter-spacing: 1px;
+  color: var(--ink-70);
+}
+
+.chapter-sidebar__progress-row b {
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--color-teal);
+}
+
+.chapter-sidebar__track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+
+.chapter-sidebar__track i {
+  display: block;
+  height: 100%;
+  background: var(--gradient-primary);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 860px) {
+  .chapter-sidebar {
+    position: static;
+  }
+}

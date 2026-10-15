@@ -118,6 +118,23 @@ class FakeAdminRepository : AdminRepository {
         navigationItems = items.toMutableList()
         return Result.success(items)
     }
+
+    val readingProgressMap = mutableMapOf<String, com.sekota.features.reader.domain.model.BookReadingProgress>()
+    val recordedTelemetry = mutableListOf<Triple<String, Int, String>>()
+
+    override suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit> {
+        readingProgressMap[progress.bookId] = progress
+        return Result.success(Unit)
+    }
+
+    override suspend fun getReadingProgress(bookId: String): com.sekota.features.reader.domain.model.BookReadingProgress? {
+        return readingProgressMap[bookId]
+    }
+
+    override suspend fun recordReadingTelemetry(bookId: String, chapterIndex: Int, chapterTitle: String): Result<Boolean> {
+        recordedTelemetry.add(Triple(bookId, chapterIndex, chapterTitle))
+        return Result.success(true)
+    }
 }
 
 class AdminUseCasesTest {
@@ -445,6 +462,46 @@ class AdminUseCasesTest {
         ))
         assertTrue(invalidRouteResult.isFailure)
         assertEquals("Route navigasi tidak boleh kosong", invalidRouteResult.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun testReadingProgressAndTelemetryUseCases() = runTest {
+        val repo = FakeAdminRepository()
+        val saveProgressUseCase = com.sekota.features.reader.domain.usecase.SaveReadingProgressUseCase(repo)
+        val getProgressUseCase = com.sekota.features.reader.domain.usecase.GetReadingProgressUseCase(repo)
+        val telemetryUseCase = com.sekota.features.reader.domain.usecase.RecordReadingTelemetryUseCase(repo)
+
+        // 1. Initial progress should be null
+        val initial = getProgressUseCase("blind-spot-radar")
+        assertEquals(null, initial)
+
+        // 2. Save reading progress
+        val progress = com.sekota.features.reader.domain.model.BookReadingProgress(
+            bookId = "blind-spot-radar",
+            chapterIndex = 2,
+            percent = 45,
+            isBookmarked = true,
+            fontSizeSp = 18,
+            readingMode = com.sekota.features.reader.domain.model.ReadingMode.NIGHT
+        )
+        val saveResult = saveProgressUseCase(progress)
+        assertTrue(saveResult.isSuccess)
+
+        // 3. Retrieve saved progress
+        val loaded = getProgressUseCase("blind-spot-radar")
+        assertEquals(2, loaded?.chapterIndex)
+        assertEquals(45, loaded?.percent)
+        assertEquals(true, loaded?.isBookmarked)
+        assertEquals(18, loaded?.fontSizeSp)
+        assertEquals(com.sekota.features.reader.domain.model.ReadingMode.NIGHT, loaded?.readingMode)
+
+        // 4. Dispatch telemetry event
+        val telemetryResult = telemetryUseCase("blind-spot-radar", 2, "Mindful Tech Integration")
+        assertTrue(telemetryResult.isSuccess)
+        assertEquals(1, repo.recordedTelemetry.size)
+        assertEquals("blind-spot-radar", repo.recordedTelemetry[0].first)
+        assertEquals(2, repo.recordedTelemetry[0].second)
+        assertEquals("Mindful Tech Integration", repo.recordedTelemetry[0].third)
     }
 }
 

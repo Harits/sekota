@@ -1,0 +1,138 @@
+.ebook-showcase__header {
+  max-width: 731px;
+}
+
+/* Segmented filter (Semua / Smart City / ESG) */
+.pills {
+  display: inline-flex;
+  height: 40px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--navy-03);
+}
+
+.pills button {
+  padding: 8px 24px;
+  border-radius: var(--radius-pill);
+  font: 700 12px/16px var(--font-body);
+  color: var(--ink-60);
+  transition: background 0.2s, color 0.2s;
+}
+
+.pills button.is-active {
+  background: var(--color-white);
+  color: var(--color-azure-11);
+  box-shadow: 0 1px 2px rgba(13, 31, 45, 0.06);
+}
+
+.ebook-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 96px;
+}
+
+.ebook-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-ebook-card);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ebook-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -26px rgba(13, 31, 45, 0.45);
+}
+
+.ebook-card__top {
+  position: relative;
+  height: 190px;
+  display: flex;
+  align-items: flex-end;
+  padding: 80.5px 32px 32px;
+  font: 700 20px/25px var(--font-body);
+  color: var(--color-white);
+}
+
+.ebook-card__tag {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  padding: 3px 12px;
+  border-radius: 6px;
+  background: var(--white-20);
+  backdrop-filter: blur(6px);
+  font: 700 9px/13.5px var(--font-body);
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.ebook-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px;
+}
+
+.ebook-card__body p {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-50);
+}
+
+.ebook-card__more {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 700 12px/16px var(--font-body);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-azure-11);
+}
+
+.ebook-card__more img {
+  width: 14px;
+  height: 14px;
+}
+
+.ebook-grid__empty {
+  grid-column: 1 / -1;
+  padding: 48px;
+  border: 1px dashed var(--navy-10);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: var(--ink-50);
+}
+
+.ebook-showcase__cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 38px;
+}
+
+.ebook-showcase__cta .btn {
+  padding: 21px 41px;
+}
+
+@media (max-width: 1100px) {
+  .ebook-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ebook-grid {
+    grid-template-columns: 1fr;
+    margin-top: 48px;
+  }
+
+  .pills {
+    height: auto;
+    flex-wrap: wrap;
+  }
+}

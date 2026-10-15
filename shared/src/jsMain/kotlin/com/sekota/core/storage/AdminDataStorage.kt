@@ -90,5 +90,13 @@ actual class AdminDataStorage actual constructor() {
     actual fun getNavigationItemsJson(): String? {
         return window.localStorage.getItem("admin_navigation_items_json")
     }
+
+    actual fun saveReadingProgressJson(bookId: String, json: String) {
+        window.localStorage.setItem("admin_reading_progress_$bookId", json)
+    }
+
+    actual fun getReadingProgressJson(bookId: String): String? {
+        return window.localStorage.getItem("admin_reading_progress_$bookId")
+    }
 }
 
