@@ -414,5 +414,54 @@ class LocalizationManagerTest {
         assertEquals("Deskripsi Tetap", fallbackEn.description)
         assertEquals(listOf("Fitur Tetap"), fallbackEn.features)
     }
+
+    @Test
+    fun testAdminBookBilingualResolution() {
+        val bookWithEn = com.sekota.features.admin.domain.model.AdminBook(
+            id = "manifesto-ekuitas-lahan",
+            title = "Manifesto Ekuitas Lahan",
+            author = "Putu Aan J.",
+            isbn = "978-623-99999-0-0",
+            category = "SMART CITY",
+            description = "Strategi dan framework implementasi Smart City dan tata kelola ekuitas lahan perkotaan.",
+            categoryEn = "URBAN INTELLIGENCE",
+            descriptionEn = "Smart City implementation strategy and equitable land governance frameworks."
+        )
+
+        // 1. Resolve directly
+        val resolvedEn = bookWithEn.resolveForLocale(AppLocale.EN)
+        assertEquals("URBAN INTELLIGENCE", resolvedEn.category)
+        assertEquals("Smart City implementation strategy and equitable land governance frameworks.", resolvedEn.description)
+
+        val resolvedId = bookWithEn.resolveForLocale(AppLocale.ID)
+        assertEquals("SMART CITY", resolvedId.category)
+        assertEquals("Strategi dan framework implementasi Smart City dan tata kelola ekuitas lahan perkotaan.", resolvedId.description)
+
+        // 2. Test through LocalizationManager.getLocalizedBook
+        LocalizationManager.setLocale(AppLocale.EN)
+        val localizedEn = LocalizationManager.getLocalizedBook(bookWithEn)
+        assertEquals("URBAN INTELLIGENCE", localizedEn.category)
+        assertEquals("Smart City implementation strategy and equitable land governance frameworks.", localizedEn.description)
+
+        LocalizationManager.setLocale(AppLocale.ID)
+        val localizedId = LocalizationManager.getLocalizedBook(bookWithEn)
+        assertEquals("SMART CITY", localizedId.category)
+        assertEquals("Strategi dan framework implementasi Smart City dan tata kelola ekuitas lahan perkotaan.", localizedId.description)
+
+        // 3. Fallback when EN fields are null or blank
+        val bookFallback = com.sekota.features.admin.domain.model.AdminBook(
+            id = "fallback-book",
+            title = "Buku Fallback",
+            author = "Penulis",
+            isbn = "123",
+            category = "Kategori Utama",
+            description = "Deskripsi Utama",
+            categoryEn = "  ",
+            descriptionEn = null
+        )
+        val resolvedFallback = bookFallback.resolveForLocale(AppLocale.EN)
+        assertEquals("Kategori Utama", resolvedFallback.category)
+        assertEquals("Deskripsi Utama", resolvedFallback.description)
+    }
 }
 

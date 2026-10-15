@@ -239,7 +239,8 @@ fun CatalogContent(windowWidth: WindowWidth, filteredBooks: List<AdminBook>, onB
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(spacing)
                     ) {
-                        rowBooks.forEachIndexed { colIndex, book ->
+                        rowBooks.forEachIndexed { colIndex, rawBook ->
+                            val book = com.sekota.localization.LocalizationManager.getLocalizedBook(rawBook)
                             val color = com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
                             ProductCard(
                                 title = book.title,

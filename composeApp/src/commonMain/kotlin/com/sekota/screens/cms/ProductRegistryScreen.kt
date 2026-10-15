@@ -390,19 +390,118 @@ fun ProductRegistryContent(
                         Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
 
-                    CmsInputField(
-                        value = modal.category,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookCategory(it)) },
-                        label = "Kategori Buku"
-                    )
+                    // Bilingual Authoring Switcher & Translation Status
+                    val isEnTab = modal.activeLanguageTab == "EN"
+                    val hasEnContent = modal.categoryEn.isNotBlank() && modal.descriptionEn.isNotBlank()
 
-                    CmsInputField(
-                        value = modal.description,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateBookDescription(it)) },
-                        label = "Sinopsis & Deskripsi",
-                        isSingleLine = false,
-                        minLines = 3
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Language segmented pill switcher
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color(0xFFF1F5F9))
+                                .padding(3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // ID Tab Pill
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (!isEnTab) CmsBrandTeal else Color.Transparent,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable { onIntent(ProductRegistryIntent.SwitchBookModalLanguage("ID")) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "\uD83C\uDDEE\uD83C\uDDE9 Bahasa Indonesia",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = if (!isEnTab) FontWeight.Bold else FontWeight.Medium,
+                                        fontSize = 11.sp,
+                                        color = if (!isEnTab) Color.White else Color(0xFF64748B)
+                                    )
+                                }
+                            }
+
+                            // EN Tab Pill
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (isEnTab) CmsBrandTeal else Color.Transparent,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable { onIntent(ProductRegistryIntent.SwitchBookModalLanguage("EN")) }
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = "\uD83C\uDDEC\uD83C\uDDE7 English",
+                                        fontFamily = getDmSansFontFamily(),
+                                        fontWeight = if (isEnTab) FontWeight.Bold else FontWeight.Medium,
+                                        fontSize = 11.sp,
+                                        color = if (isEnTab) Color.White else Color(0xFF64748B)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Subtle Translation Status Badge
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (hasEnContent) Color(0xFFE8F5E9) else Color(0xFFFFF8E1),
+                            border = BorderStroke(1.dp, if (hasEnContent) Color(0xFFA5D6A7) else Color(0xFFFFE082))
+                        ) {
+                            Text(
+                                text = if (hasEnContent) "Status: Lengkap (ID + EN)" else "Status: EN Fallback",
+                                fontFamily = getDmSansFontFamily(),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 10.sp,
+                                color = if (hasEnContent) Color(0xFF2E7D32) else Color(0xFFB78103),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    if (!isEnTab) {
+                        CmsInputField(
+                            value = modal.category,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookCategory(it)) },
+                            label = "Kategori Buku"
+                        )
+
+                        CmsInputField(
+                            value = modal.description,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookDescription(it)) },
+                            label = "Sinopsis & Deskripsi",
+                            isSingleLine = false,
+                            minLines = 3
+                        )
+                    } else {
+                        CmsInputField(
+                            value = modal.categoryEn,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookCategoryEn(it)) },
+                            label = "Kategori Buku (EN)",
+                            placeholder = "e.g. SMART CITY, ESG, LAND EQUITY"
+                        )
+
+                        CmsInputField(
+                            value = modal.descriptionEn,
+                            onValueChange = { onIntent(ProductRegistryIntent.UpdateBookDescriptionEn(it)) },
+                            label = "Sinopsis & Deskripsi (EN)",
+                            placeholder = "(English synopsis - leave empty to fallback to ID)",
+                            isSingleLine = false,
+                            minLines = 3
+                        )
+                    }
 
                     CmsInputField(
                         value = modal.pdfUrl,
@@ -1128,6 +1227,41 @@ fun ProductRegistrySuiteModalEnPreview() {
                     categoryEyebrowEn = "Enterprise Platform",
                     descriptionEn = "Predictive urban mobility analytics platform powered by spatial sensors and AI.",
                     featuresTextEn = "Smart Mobility, Spatial Sensor, Traffic Forecast"
+                )
+            ),
+            windowWidth = WindowWidth.Expanded,
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(device = DESKTOP, showBackground = true)
+@Composable
+fun ProductRegistryBookModalEnPreview() {
+    MaterialTheme {
+        ProductRegistryContent(
+            state = ProductRegistryState(
+                activeModal = ActiveModalState.BookMetadataModal(
+                    targetBook = AdminBook(
+                        id = "bk-01",
+                        title = "Transformasi Tata Kelola Kota Digital 2026",
+                        author = "Sekota ThinkTank",
+                        category = "Kebijakan Publik",
+                        isbn = "978-602-000-1",
+                        categoryEn = "PUBLIC POLICY",
+                        descriptionEn = "Strategic framework for digital city governance in 2026."
+                    ),
+                    category = "Kebijakan Publik",
+                    description = "Kerangka strategis transformasi tata kelola kota digital 2026.",
+                    pdfUrl = "https://sekota.id/docs/policy.pdf",
+                    readingTime = "2H 30M",
+                    pages = "180",
+                    year = "2026",
+                    language = "Indonesia & English",
+                    publishedDate = "15 Januari 2026",
+                    activeLanguageTab = "EN",
+                    categoryEn = "PUBLIC POLICY",
+                    descriptionEn = "Strategic framework for digital city governance in 2026."
                 )
             ),
             windowWidth = WindowWidth.Expanded,

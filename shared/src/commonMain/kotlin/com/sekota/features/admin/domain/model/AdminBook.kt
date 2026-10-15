@@ -28,6 +28,19 @@ data class AdminBook(
     val language: String = "Indonesia",
     val year: String = "2025",
     val coverColorHex: String? = null,
-    val whatsInside: List<AdminWhatsInsideItem> = emptyList()
-)
+    val whatsInside: List<AdminWhatsInsideItem> = emptyList(),
+    val categoryEn: String? = null,
+    val descriptionEn: String? = null
+) {
+    fun resolveForLocale(locale: com.sekota.localization.AppLocale): AdminBook {
+        return if (locale == com.sekota.localization.AppLocale.EN) {
+            this.copy(
+                category = categoryEn?.takeIf { it.isNotBlank() } ?: category,
+                description = descriptionEn?.takeIf { it.isNotBlank() } ?: description
+            )
+        } else {
+            this
+        }
+    }
+}
 

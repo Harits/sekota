@@ -481,4 +481,12 @@ object LocalizationManager {
             features = localizedFeatures
         )
     }
+
+    /**
+     * Resolves localized version of a book for the current active locale.
+     * When EN is selected, delegates to book.resolveForLocale(AppLocale.EN).
+     */
+    fun getLocalizedBook(book: com.sekota.features.admin.domain.model.AdminBook): com.sekota.features.admin.domain.model.AdminBook {
+        return book.resolveForLocale(_currentLocale.value)
+    }
 }

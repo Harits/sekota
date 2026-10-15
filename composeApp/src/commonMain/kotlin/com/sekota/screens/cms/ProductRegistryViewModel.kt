@@ -56,8 +56,11 @@ class ProductRegistryViewModel(
             is ProductRegistryIntent.DismissModal -> _uiState.update { it.copy(activeModal = ActiveModalState.None) }
 
             // Book Edits
+            is ProductRegistryIntent.SwitchBookModalLanguage -> updateBookModal { it.copy(activeLanguageTab = intent.lang) }
             is ProductRegistryIntent.UpdateBookCategory -> updateBookModal { it.copy(category = intent.value, validationError = null) }
             is ProductRegistryIntent.UpdateBookDescription -> updateBookModal { it.copy(description = intent.value) }
+            is ProductRegistryIntent.UpdateBookCategoryEn -> updateBookModal { it.copy(categoryEn = intent.value) }
+            is ProductRegistryIntent.UpdateBookDescriptionEn -> updateBookModal { it.copy(descriptionEn = intent.value) }
             is ProductRegistryIntent.UpdateBookPdfUrl -> updateBookModal { it.copy(pdfUrl = intent.value) }
             is ProductRegistryIntent.UpdateBookReadingTime -> updateBookModal { it.copy(readingTime = intent.value) }
             is ProductRegistryIntent.UpdateBookPages -> updateBookModal { it.copy(pages = intent.value) }
@@ -145,7 +148,10 @@ class ProductRegistryViewModel(
                     year = book.year,
                     language = book.language,
                     publishedDate = book.publishedDate,
-                    whatsInside = book.whatsInside
+                    whatsInside = book.whatsInside,
+                    activeLanguageTab = "ID",
+                    categoryEn = book.categoryEn ?: "",
+                    descriptionEn = book.descriptionEn ?: ""
                 )
             )
         }
@@ -216,6 +222,8 @@ class ProductRegistryViewModel(
         val updated = modal.targetBook.copy(
             category = modal.category.trim(),
             description = modal.description.trim(),
+            categoryEn = modal.categoryEn.trim().takeIf { it.isNotBlank() },
+            descriptionEn = modal.descriptionEn.trim().takeIf { it.isNotBlank() },
             pdfUrl = modal.pdfUrl.trim().ifBlank { null },
             readingTime = modal.readingTime.trim(),
             pages = modal.pages.trim().toIntOrNull() ?: modal.targetBook.pages,

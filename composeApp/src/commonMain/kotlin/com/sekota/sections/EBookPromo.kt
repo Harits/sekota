@@ -191,7 +191,8 @@ private fun EBookPromoContent(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(windowWidth.gridSpacing)
                     ) {
-                        rowBooks.forEachIndexed { colIndex, book ->
+                        rowBooks.forEachIndexed { colIndex, rawBook ->
+                            val book = LocalizationManager.getLocalizedBook(rawBook)
                             val color = com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
                             com.sekota.components.ProductCard(
                                 title = book.title,

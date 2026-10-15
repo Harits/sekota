@@ -76,6 +76,8 @@ fun BookDetailsScreen(
     var readSuccessMessage by remember { mutableStateOf<String?>(null) }
     var librarySuccessMessage by remember { mutableStateOf<String?>(null) }
 
+    val localizedBook = com.sekota.localization.LocalizationManager.getLocalizedBook(book)
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -97,13 +99,13 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val bookCoverColor = remember(book.id, book.title, book.coverColorHex) {
-                        com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
+                    val bookCoverColor = remember(localizedBook.id, localizedBook.title, localizedBook.coverColorHex) {
+                        com.sekota.utils.BookCoverColors.getColorForBook(localizedBook.id, localizedBook.title, localizedBook.coverColorHex)
                     }
 
                     BookCover(
-                        title = book.title,
-                        coverImage = book.coverImage,
+                        title = localizedBook.title,
+                        coverImage = localizedBook.coverImage,
                         backgroundColor = bookCoverColor,
                         modifier = Modifier
                             .widthIn(max = 260.dp)
@@ -114,24 +116,24 @@ fun BookDetailsScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     BookInfoContent(
-                        book = book,
+                        book = localizedBook,
                         isMobile = true,
                         isLoggedIn = isLoggedIn,
                         onReadNowClick = {
                             if (isLoggedIn) {
-                                onNavigate(Screen.BookReader(book.id, 0))
+                                onNavigate(Screen.BookReader(localizedBook.id, 0))
                             } else {
                                 onRequestAuth {
-                                    onNavigate(Screen.BookReader(book.id, 0))
+                                    onNavigate(Screen.BookReader(localizedBook.id, 0))
                                 }
                             }
                         },
                         onAddToLibraryClick = {
                             if (isLoggedIn) {
-                                librarySuccessMessage = "Buku \"${book.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
+                                librarySuccessMessage = "Buku \"${localizedBook.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
                             } else {
                                 onRequestAuth {
-                                    librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${book.title}\" ditambahkan ke pustaka!"
+                                    librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${localizedBook.title}\" ditambahkan ke pustaka!"
                                 }
                             }
                         },
@@ -146,13 +148,13 @@ fun BookDetailsScreen(
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                     horizontalArrangement = Arrangement.spacedBy(64.dp)
                 ) {
-                    val bookCoverColor = remember(book.id, book.title, book.coverColorHex) {
-                        com.sekota.utils.BookCoverColors.getColorForBook(book.id, book.title, book.coverColorHex)
+                    val bookCoverColor = remember(localizedBook.id, localizedBook.title, localizedBook.coverColorHex) {
+                        com.sekota.utils.BookCoverColors.getColorForBook(localizedBook.id, localizedBook.title, localizedBook.coverColorHex)
                     }
 
                     BookCover(
-                        title = book.title,
-                        coverImage = book.coverImage,
+                        title = localizedBook.title,
+                        coverImage = localizedBook.coverImage,
                         backgroundColor = bookCoverColor,
                         modifier = Modifier
                             .width(340.dp)
@@ -161,24 +163,24 @@ fun BookDetailsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         BookInfoContent(
-                            book = book,
+                            book = localizedBook,
                             isMobile = false,
                             isLoggedIn = isLoggedIn,
                             onReadNowClick = {
                                 if (isLoggedIn) {
-                                    onNavigate(Screen.BookReader(book.id, 0))
+                                    onNavigate(Screen.BookReader(localizedBook.id, 0))
                                 } else {
                                     onRequestAuth {
-                                        onNavigate(Screen.BookReader(book.id, 0))
+                                        onNavigate(Screen.BookReader(localizedBook.id, 0))
                                     }
                                 }
                             },
                             onAddToLibraryClick = {
                                 if (isLoggedIn) {
-                                    librarySuccessMessage = "Buku \"${book.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
+                                    librarySuccessMessage = "Buku \"${localizedBook.title}\" berhasil ditambahkan ke pustaka pribadi Anda!"
                                 } else {
                                     onRequestAuth {
-                                        librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${book.title}\" ditambahkan ke pustaka!"
+                                        librarySuccessMessage = "Autentikasi terverifikasi. Buku \"${localizedBook.title}\" ditambahkan ke pustaka!"
                                     }
                                 }
                             },
@@ -198,13 +200,13 @@ fun BookDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     WhatsInsideSection(
-                        book = book,
-                        readingTime = book.readingTime,
+                        book = localizedBook,
+                        readingTime = localizedBook.readingTime,
                         modifier = Modifier.fillMaxWidth(),
                         stackChapters = windowWidth.isCompact
                     )
                     MetadataSection(
-                        book = book,
+                        book = localizedBook,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -216,12 +218,12 @@ fun BookDetailsScreen(
                     horizontalArrangement = Arrangement.spacedBy(32.dp)
                 ) {
                     WhatsInsideSection(
-                        book = book,
-                        readingTime = book.readingTime,
+                        book = localizedBook,
+                        readingTime = localizedBook.readingTime,
                         modifier = Modifier.weight(2f)
                     )
                     MetadataSection(
-                        book = book,
+                        book = localizedBook,
                         modifier = Modifier.weight(1f)
                     )
                 }

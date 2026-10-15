@@ -97,7 +97,9 @@ class AdminRepositoryImpl(
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan.", "frame"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga.", "gear"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.", "leaf")
-            )
+            ),
+            categoryEn = "SMART CITY",
+            descriptionEn = "Smart City implementation strategy, urban data architecture, and equitable land governance frameworks."
         ),
         AdminBook(
             id = "blind-spot-radar",
@@ -117,7 +119,9 @@ class AdminRepositoryImpl(
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Deep Work Protocols", "Actionable steps to enter flow state on command.", "frame"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mindful Tech Integration", "Setting boundaries that stick without the guilt.", "gear"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Cognitive Recovery", "Restoring your mental energy after intense digital usage.", "leaf")
-            )
+            ),
+            categoryEn = "INTELLIGENCE",
+            descriptionEn = "Open Source Intelligence methodologies to identify policy blind spots and navigate complex corporate strategic dilemmas."
         ),
         AdminBook(
             id = "csr-berdampak",
@@ -137,7 +141,9 @@ class AdminRepositoryImpl(
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
-            )
+            ),
+            categoryEn = "ESG",
+            descriptionEn = "A comprehensive handbook on engineering high-impact corporate social responsibility programs and sustainable development frameworks."
         ),
         AdminBook(
             id = "esg-strategic-integration",
@@ -157,7 +163,9 @@ class AdminRepositoryImpl(
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
                 com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
-            )
+            ),
+            categoryEn = "ESG",
+            descriptionEn = "End-to-end organizational integration of environmental, social, and corporate governance compliance standards."
         )
     )
 
@@ -353,7 +361,9 @@ class AdminRepositoryImpl(
                                 pages = local?.pages ?: 240,
                                 publishedDate = local?.publishedDate ?: "Nov 2025",
                                 language = local?.language ?: "Indonesia",
-                                year = local?.year ?: "2025"
+                                year = local?.year ?: "2025",
+                                categoryEn = local?.categoryEn,
+                                descriptionEn = local?.descriptionEn
                             )
                         }
                         persistBooks(mapped)
@@ -434,12 +444,15 @@ class AdminRepositoryImpl(
      * CMS operator (architecture rule 6). A save carries whatever the caller
      * happened to hold, so the stored values always win for these three -- this
      * is what stops an edit from resetting a book's rating and reader counts.
+     * Also cleanly preserves or applies bilingual fields (categoryEn, descriptionEn).
      */
     private fun preserveTelemetry(incoming: AdminBook, existing: AdminBook): AdminBook =
         incoming.copy(
             rating = existing.rating,
             ratingCount = existing.ratingCount,
-            interactions = existing.interactions
+            interactions = existing.interactions,
+            categoryEn = incoming.categoryEn ?: existing.categoryEn,
+            descriptionEn = incoming.descriptionEn ?: existing.descriptionEn
         )
 
     private fun updateLocalBookCache(book: AdminBook) {

@@ -61,7 +61,10 @@ sealed interface ActiveModalState {
         val language: String,
         val publishedDate: String,
         val whatsInside: List<AdminWhatsInsideItem> = emptyList(),
-        val validationError: String? = null
+        val validationError: String? = null,
+        val activeLanguageTab: String = "ID", // "ID" or "EN"
+        val categoryEn: String = "",
+        val descriptionEn: String = ""
     ) : ActiveModalState
 
     data class SelectCreateTypeModal(val filterHint: ProductTypeFilter = ProductTypeFilter.ALL) : ActiveModalState
@@ -151,8 +154,11 @@ sealed interface ProductRegistryIntent {
     data object DismissModal : ProductRegistryIntent
 
     // Book Form Edits
+    data class SwitchBookModalLanguage(val lang: String) : ProductRegistryIntent
     data class UpdateBookCategory(val value: String) : ProductRegistryIntent
     data class UpdateBookDescription(val value: String) : ProductRegistryIntent
+    data class UpdateBookCategoryEn(val value: String) : ProductRegistryIntent
+    data class UpdateBookDescriptionEn(val value: String) : ProductRegistryIntent
     data class UpdateBookPdfUrl(val value: String) : ProductRegistryIntent
     data class UpdateBookReadingTime(val value: String) : ProductRegistryIntent
     data class UpdateBookPages(val value: String) : ProductRegistryIntent
