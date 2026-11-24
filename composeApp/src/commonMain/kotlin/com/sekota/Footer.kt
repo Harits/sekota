@@ -1,523 +1,181 @@
 package com.sekota
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.sekota.ui.WindowWidth
-import com.sekota.ui.contentHorizontalPadding
-import com.sekota.ui.windowWidthOf
-import org.jetbrains.compose.resources.painterResource
-import sekota.composeapp.generated.resources.Res
-import sekota.composeapp.generated.resources.container
-import sekota.composeapp.generated.resources.logo_sekota
-
-import com.sekota.features.admin.domain.model.FooterConfig
-import com.sekota.features.admin.domain.model.FooterLinkItem
 import com.sekota.features.admin.domain.model.FooterColumnConfig
-import com.sekota.features.admin.domain.model.FooterSocialLink
+import com.sekota.features.admin.domain.model.FooterConfig
+import com.sekota.features.admin.domain.model.StrategicConversationConfig
+import com.sekota.localization.AppLocale
+import com.sekota.localization.LocalizationManager
 import com.sekota.localization.stringResource
+import com.sekota.ui.brand.*
+import org.jetbrains.compose.resources.painterResource
 
-@Composable
-fun Footer(
-    config: FooterConfig? = null,
-    onNavigate: (Screen) -> Unit = {},
-    onProductClick: (String) -> Unit = {},
-    onKontakClick: () -> Unit = {},
-    selectedLanguage: String = "BAHASA INDONESIA",
-    onLanguageChange: (String) -> Unit = {}
-) {
-    var liveConfig by remember { mutableStateOf(config ?: FooterConfig()) }
-
-    LaunchedEffect(config) {
-        if (config != null) {
-            liveConfig = config
-        } else {
-            try {
-                liveConfig = com.sekota.getFooterUseCase()
-            } catch (_: Exception) {
-                // AC 4: Fallback to default canonical config if network or repo fails
-                liveConfig = FooterConfig()
-            }
-            try {
-                com.sekota.syncService.syncEventFlow.collect {
-                    try {
-                        liveConfig = com.sekota.getFooterUseCase()
-                    } catch (_: Exception) {}
-                }
-            } catch (_: Exception) {}
-        }
-    }
-
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        FooterContent(
-            config = liveConfig,
-            windowWidth = windowWidthOf(maxWidth),
-            horizontalPadding = contentHorizontalPadding(maxWidth),
-            onNavigate = onNavigate,
-            onProductClick = onProductClick,
-            onKontakClick = onKontakClick,
-            selectedLanguage = selectedLanguage,
-            onLanguageChange = onLanguageChange
-        )
-    }
-}
-
+/**
+ * Global footer of the company profile (WEB-07-02-03 / #22666): brand column,
+ * Navigasi / Platform / Kontak columns, copyright and legal links. Every link is a
+ * route or CMS code resolved by NavigationRouter through [onRoute].
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FooterContent(
+fun Footer(
     config: FooterConfig,
-    windowWidth: WindowWidth,
-    horizontalPadding: Dp,
-    onNavigate: (Screen) -> Unit,
-    onProductClick: (String) -> Unit,
-    onKontakClick: () -> Unit,
-    selectedLanguage: String,
-    onLanguageChange: (String) -> Unit
+    locale: AppLocale,
+    contactEmail: String,
+    onRoute: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val isCompact = windowWidth.isCompact
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(
-                horizontal = horizontalPadding,
-                vertical = if (isCompact) 48.dp else 64.dp
-            )
-    ) {
-        val isEn = selectedLanguage.equals("ENGLISH", ignoreCase = true)
-        val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-
-        val localizedTagline = if (isEn) stringResource("footer_tagline") else config.tagline
-        val localizedAffiliation = if (isEn) stringResource("footer_affiliation") else config.affiliationText
-        val localizedAffiliationSubtext = if (isEn) stringResource("footer_affiliation_subtext") else config.affiliationSubtext
-        val localizedCopyright = if (isEn) stringResource("footer_copyright") else config.copyrightText
-
-        // Column Titles
-        val productTitle = if (isEn) stringResource("footer_col_products") else config.productColumn.title
-        val companyTitle = if (isEn) stringResource("footer_col_company") else config.companyColumn.title
-        val legalTitle = if (isEn) stringResource("footer_col_legal") else config.legalColumn.title
-
-        // Column Items sorted and filtered by visibility
-        val visibleProducts = config.productColumn.items.filter { it.isVisible }.sortedBy { it.sortOrder }
-        val visibleCompany = config.companyColumn.items.filter { it.isVisible }.sortedBy { it.sortOrder }
-        val visibleLegal = config.legalColumn.items.filter { it.isVisible }.sortedBy { it.sortOrder }
-        val visibleSocials = config.socialLinks.filter { it.isVisible }
-
-        fun resolveItemLabel(rawLabel: String): String {
-            if (!isEn) return rawLabel
-            return when (rawLabel.trim().lowercase()) {
-                "tentang kami" -> com.sekota.localization.LocalizationManager.getString("footer_link_about")
-                "e-book" -> com.sekota.localization.LocalizationManager.getString("footer_link_ebook")
-                "merchandise" -> com.sekota.localization.LocalizationManager.getString("footer_link_merch")
-                "insights" -> com.sekota.localization.LocalizationManager.getString("footer_link_insights")
-                "kontak" -> com.sekota.localization.LocalizationManager.getString("footer_link_contact")
-                "privasi" -> com.sekota.localization.LocalizationManager.getString("footer_link_privacy")
-                "syarat & ketentuan" -> com.sekota.localization.LocalizationManager.getString("footer_link_terms")
-                else -> com.sekota.localization.LocalizationManager.getString(rawLabel)
-            }
-        }
-
-        val branding = @Composable { modifier: Modifier ->
-            Column(modifier = modifier) {
-                Box(
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .clickable { onNavigate(Screen.Landing) }
-                ) {
-                    FooterLogo()
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = localizedTagline,
-                    fontSize = 14.sp,
-                    fontFamily = getDmSansFontFamily(),
-                    color = Color(0xFF64748B),
-                    lineHeight = 22.sp,
-                    modifier = Modifier.widthIn(max = 320.dp)
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+    val type = brandType()
+    BoxWithConstraints(modifier.fillMaxWidth().background(BrandColors.Dark)) {
+        val stacked = BrandLayout.isNarrow(maxWidth)
+        BrandContainer(Modifier.padding(top = if (stacked) 64.dp else 80.dp, bottom = 40.dp)) {
+            val brand: @Composable (Modifier) -> Unit = { m ->
+                Column(m, verticalArrangement = Arrangement.spacedBy(20.dp)) {
                     Image(
-                        painter = painterResource(Res.drawable.container),
-                        contentDescription = localizedAffiliation,
-                        modifier = Modifier.size(24.dp)
+                        painterResource(BrandAssets.SekotaLogoDark), contentDescription = "Sekota Sinergi Indonesia",
+                        modifier = Modifier.height(36.dp).clickable(role = Role.Button) { onRoute("/") }.pointerHoverIcon(PointerIcon.Hand)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = localizedAffiliation,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5A6972),
-                            fontFamily = getDmSansFontFamily()
-                        )
-                        Text(
-                            text = localizedAffiliationSubtext,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF94A3B8),
-                            fontFamily = getDmSansFontFamily(),
-                            letterSpacing = 0.5.sp
-                        )
-                    }
-                }
-                if (visibleSocials.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        visibleSocials.forEach { social ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier
-                                    .pointerHoverIcon(PointerIcon.Hand)
-                                    .clickable {
-                                        if (social.url.isNotBlank()) {
-                                            try { uriHandler.openUri(social.url) } catch (_: Exception) {}
-                                        }
-                                    }
-                            ) {
-                                com.sekota.components.SekotaSocialVectorIcon(
-                                    platform = social.platform,
-                                    size = 14.dp,
-                                    tint = Color(0xFF94A3B8)
-                                )
-                                Text(
-                                    text = social.platform.uppercase(),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF94A3B8),
-                                    fontFamily = getDmSansFontFamily()
-                                )
-                            }
+                    val tagline = if (locale == AppLocale.EN) config.taglineEn?.takeIf { it.isNotBlank() } ?: config.tagline else config.tagline
+                    Text(tagline, style = type.small, color = BrandColors.OnDarkMuted, modifier = Modifier.widthIn(max = 360.dp))
+                    val socials = config.socialLinks.filter { it.isVisible && it.url.isNotBlank() }
+                    if (socials.isNotEmpty()) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            socials.forEach { FooterLink(it.platform.lowercase().replaceFirstChar { c -> c.uppercase() }) { onRoute(it.url) } }
                         }
                     }
                 }
             }
-        }
-
-        // Responsive layout: 4-column grid on desktop, wrapped FlowRow on tablet/mobile
-        if (windowWidth.isAtMostMedium) {
-            branding(Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(40.dp))
+            val columns: @Composable (Modifier) -> Unit = { m ->
+                FlowRow(m, horizontalArrangement = Arrangement.spacedBy(if (stacked) 40.dp else 64.dp), verticalArrangement = Arrangement.spacedBy(32.dp)) {
+                    FooterColumn(config.companyColumn, locale, onRoute)
+                    FooterColumn(config.productColumn, locale, onRoute)
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FooterHeading(stringResource("cp_footer_contact"))
+                        FooterLink(stringResource("cp_cta_contact")) { onRoute("/kontak") }
+                        if (contactEmail.isNotBlank()) FooterLink(contactEmail) { onRoute("mailto:$contactEmail") }
+                    }
+                }
+            }
+            if (stacked) {
+                Column(verticalArrangement = Arrangement.spacedBy(40.dp)) { brand(Modifier); columns(Modifier) }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(64.dp)) { brand(Modifier.weight(1f)); columns(Modifier) }
+            }
+            HorizontalDivider(Modifier.padding(top = 56.dp, bottom = 24.dp), color = Color.White.copy(alpha = 0.1f))
             FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(32.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                // Column 2: Produk
-                FooterLinkColumn(
-                    title = productTitle,
-                    items = visibleProducts,
-                    onItemClick = { item ->
-                        val code = when (item.urlOrCode.uppercase()) {
-                            "VRD", "VERIDIA" -> "VRD"
-                            "ASC", "ASCENDIO" -> "ASC"
-                            "SOC", "SOCIARA" -> "SOC"
-                            "ECO", "ECOFLOW" -> "ECO"
-                            else -> item.urlOrCode.ifBlank { "VRD" }
-                        }
-                        onProductClick(code)
-                    },
-                    labelTransformer = ::resolveItemLabel
-                )
-
-                // Column 3: Perusahaan
-                FooterLinkColumn(
-                    title = companyTitle,
-                    items = visibleCompany,
-                    onItemClick = { item ->
-                        when (val dest = com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(item.urlOrCode)) {
-                            is com.sekota.features.navigation.domain.model.AppDestination.Catalog -> onNavigate(Screen.Catalog)
-                            is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> onNavigate(Screen.Merchandise)
-                            is com.sekota.features.navigation.domain.model.AppDestination.KontakSection -> onKontakClick()
-                            is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection -> onNavigate(Screen.Landing)
-                            is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection -> onNavigate(Screen.Landing)
-                            is com.sekota.features.navigation.domain.model.AppDestination.External -> {
-                                try { uriHandler.openUri(dest.url) } catch (_: Exception) {}
-                            }
-                            else -> onNavigate(Screen.Landing)
-                        }
-                    },
-                    labelTransformer = ::resolveItemLabel
-                )
-
-                // Column 4: Legal
-                FooterLinkColumn(
-                    title = legalTitle,
-                    items = visibleLegal,
-                    onItemClick = { item ->
-                        if (item.urlOrCode.startsWith("http://") || item.urlOrCode.startsWith("https://")) {
-                            try { uriHandler.openUri(item.urlOrCode) } catch (_: Exception) {}
-                        } else {
-                            onNavigate(Screen.Landing)
-                        }
-                    },
-                    labelTransformer = ::resolveItemLabel
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Left Column: Brand & Tagline & Affiliation & Social
-                branding(Modifier.weight(1.4f).padding(end = 48.dp))
-
-                // Right Section: 3 Link Columns spread to the right edge
-                Row(
-                    modifier = Modifier.weight(2f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    // Column 2: PRODUK
-                    FooterLinkColumn(
-                        title = productTitle,
-                        items = visibleProducts,
-                        onItemClick = { item ->
-                            val code = when (item.urlOrCode.uppercase()) {
-                                "VRD", "VERIDIA" -> "VRD"
-                                "ASC", "ASCENDIO" -> "ASC"
-                                "SOC", "SOCIARA" -> "SOC"
-                                "ECO", "ECOFLOW" -> "ECO"
-                                else -> item.urlOrCode.ifBlank { "VRD" }
-                            }
-                            onProductClick(code)
-                        },
-                        labelTransformer = ::resolveItemLabel
-                    )
-
-                    // Column 3: PERUSAHAAN
-                    FooterLinkColumn(
-                        title = companyTitle,
-                        items = visibleCompany,
-                        onItemClick = { item ->
-                            when (val dest = com.sekota.features.navigation.domain.model.NavigationRouter.parseDestination(item.urlOrCode)) {
-                                is com.sekota.features.navigation.domain.model.AppDestination.Catalog -> onNavigate(Screen.Catalog)
-                                is com.sekota.features.navigation.domain.model.AppDestination.Merchandise -> onNavigate(Screen.Merchandise)
-                                is com.sekota.features.navigation.domain.model.AppDestination.KontakSection -> onKontakClick()
-                                is com.sekota.features.navigation.domain.model.AppDestination.SolusiSection -> onNavigate(Screen.Landing)
-                                is com.sekota.features.navigation.domain.model.AppDestination.ProdukSection -> onNavigate(Screen.Landing)
-                                is com.sekota.features.navigation.domain.model.AppDestination.External -> {
-                                    try { uriHandler.openUri(dest.url) } catch (_: Exception) {}
-                                }
-                                else -> onNavigate(Screen.Landing)
-                            }
-                        },
-                        labelTransformer = ::resolveItemLabel
-                    )
-
-                    // Column 4: LEGAL (Flush with right edge)
-                    FooterLinkColumn(
-                        title = legalTitle,
-                        items = visibleLegal,
-                        onItemClick = { item ->
-                            if (item.urlOrCode.startsWith("http://") || item.urlOrCode.startsWith("https://")) {
-                                try { uriHandler.openUri(item.urlOrCode) } catch (_: Exception) {}
-                            } else {
-                                onNavigate(Screen.Landing)
-                            }
-                        },
-                        labelTransformer = ::resolveItemLabel
-                    )
+                val copyright = if (locale == AppLocale.EN) config.copyrightTextEn?.takeIf { it.isNotBlank() } ?: config.copyrightText else config.copyrightText
+                Text(copyright, style = type.caption.copy(fontSize = androidx.compose.ui.unit.TextUnit(13f, androidx.compose.ui.unit.TextUnitType.Sp)), color = BrandColors.OnDarkMuted)
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    config.legalColumn.items.filter { it.isVisible }.sortedBy { it.sortOrder }.forEach { item ->
+                        FooterLink(if (locale == AppLocale.EN) item.labelEn ?: item.label else item.label) { onRoute(item.urlOrCode) }
+                    }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(if (isCompact) 40.dp else 64.dp))
-        HorizontalDivider(color = Color(0xFFE2E8F0))
-        Spacer(modifier = Modifier.height(if (isCompact) 24.dp else 32.dp))
-
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = localizedCopyright,
-                fontSize = 12.sp,
-                color = Color(0xFF64748B),
-                fontFamily = getDmSansFontFamily(),
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            ) {
-                Text(
-                    text = "ENGLISH",
-                    fontSize = 12.sp,
-                    fontWeight = if (isEn) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isEn) Color(0xFF0D1F2D) else Color(0xFF94A3B8),
-                    fontFamily = getDmSansFontFamily(),
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .clip(RoundedCornerShape(4.dp))
-                        .clickable {
-                            com.sekota.localization.LocalizationManager.setLocale(com.sekota.localization.AppLocale.EN)
-                            onLanguageChange("ENGLISH")
-                        }
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "BAHASA INDONESIA",
-                    fontSize = 12.sp,
-                    fontWeight = if (!isEn) FontWeight.Bold else FontWeight.Normal,
-                    color = if (!isEn) Color(0xFF0D1F2D) else Color(0xFF94A3B8),
-                    fontFamily = getDmSansFontFamily(),
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .clip(RoundedCornerShape(4.dp))
-                        .clickable {
-                            com.sekota.localization.LocalizationManager.setLocale(com.sekota.localization.AppLocale.ID)
-                            onLanguageChange("BAHASA INDONESIA")
-                        }
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                )
-            }
-        }
     }
 }
 
+/**
+ * Footer for pages without company profile state (the Sprint 6 pages kept until
+ * Sprint 8). Loads its own content and follows the active language.
+ */
 @Composable
-fun FooterLinkColumn(
-    title: String,
-    items: List<FooterLinkItem>,
-    onItemClick: (FooterLinkItem) -> Unit = {},
-    labelTransformer: (String) -> String = { it }
-) {
-    Column(modifier = Modifier.widthIn(min = 140.dp)) {
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF0D1F2D),
-            fontFamily = getDmSansFontFamily(),
-            modifier = Modifier.padding(bottom = 24.dp),
-            letterSpacing = 0.5.sp
-        )
+fun Footer(onRoute: (String) -> Unit, modifier: Modifier = Modifier) {
+    val locale by LocalizationManager.currentLocale.collectAsState()
+    var config by remember { mutableStateOf(FooterConfig()) }
+    var email by remember { mutableStateOf(StrategicConversationConfig().email) }
+    LaunchedEffect(Unit) {
+        runCatching {
+            config = defaultAppContainer.getFooterUseCase()
+            email = defaultAppContainer.getStrategicConversationUseCase().email
+        }.onFailure { println("Footer: using defaults, load failed: ${it.message}") }
+    }
+    BrandTheme { Footer(config, locale, email, onRoute, modifier) }
+}
+
+@Composable
+private fun FooterHeading(text: String) {
+    Text(text, style = brandType().smallStrong.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold), color = Color.White)
+}
+
+@Composable
+private fun FooterColumn(column: FooterColumnConfig, locale: AppLocale, onRoute: (String) -> Unit) {
+    val items = column.items.filter { it.isVisible }.sortedBy { it.sortOrder }
+    if (items.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        FooterHeading(if (locale == AppLocale.EN) column.titleEn ?: column.title else column.title)
         items.forEach { item ->
-            Text(
-                text = labelTransformer(item.label),
-                fontSize = 14.sp,
-                color = Color(0xFF64748B),
-                modifier = Modifier
-                    .padding(bottom = 18.dp)
-                    .pointerHoverIcon(PointerIcon.Hand)
-                    .clickable { onItemClick(item) },
-                fontFamily = getDmSansFontFamily()
-            )
+            FooterLink(if (locale == AppLocale.EN) item.labelEn ?: item.label else item.label) { onRoute(item.urlOrCode) }
         }
     }
 }
 
 @Composable
-fun FooterColumn(
-    title: String,
-    items: List<String>,
-    onItemClick: (String) -> Unit = {}
-) {
-    FooterLinkColumn(
-        title = title,
-        items = items.mapIndexed { idx, it -> FooterLinkItem(id = "item_$idx", label = it, urlOrCode = it, sortOrder = idx) },
-        onItemClick = { onItemClick(it.label) }
+private fun FooterLink(text: String, onClick: () -> Unit) {
+    val source = remember { MutableInteractionSource() }
+    val hovered by source.collectIsHoveredAsState()
+    val color by animateColorAsState(if (hovered) Color.White else BrandColors.OnDarkMuted, tween(250), label = "footerLink")
+    Text(
+        text, style = brandType().small, color = color,
+        modifier = Modifier
+            .hoverable(source)
+            .clickable(interactionSource = source, indication = null, role = Role.Button, onClick = onClick)
+            .pointerHoverIcon(PointerIcon.Hand)
     )
 }
 
-@Composable
-fun FooterLogo() {
-    SekotaBrandLogo(
-        iconSize = 32.dp,
-        textSize = 22.sp
-    )
-}
+// =========================================================================
+// DESKTOP PREVIEWS
+// =========================================================================
 
-@Preview(showBackground = true)
-@Composable
-fun FooterColumnPreview() {
-    MaterialTheme {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            FooterColumn(
-                title = "PRODUK",
-                items = listOf("VERIDIA", "ASCENDIO", "SOCIARA", "ECOFLOW")
-            )
-            FooterColumn(
-                title = "PERUSAHAAN",
-                items = listOf("Tentang Kami", "E-Book", "Merchandise", "Insights", "Kontak")
-            )
-        }
-    }
-}
-
-@Preview(device = DESKTOP, showBackground = true)
+@Preview(device = DESKTOP, showBackground = true, widthDp = 1280)
 @Composable
 fun FooterDefaultPreview() {
-    androidx.compose.runtime.CompositionLocalProvider(
-        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
-            setLocale(com.sekota.localization.AppLocale.ID)
-        }
-    ) {
-        MaterialTheme {
-            Footer(selectedLanguage = "BAHASA INDONESIA")
-        }
-    }
+    BrandTheme(reduceMotion = true) { Footer(FooterConfig(), AppLocale.ID, "info@sekota.id", onRoute = {}) }
 }
 
-@Preview(device = DESKTOP, showBackground = true)
+@Preview(device = DESKTOP, showBackground = true, widthDp = 1280)
 @Composable
-fun FooterEnglishActivePreview() {
-    androidx.compose.runtime.CompositionLocalProvider(
-        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager.apply {
-            setLocale(com.sekota.localization.AppLocale.EN)
-        }
-    ) {
-        MaterialTheme {
-            Footer(selectedLanguage = "ENGLISH")
-        }
-    }
+fun FooterEnglishPreview() {
+    BrandTheme(reduceMotion = true) { Footer(FooterConfig(), AppLocale.EN, "info@sekota.id", onRoute = {}) }
 }
 
-@Preview(showBackground = true)
+@Preview(device = DESKTOP, showBackground = true, widthDp = 390)
 @Composable
 fun FooterCompactPreview() {
-    MaterialTheme {
-        Box(modifier = Modifier.width(375.dp)) {
-            Footer(selectedLanguage = "BAHASA INDONESIA")
-        }
-    }
+    BrandTheme(reduceMotion = true) { Footer(FooterConfig(), AppLocale.ID, "info@sekota.id", onRoute = {}) }
 }
 
-
+@Preview(device = DESKTOP, showBackground = true, widthDp = 1280)
+@Composable
+fun FooterMinimalConfigPreview() {
+    BrandTheme(reduceMotion = true) {
+        Footer(
+            FooterConfig(productColumn = FooterColumnConfig("Platform"), socialLinks = emptyList()),
+            AppLocale.ID, contactEmail = "", onRoute = {}
+        )
+    }
+}

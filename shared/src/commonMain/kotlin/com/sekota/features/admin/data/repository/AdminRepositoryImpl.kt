@@ -13,7 +13,6 @@ import com.sekota.features.admin.domain.model.ServiceOffering
 import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
-import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.StrategicConversationConfig
 import com.sekota.features.admin.domain.model.WhySekotaConfig
@@ -86,12 +85,6 @@ class AdminRepositoryImpl(
     // Canonical content lives in the data-layer seed (CORE-07-01-03 / #22658).
     private val defaultCanonicalBooks: List<AdminBook> get() = CompanyProfileSeed.books
     private val defaultCanonicalProducts: List<AdminProduct> get() = CompanyProfileSeed.products
-
-    private val defaultCanonicalMerch = listOf(
-        AdminMerch("m1", "Sekota Hoodie", "Apparel", "Core", 45.0, 4.8),
-        AdminMerch("m2", "Sekota Mug", "Accessories", "Core", 15.0, 4.5),
-        AdminMerch("m3", "Kotlin Multiplatform T-Shirt", "Apparel", "Dev", 25.0, 4.9)
-    )
 
     /**
      * Web presentation fields are owned by the CMS, not by bookinteractiontool, so a
@@ -462,44 +455,6 @@ class AdminRepositoryImpl(
         dataStorage.saveProductsJson(json.encodeToString(products))
     }
 
-    override suspend fun getMerchandise(): List<AdminMerch> {
-        val storedJson = dataStorage.getMerchJson()
-        if (!storedJson.isNullOrBlank()) {
-            try {
-                return json.decodeFromString<List<AdminMerch>>(storedJson)
-            } catch (_: Exception) {
-                // Ignore
-            }
-        }
-        persistMerch(defaultCanonicalMerch)
-        return defaultCanonicalMerch
-    }
-
-    override suspend fun saveMerchandise(merch: AdminMerch): Result<AdminMerch> {
-        val current = getMerchandise().toMutableList()
-        val index = current.indexOfFirst { it.id == merch.id }
-        if (index >= 0) {
-            current[index] = merch
-        } else {
-            current.add(merch)
-        }
-        persistMerch(current)
-        return Result.success(merch)
-    }
-
-    override suspend fun deleteMerchandise(id: String): Result<Boolean> {
-        val current = getMerchandise().toMutableList()
-        val removed = current.removeAll { it.id == id }
-        if (removed) {
-            persistMerch(current)
-        }
-        return Result.success(removed)
-    }
-
-    private fun persistMerch(merch: List<AdminMerch>) {
-        dataStorage.saveMerchJson(json.encodeToString(merch))
-    }
-
     override suspend fun getLiveMetrics(): AdminLiveMetrics {
         val storedJson = dataStorage.getMetricsJson()
         if (!storedJson.isNullOrBlank()) {
@@ -789,57 +744,5 @@ class AdminRepositoryImpl(
         private const val LEGACY_CONTACT_EMAIL = "sales@sekota.id"
     }
 
-    override suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit> {
-        return try {
-            val progressJson = json.encodeToString(progress)
-            dataStorage.saveReadingProgressJson(progress.bookId, progressJson)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun getReadingProgress(bookId: String): com.sekota.features.reader.domain.model.BookReadingProgress? {
-        val storedJson = dataStorage.getReadingProgressJson(bookId)
-        if (!storedJson.isNullOrBlank()) {
-            try {
-                return json.decodeFromString<com.sekota.features.reader.domain.model.BookReadingProgress>(storedJson)
-            } catch (_: Exception) {}
-        }
-        return null
-    }
-
-    override suspend fun recordReadingTelemetry(bookId: String, chapterIndex: Int, chapterTitle: String): Result<Boolean> {
-        val token = tokenStorage.getToken()
-        val candidateUrls = listOf(
-            "${LOCAL_API_BASE_URL}api/v1/interaction",
-            "${AUTH_BASE_URL}interaction"
-        )
-        for (url in candidateUrls) {
-            try {
-                val httpResponse = NetworkClient.authClient.post(url) {
-                    contentType(ContentType.Application.Json)
-                    if (token != null) {
-                        header(HttpHeaders.Authorization, "Bearer $token")
-                    }
-                    setBody(
-                        RemoteUserActivityDto(
-                            email = token ?: "reader@sekota.id",
-                            bookTitle = bookId,
-                            toolName = "Reader_Chapter_${chapterIndex + 1}",
-                            timestamp = "",
-                            data = "Chapter $chapterIndex: $chapterTitle"
-                        )
-                    )
-                }
-                if (httpResponse.status.isSuccess()) {
-                    return Result.success(true)
-                }
-            } catch (_: Exception) {
-                // Ignore remote network failure gracefully per Rule 6
-            }
-        }
-        return Result.success(true)
-    }
 }
 

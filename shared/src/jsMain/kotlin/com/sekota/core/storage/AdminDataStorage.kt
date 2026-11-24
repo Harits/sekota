@@ -19,14 +19,6 @@ actual class AdminDataStorage actual constructor() {
         return window.localStorage.getItem("admin_products_json")
     }
 
-    actual fun saveMerchJson(json: String) {
-        window.localStorage.setItem("admin_merch_json", json)
-    }
-
-    actual fun getMerchJson(): String? {
-        return window.localStorage.getItem("admin_merch_json")
-    }
-
     actual fun saveMetricsJson(json: String) {
         window.localStorage.setItem("admin_metrics_json", json)
     }
@@ -89,14 +81,6 @@ actual class AdminDataStorage actual constructor() {
 
     actual fun getNavigationItemsJson(): String? {
         return window.localStorage.getItem("admin_navigation_items_json")
-    }
-
-    actual fun saveReadingProgressJson(bookId: String, json: String) {
-        window.localStorage.setItem("admin_reading_progress_$bookId", json)
-    }
-
-    actual fun getReadingProgressJson(bookId: String): String? {
-        return window.localStorage.getItem("admin_reading_progress_$bookId")
     }
 
     actual fun saveJson(key: String, json: String) {

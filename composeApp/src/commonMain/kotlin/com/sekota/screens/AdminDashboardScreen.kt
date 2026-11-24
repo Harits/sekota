@@ -37,7 +37,6 @@ import com.sekota.getMontserratFontFamily
 import com.sekota.features.admin.data.repository.AdminRepositoryImpl
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
-import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.model.StrategicConversationConfig
@@ -71,9 +70,6 @@ fun AdminDashboardScreen(
     val getProductsUseCase = remember { GetAdminProductsUseCase(repository) }
     val saveProductUseCase = remember { SaveAdminProductUseCase(repository) }
     val deleteProductUseCase = remember { DeleteAdminProductUseCase(repository) }
-    val getMerchUseCase = remember { GetAdminMerchUseCase(repository) }
-    val saveMerchUseCase = remember { SaveAdminMerchUseCase(repository) }
-    val deleteMerchUseCase = remember { DeleteAdminMerchUseCase(repository) }
     val getLiveMetricsUseCase = remember { GetAdminLiveMetricsUseCase(repository) }
     val saveLiveMetricsUseCase = remember { SaveAdminLiveMetricsUseCase(repository) }
     val getInquiriesUseCase = remember { GetAdminInquiriesUseCase(repository) }
@@ -186,7 +182,7 @@ fun AdminDashboardScreen(
                             IconButton(
                                 onClick = {
                                     guideInitialTab = when (selectedTab) {
-                                        0 -> 0 // Product Registry (Books/Suite/Merch)
+                                        0 -> 0 // Product Registry (Books/Suite)
                                         1 -> 1 // Brand & Story (Value Loop / Why Sekota)
                                         2 -> 6 // Site Config (AppBar & Footer)
                                         3 -> 4 // Insights & Feedback
@@ -218,7 +214,6 @@ fun AdminDashboardScreen(
                         0 -> com.sekota.screens.cms.ProductRegistryScreen(
                             getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase,
                             getProductsUseCase, saveProductUseCase, deleteProductUseCase,
-                            getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
                             windowWidth, onActionWithProductionGuard
                         )
                         1 -> com.sekota.screens.cms.BrandStoryScreen(
@@ -437,7 +432,6 @@ fun AdminDashboardScreen(
                             0 -> com.sekota.screens.cms.ProductRegistryScreen(
                                 getBooksUseCase, saveBookUseCase, getCategoriesUseCase, addCategoryUseCase, deleteCategoryUseCase,
                                 getProductsUseCase, saveProductUseCase, deleteProductUseCase,
-                                getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
                                 windowWidth, onActionWithProductionGuard
                             )
                             1 -> com.sekota.screens.cms.BrandStoryScreen(
@@ -460,7 +454,6 @@ fun AdminDashboardScreen(
         }
     }
 }
-
 
 @Preview(device = DESKTOP, showBackground = true)
 @Composable

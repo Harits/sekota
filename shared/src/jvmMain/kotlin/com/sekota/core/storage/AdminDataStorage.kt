@@ -52,14 +52,6 @@ actual class AdminDataStorage actual constructor() {
         return read("products_json")
     }
 
-    actual fun saveMerchJson(json: String) {
-        write("merch_json", json)
-    }
-
-    actual fun getMerchJson(): String? {
-        return read("merch_json")
-    }
-
     actual fun saveMetricsJson(json: String) {
         write("metrics_json", json)
     }
@@ -122,14 +114,6 @@ actual class AdminDataStorage actual constructor() {
 
     actual fun getNavigationItemsJson(): String? {
         return read("navigation_items_json")
-    }
-
-    actual fun saveReadingProgressJson(bookId: String, json: String) {
-        write("reading_progress_$bookId", json)
-    }
-
-    actual fun getReadingProgressJson(bookId: String): String? {
-        return read("reading_progress_$bookId")
     }
 
     actual fun saveJson(key: String, json: String) {

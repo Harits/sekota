@@ -1,15 +1,13 @@
 package com.sekota.screens.cms
 
 import com.sekota.features.admin.domain.model.AdminBook
-import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.AdminWhatsInsideItem
 
 enum class ProductTypeFilter(val title: String) {
     ALL("Semua Entitas"),
     BOOKS("Books Registry"),
-    SUITE("Intelligence Suite"),
-    MERCHANDISE("Merchandise")
+    SUITE("Intelligence Suite")
 }
 
 sealed class RegistryItem {
@@ -35,13 +33,6 @@ sealed class RegistryItem {
         override val imageUrl: String? get() = product.iconUrlOrBase64
     }
 
-    data class Merch(val merch: AdminMerch) : RegistryItem() {
-        override val id: String get() = merch.id
-        override val title: String get() = merch.title
-        override val subtitle: String get() = "$${merch.price} · ${merch.seriesName}"
-        override val category: String get() = merch.category
-        override val imageUrl: String? get() = merch.imageUrl
-    }
 }
 
 /**
@@ -85,15 +76,6 @@ sealed interface ActiveModalState {
         val featuresTextEn: String = ""
     ) : ActiveModalState
 
-    data class MerchModal(
-        val editingMerchId: String? = null,
-        val title: String = "",
-        val category: String = "Apparel",
-        val seriesName: String = "The Urban Collaborator",
-        val price: String = "",
-        val imageBase64: String = "",
-        val validationError: String? = null
-    ) : ActiveModalState
 }
 
 /**
@@ -103,7 +85,6 @@ data class ProductRegistryState(
     val books: List<AdminBook> = emptyList(),
     val categories: List<String> = emptyList(),
     val products: List<AdminProduct> = emptyList(),
-    val merchList: List<AdminMerch> = emptyList(),
     val selectedFilter: ProductTypeFilter = ProductTypeFilter.ALL,
     val searchQuery: String = "",
     val isLoading: Boolean = false,
@@ -118,9 +99,6 @@ data class ProductRegistryState(
             }
             if (selectedFilter == ProductTypeFilter.ALL || selectedFilter == ProductTypeFilter.SUITE) {
                 list.addAll(products.map { RegistryItem.SuiteProduct(it) })
-            }
-            if (selectedFilter == ProductTypeFilter.ALL || selectedFilter == ProductTypeFilter.MERCHANDISE) {
-                list.addAll(merchList.map { RegistryItem.Merch(it) })
             }
             return if (searchQuery.isNotBlank()) {
                 val q = searchQuery.trim().lowercase()
@@ -150,7 +128,6 @@ sealed interface ProductRegistryIntent {
     data object OpenBookInfoDialog : ProductRegistryIntent
     data class OpenEditBookModal(val book: AdminBook) : ProductRegistryIntent
     data class OpenEditProductModal(val product: AdminProduct) : ProductRegistryIntent
-    data class OpenEditMerchModal(val merch: AdminMerch) : ProductRegistryIntent
     data object DismissModal : ProductRegistryIntent
 
     // Book Form Edits
@@ -178,17 +155,9 @@ sealed interface ProductRegistryIntent {
     data class UpdateProductDescriptionEn(val value: String) : ProductRegistryIntent
     data class UpdateProductFeaturesTextEn(val value: String) : ProductRegistryIntent
 
-    // Merch Form Edits
-    data class UpdateMerchTitle(val value: String) : ProductRegistryIntent
-    data class UpdateMerchCategory(val value: String) : ProductRegistryIntent
-    data class UpdateMerchSeriesName(val value: String) : ProductRegistryIntent
-    data class UpdateMerchPrice(val value: String) : ProductRegistryIntent
-    data class UpdateMerchImage(val base64: String) : ProductRegistryIntent
-
     // Actions
     data object SaveActiveModal : ProductRegistryIntent
     data class RequestDeleteProduct(val product: AdminProduct) : ProductRegistryIntent
-    data class RequestDeleteMerch(val merch: AdminMerch) : ProductRegistryIntent
 }
 
 /**

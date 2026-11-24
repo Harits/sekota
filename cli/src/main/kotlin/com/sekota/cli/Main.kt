@@ -24,7 +24,6 @@ fun main(args: Array<String>) = runBlocking {
     val saveBookUseCase = SaveAdminBookUseCase(repository)
     val deleteBookUseCase = DeleteAdminBookUseCase(repository)
     val getProductsUseCase = GetAdminProductsUseCase(repository)
-    val getMerchUseCase = GetAdminMerchUseCase(repository)
 
     if (args.isEmpty()) {
         printHelp(getTokenUseCase() != null)
@@ -112,17 +111,6 @@ fun main(args: Array<String>) = runBlocking {
                 printHelp(getTokenUseCase() != null)
             }
         }
-        "merch" -> {
-            if (args.getOrNull(1) == "list") {
-                val merch = getMerchUseCase()
-                println("--- Merchandise ---")
-                merch.forEach {
-                    println("${it.id.padEnd(5)} | ${it.title.padEnd(30)} | ${it.category.padEnd(15)} | \$${it.price}")
-                }
-            } else {
-                printHelp(getTokenUseCase() != null)
-            }
-        }
         "help" -> printHelp(getTokenUseCase() != null)
         else -> {
             println("Unknown command: ${args[0]}")
@@ -147,7 +135,6 @@ fun printHelp(isLoggedIn: Boolean) {
           books add [id] [title] [auth] - Adds a new book
           books delete <id>             - Deletes a book by ID
           products list                 - Prints list of intelligence suite products
-          merch list                    - Prints merchandise list
           help                          - Prints this help message
     """.trimIndent())
 }

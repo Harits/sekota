@@ -56,6 +56,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
         // Desktop (Skiko) tests also render composables to PNG for visual review.
         val desktopTest by getting {

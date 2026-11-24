@@ -30,7 +30,6 @@ import com.sekota.components.cms.CmsImageUploader
 import com.sekota.components.cms.CmsInputField
 import com.sekota.components.cms.CmsInkNavy
 import com.sekota.features.admin.domain.model.AdminBook
-import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.usecase.*
 import com.sekota.getDmSansFontFamily
@@ -39,7 +38,7 @@ import com.sekota.ui.WindowWidth
 import com.sekota.utils.decodeBase64ToBitmap
 
 /**
- * Product Registry: Unified Catalog Workspace consolidating Books, Intelligence Suite, and Merchandise.
+ * Product Registry: Unified Catalog Workspace consolidating Books and Intelligence Suite.
  * Powered by MVI ProductRegistryViewModel.
  */
 @Composable
@@ -52,9 +51,6 @@ fun ProductRegistryScreen(
     getProductsUseCase: GetAdminProductsUseCase,
     saveProductUseCase: SaveAdminProductUseCase,
     deleteProductUseCase: DeleteAdminProductUseCase,
-    getMerchUseCase: GetAdminMerchUseCase,
-    saveMerchUseCase: SaveAdminMerchUseCase,
-    deleteMerchUseCase: DeleteAdminMerchUseCase,
     windowWidth: WindowWidth = WindowWidth.Expanded,
     onActionWithProductionGuard: ((String, String, Boolean, () -> Unit) -> Unit)? = null
 ) {
@@ -62,12 +58,10 @@ fun ProductRegistryScreen(
     val viewModel = remember(
         getBooksUseCase, saveBookUseCase, getCategoriesUseCase,
         getProductsUseCase, saveProductUseCase, deleteProductUseCase,
-        getMerchUseCase, saveMerchUseCase, deleteMerchUseCase
     ) {
         ProductRegistryViewModel(
             getBooksUseCase, saveBookUseCase, getCategoriesUseCase,
             getProductsUseCase, saveProductUseCase, deleteProductUseCase,
-            getMerchUseCase, saveMerchUseCase, deleteMerchUseCase,
             scope
         )
     }
@@ -178,50 +172,6 @@ fun ProductRegistryContent(
                                 )
                                 Text(
                                     text = "Modul perangkat lunak analitik, platform intelijen, atau solusi SaaS kota cerdas.",
-                                    fontFamily = getDmSansFontFamily(),
-                                    fontSize = 11.sp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    }
-
-                    // Option 2: Merchandise Item
-                    Surface(
-                        onClick = {
-                            onIntent(ProductRegistryIntent.OpenEditMerchModal(AdminMerch(
-                                id = "", title = "", category = "Apparel", seriesName = "The Urban Collaborator", price = 0.0, rating = 0.0
-                            )))
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                        color = Color(0xFFF8FAFC),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFFFEF3C7),
-                                modifier = Modifier.size(44.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    com.sekota.components.SekotaApparelVectorIcon(size = 22.dp, tint = Color(0xFFD97706))
-                                }
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Merchandise",
-                                    fontFamily = getMontserratFontFamily(),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = CmsInkNavy
-                                )
-                                Text(
-                                    text = "Produk apparel, aksesoris, atau cinderamata resmi Sekota Series.",
                                     fontFamily = getDmSansFontFamily(),
                                     fontSize = 11.sp,
                                     color = Color.Gray
@@ -753,91 +703,15 @@ fun ProductRegistryContent(
         )
     }
 
-    // 3. Modal Merchandise Editor
-    if (state.activeModal is ActiveModalState.MerchModal) {
-        val modal = state.activeModal
-        AlertDialog(
-            onDismissRequest = { onIntent(ProductRegistryIntent.DismissModal) },
-            title = {
-                Text(
-                    text = if (modal.editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise",
-                    fontFamily = getMontserratFontFamily(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = CmsInkNavy
-                )
-            },
-            text = {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    modal.validationError?.let {
-                        Text(it, color = Color(0xFFE53E3E), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    CmsInputField(
-                        value = modal.title,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchTitle(it)) },
-                        label = "Nama Produk Merchandise"
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CmsInputField(
-                            value = modal.category,
-                            onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchCategory(it)) },
-                            label = "Kategori",
-                            modifier = Modifier.weight(1f)
-                        )
-                        CmsInputField(
-                            value = modal.seriesName,
-                            onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchSeriesName(it)) },
-                            label = "Nama Series",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    CmsInputField(
-                        value = modal.price,
-                        onValueChange = { onIntent(ProductRegistryIntent.UpdateMerchPrice(it)) },
-                        label = "Harga (USD)",
-                        placeholder = "e.g. 29.99"
-                    )
-
-                    CmsImageUploader(
-                        imageBase64 = modal.imageBase64,
-                        onImageSelected = { onIntent(ProductRegistryIntent.UpdateMerchImage(it)) },
-                        label = "Foto Produk Merchandise"
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = { onIntent(ProductRegistryIntent.SaveActiveModal) },
-                    colors = ButtonDefaults.buttonColors(containerColor = CmsBrandTeal),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text("Simpan Live", fontFamily = getDmSansFontFamily(), fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { onIntent(ProductRegistryIntent.DismissModal) }) {
-                    Text("Batal", fontFamily = getDmSansFontFamily(), color = Color.Gray)
-                }
-            }
-        )
-    }
-
     // Main Unified Registry View
     Column(modifier = Modifier.fillMaxSize()) {
         CmsActionHeader(
             title = "Product Registry",
-            subtitle = "Repositori terpadu katalog buku (${state.books.size}), intelligence suite (${state.products.size}), dan merchandise (${state.merchList.size}).",
+            subtitle = "Repositori terpadu katalog buku (${state.books.size}) dan intelligence suite (${state.products.size}).",
             windowWidth = windowWidth,
             actionLabel = when (state.selectedFilter) {
                 ProductTypeFilter.ALL -> "+ Tambah Item"
                 ProductTypeFilter.SUITE -> "+ Tambah Suite Module"
-                ProductTypeFilter.MERCHANDISE -> "+ Tambah Merchandise"
                 ProductTypeFilter.BOOKS -> "ℹ️ Info Katalog Buku"
             },
             onAction = {
@@ -981,7 +855,6 @@ fun ProductRegistryContent(
                             when (item) {
                                 is RegistryItem.Book -> onIntent(ProductRegistryIntent.OpenEditBookModal(item.book))
                                 is RegistryItem.SuiteProduct -> onIntent(ProductRegistryIntent.OpenEditProductModal(item.product))
-                                is RegistryItem.Merch -> onIntent(ProductRegistryIntent.OpenEditMerchModal(item.merch))
                             }
                         },
                         onDelete = {
@@ -990,7 +863,6 @@ fun ProductRegistryContent(
                                     // Invariant: Book identity is telemetry-managed
                                 }
                                 is RegistryItem.SuiteProduct -> onIntent(ProductRegistryIntent.RequestDeleteProduct(item.product))
-                                is RegistryItem.Merch -> onIntent(ProductRegistryIntent.RequestDeleteMerch(item.merch))
                             }
                         }
                     )
@@ -1034,7 +906,6 @@ private fun RegistryCardItem(
                     color = when (item) {
                         is RegistryItem.Book -> Color(0xFFE0F2FE)
                         is RegistryItem.SuiteProduct -> Color(0xFFF3E8FF)
-                        is RegistryItem.Merch -> Color(0xFFFEF3C7)
                     },
                     modifier = Modifier.weight(1f, fill = false).padding(end = 8.dp)
                 ) {
@@ -1042,7 +913,6 @@ private fun RegistryCardItem(
                         text = when (item) {
                             is RegistryItem.Book -> "Buku: ${item.category}"
                             is RegistryItem.SuiteProduct -> "Suite: ${item.category}"
-                            is RegistryItem.Merch -> "Merch: ${item.category}"
                         },
                         fontFamily = getDmSansFontFamily(),
                         fontWeight = FontWeight.Bold,
@@ -1052,7 +922,6 @@ private fun RegistryCardItem(
                         color = when (item) {
                             is RegistryItem.Book -> Color(0xFF0369A1)
                             is RegistryItem.SuiteProduct -> Color(0xFF6B21A8)
-                            is RegistryItem.Merch -> Color(0xFF92400E)
                         },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
@@ -1087,7 +956,6 @@ private fun RegistryCardItem(
                                 text = when (item) {
                                     is RegistryItem.Book -> "\uD83D\uDCD6"
                                     is RegistryItem.SuiteProduct -> "\u2699\uFE0F"
-                                    is RegistryItem.Merch -> "\uD83D\uDC55"
                                 },
                                 fontSize = 24.sp
                             )

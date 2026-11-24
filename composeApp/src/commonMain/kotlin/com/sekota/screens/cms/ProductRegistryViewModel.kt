@@ -1,7 +1,6 @@
 package com.sekota.screens.cms
 
 import com.sekota.features.admin.domain.model.AdminBook
-import com.sekota.features.admin.domain.model.AdminMerch
 import com.sekota.features.admin.domain.model.AdminProduct
 import com.sekota.features.admin.domain.model.AppEnvironment
 import com.sekota.features.admin.domain.model.EnvironmentConfigResolver
@@ -15,7 +14,7 @@ import kotlin.random.Random
 
 /**
  * MVI ViewModel for Product Registry Workspace.
- * Handles state, intents, validation, and side-effects for Books, Intelligence Suite, and Merchandise.
+ * Handles state, intents, validation, and side-effects for Books and Intelligence Suite.
  */
 class ProductRegistryViewModel(
     private val getBooksUseCase: GetAdminBooksUseCase,
@@ -24,9 +23,6 @@ class ProductRegistryViewModel(
     private val getProductsUseCase: GetAdminProductsUseCase,
     private val saveProductUseCase: SaveAdminProductUseCase,
     private val deleteProductUseCase: DeleteAdminProductUseCase,
-    private val getMerchUseCase: GetAdminMerchUseCase,
-    private val saveMerchUseCase: SaveAdminMerchUseCase,
-    private val deleteMerchUseCase: DeleteAdminMerchUseCase,
     private val scope: CoroutineScope,
     private val environment: AppEnvironment = EnvironmentConfigResolver.resolveEnvironment()
 ) {
@@ -52,7 +48,6 @@ class ProductRegistryViewModel(
             is ProductRegistryIntent.OpenBookInfoDialog -> _uiState.update { it.copy(activeModal = ActiveModalState.BookInfoModal) }
             is ProductRegistryIntent.OpenEditBookModal -> handleOpenEditBookModal(intent.book)
             is ProductRegistryIntent.OpenEditProductModal -> handleOpenEditProductModal(intent.product)
-            is ProductRegistryIntent.OpenEditMerchModal -> handleOpenEditMerchModal(intent.merch)
             is ProductRegistryIntent.DismissModal -> _uiState.update { it.copy(activeModal = ActiveModalState.None) }
 
             // Book Edits
@@ -80,17 +75,9 @@ class ProductRegistryViewModel(
             is ProductRegistryIntent.UpdateProductDescriptionEn -> updateSuiteModal { it.copy(descriptionEn = intent.value) }
             is ProductRegistryIntent.UpdateProductFeaturesTextEn -> updateSuiteModal { it.copy(featuresTextEn = intent.value) }
 
-            // Merch Edits
-            is ProductRegistryIntent.UpdateMerchTitle -> updateMerchModal { it.copy(title = intent.value, validationError = null) }
-            is ProductRegistryIntent.UpdateMerchCategory -> updateMerchModal { it.copy(category = intent.value) }
-            is ProductRegistryIntent.UpdateMerchSeriesName -> updateMerchModal { it.copy(seriesName = intent.value) }
-            is ProductRegistryIntent.UpdateMerchPrice -> updateMerchModal { it.copy(price = intent.value, validationError = null) }
-            is ProductRegistryIntent.UpdateMerchImage -> updateMerchModal { it.copy(imageBase64 = intent.base64) }
-
             // Actions
             is ProductRegistryIntent.SaveActiveModal -> handleSaveActiveModal()
             is ProductRegistryIntent.RequestDeleteProduct -> handleDeleteProduct(intent.product)
-            is ProductRegistryIntent.RequestDeleteMerch -> handleDeleteMerch(intent.merch)
         }
     }
 
@@ -101,13 +88,11 @@ class ProductRegistryViewModel(
                 val b = getBooksUseCase()
                 val c = getCategoriesUseCase()
                 val p = getProductsUseCase()
-                val m = getMerchUseCase()
                 _uiState.update {
                     it.copy(
                         books = b,
                         categories = c,
                         products = p,
-                        merchList = m,
                         isLoading = false
                     )
                 }
@@ -125,9 +110,6 @@ class ProductRegistryViewModel(
             }
             ProductTypeFilter.SUITE -> {
                 _uiState.update { it.copy(activeModal = ActiveModalState.SuiteProductModal()) }
-            }
-            ProductTypeFilter.MERCHANDISE -> {
-                _uiState.update { it.copy(activeModal = ActiveModalState.MerchModal()) }
             }
             ProductTypeFilter.BOOKS -> {
                 _uiState.update { it.copy(activeModal = ActiveModalState.BookInfoModal) }
@@ -177,21 +159,6 @@ class ProductRegistryViewModel(
         }
     }
 
-    private fun handleOpenEditMerchModal(merch: AdminMerch) {
-        _uiState.update {
-            it.copy(
-                activeModal = ActiveModalState.MerchModal(
-                    editingMerchId = merch.id,
-                    title = merch.title,
-                    category = merch.category,
-                    seriesName = merch.seriesName,
-                    price = merch.price.toString(),
-                    imageBase64 = merch.imageUrl ?: ""
-                )
-            )
-        }
-    }
-
     private inline fun updateBookModal(crossinline transform: (ActiveModalState.BookMetadataModal) -> ActiveModalState.BookMetadataModal) {
         val current = _uiState.value.activeModal as? ActiveModalState.BookMetadataModal ?: return
         _uiState.update { it.copy(activeModal = transform(current)) }
@@ -202,16 +169,10 @@ class ProductRegistryViewModel(
         _uiState.update { it.copy(activeModal = transform(current)) }
     }
 
-    private inline fun updateMerchModal(crossinline transform: (ActiveModalState.MerchModal) -> ActiveModalState.MerchModal) {
-        val current = _uiState.value.activeModal as? ActiveModalState.MerchModal ?: return
-        _uiState.update { it.copy(activeModal = transform(current)) }
-    }
-
     private fun handleSaveActiveModal() {
         when (val modal = _uiState.value.activeModal) {
             is ActiveModalState.BookMetadataModal -> saveBookMetadata(modal)
             is ActiveModalState.SuiteProductModal -> saveSuiteProduct(modal)
-            is ActiveModalState.MerchModal -> saveMerch(modal)
             is ActiveModalState.SelectCreateTypeModal,
             ActiveModalState.BookInfoModal,
             ActiveModalState.None -> Unit
@@ -275,38 +236,6 @@ class ProductRegistryViewModel(
         }
     }
 
-    private fun saveMerch(modal: ActiveModalState.MerchModal) {
-        val price = modal.price.toDoubleOrNull()
-        if (modal.title.isBlank()) {
-            updateMerchModal { it.copy(validationError = "Nama item merchandise tidak boleh kosong") }
-            return
-        }
-        if (price == null || price <= 0.0) {
-            updateMerchModal { it.copy(validationError = "Harga harus berupa angka valid > 0") }
-            return
-        }
-        val id = modal.editingMerchId ?: "m-${Random.nextInt(1000, 9999)}"
-        val merch = AdminMerch(
-            id = id,
-            title = modal.title.trim(),
-            category = modal.category.trim(),
-            seriesName = modal.seriesName.trim(),
-            price = price,
-            rating = 5.0,
-            imageUrl = modal.imageBase64.ifBlank { null }
-        )
-        val actionLabel = if (modal.editingMerchId == null) "Tambah Merchandise" else "Edit Merchandise"
-        executeWithProductionGuard(actionLabel, merch.title, false) {
-            scope.launch {
-                saveMerchUseCase(merch)
-                syncService.triggerLocalUpdate()
-                loadData()
-                _uiState.update { it.copy(activeModal = ActiveModalState.None) }
-                _effect.trySend(ProductRegistryEffect.ShowToast("Merchandise '${merch.title}' disimpan"))
-            }
-        }
-    }
-
     private fun handleDeleteProduct(product: AdminProduct) {
         executeWithProductionGuard("Hapus Modul Suite", product.name, true) {
             scope.launch {
@@ -314,17 +243,6 @@ class ProductRegistryViewModel(
                 syncService.triggerLocalUpdate()
                 loadData()
                 _effect.trySend(ProductRegistryEffect.ShowToast("Modul '${product.name}' dihapus"))
-            }
-        }
-    }
-
-    private fun handleDeleteMerch(merch: AdminMerch) {
-        executeWithProductionGuard("Hapus Merchandise", merch.title, true) {
-            scope.launch {
-                deleteMerchUseCase(merch.id)
-                syncService.triggerLocalUpdate()
-                loadData()
-                _effect.trySend(ProductRegistryEffect.ShowToast("Merchandise '${merch.title}' dihapus"))
             }
         }
     }

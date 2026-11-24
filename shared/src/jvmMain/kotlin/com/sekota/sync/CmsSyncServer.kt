@@ -48,7 +48,6 @@ object CmsSyncServer {
                             SyncDataPayload(
                                 books = repository.getBooks(),
                                 products = repository.getProducts(),
-                                merch = repository.getMerchandise(),
                                 metrics = repository.getLiveMetrics(),
                                 inquiries = repository.getInquiries(),
                                 valueLoop = repository.getValueLoop(),
@@ -78,7 +77,6 @@ object CmsSyncServer {
                             val storage = AdminDataStorage()
                             storage.saveBooksJson(json.encodeToString(payload.books))
                             storage.saveProductsJson(json.encodeToString(payload.products))
-                            storage.saveMerchJson(json.encodeToString(payload.merch))
                             storage.saveMetricsJson(json.encodeToString(payload.metrics))
                             storage.saveInquiriesJson(json.encodeToString(payload.inquiries))
                             storage.saveValueLoopJson(json.encodeToString(payload.valueLoop))

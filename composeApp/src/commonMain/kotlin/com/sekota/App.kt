@@ -1,62 +1,44 @@
 package com.sekota
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.zIndex
-import androidx.compose.ui.unit.dp
-import com.sekota.ui.WindowWidth
-import com.sekota.ui.navbarHeight
-import com.sekota.ui.windowWidthOf
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Devices.DESKTOP
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.launch
-import com.sekota.screens.*
-import com.sekota.features.sync.data.repository.SyncService
-import com.sekota.core.storage.TokenStorage
-import com.sekota.features.auth.data.repository.AuthRepositoryImpl
-import com.sekota.features.auth.domain.usecase.LoginUseCase
-import com.sekota.features.auth.domain.usecase.SignupUseCase
-import com.sekota.features.auth.domain.usecase.GetTokenUseCase
-import com.sekota.features.auth.domain.usecase.ClearTokenUseCase
-import com.sekota.features.profile.data.repository.ProfileRepositoryImpl
-import com.sekota.features.profile.domain.usecase.GetProfileUseCase
-import com.sekota.features.profile.domain.usecase.UpdateProfileUseCase
-
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sekota.di.AppContainer
-import com.sekota.navigation.NavigationCoordinator
+import com.sekota.screens.AdminDashboardScreen
+import com.sekota.features.companyprofile.presentation.*
+import com.sekota.features.navigation.domain.model.LandingAnchor
+import com.sekota.features.navigation.domain.model.NavigationItem
+import com.sekota.localization.LocalLocalization
+import com.sekota.localization.LocalizationManager
 import com.sekota.navigation.NavigationEffect
 import com.sekota.navigation.NavigationIntent
-import com.sekota.navigation.NavigationState
+import com.sekota.ui.brand.BrandColors
+import com.sekota.ui.brand.BrandTheme
+import kotlinx.coroutines.delay
 
 // Default AppContainer singleton instance
 val defaultAppContainer by lazy { AppContainer() }
 
-// Backward compatibility references for preview functions and outer callers
+// Accessors used by the CMS workbench, admin login and desktop/Android entry points.
 val syncService get() = defaultAppContainer.syncService
 val tokenStorage get() = defaultAppContainer.tokenStorage
 val authRepository get() = defaultAppContainer.authRepository
-val profileRepository get() = defaultAppContainer.profileRepository
 val loginUseCase get() = defaultAppContainer.loginUseCase
-val signupUseCase get() = defaultAppContainer.signupUseCase
 val getTokenUseCase get() = defaultAppContainer.getTokenUseCase
 val clearTokenUseCase get() = defaultAppContainer.clearTokenUseCase
-val getProfileUseCase get() = defaultAppContainer.getProfileUseCase
-val updateProfileUseCase get() = defaultAppContainer.updateProfileUseCase
 val getValueLoopUseCase get() = defaultAppContainer.getValueLoopUseCase
 val saveValueLoopUseCase get() = defaultAppContainer.saveValueLoopUseCase
 val getWhySekotaUseCase get() = defaultAppContainer.getWhySekotaUseCase
@@ -68,385 +50,123 @@ val saveFooterUseCase get() = defaultAppContainer.saveFooterUseCase
 val getNavigationItemsUseCase get() = defaultAppContainer.getNavigationItemsUseCase
 val saveNavigationItemsUseCase get() = defaultAppContainer.saveNavigationItemsUseCase
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+/**
+ * Web Sekota root (Sprint 7 company profile).
+ *
+ * MVI flow: UI emits NavigationIntent → NavigationCoordinator updates
+ * NavigationState and sends NavigationEffect; this function renders the state and
+ * performs the effects (scroll a section tag into view, scroll to top, open a URL).
+ */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun App(
-    container: AppContainer = remember { defaultAppContainer }
-) {
+fun App(container: AppContainer = remember { defaultAppContainer }) {
     val coroutineScope = rememberCoroutineScope()
-    val syncState by container.syncService.syncState.collectAsState()
-    
-    // Dynamic Navigation Items
-    var navItems by remember {
-        mutableStateOf(com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS)
-    }
+    val coordinator = container.navigationCoordinator
+    val navState by coordinator.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
+    var navItems by remember { mutableStateOf(NavigationItem.CANONICAL_ITEMS) }
     LaunchedEffect(container.getNavigationItemsUseCase) {
-        navItems = container.getNavigationItemsUseCase()
+        runCatching { navItems = container.getNavigationItemsUseCase() }
         container.syncService.syncEventFlow.collect {
-            navItems = container.getNavigationItemsUseCase()
+            runCatching { navItems = container.getNavigationItemsUseCase() }
         }
     }
 
-    // MVI State Collection
-    val navState by container.navigationCoordinator.state.collectAsState()
-    var isLoggedIn by remember { mutableStateOf(container.getTokenUseCase() != null) }
+    val profileViewModel = viewModel {
+        CompanyProfileViewModel(container.getCompanyProfileUseCase, container.syncService.syncEventFlow)
+    }
+    val profileState by profileViewModel.state.collectAsState()
 
     val landingScroll = rememberScrollState()
-    var solusiOffsetY by remember { mutableStateOf(0) }
-    var produkOffsetY by remember { mutableStateOf(0) }
-    var kontakOffsetY by remember { mutableStateOf(0) }
+    val pageScroll = rememberScrollState()
+    val requesters = remember { LandingAnchor.entries.associateWith { BringIntoViewRequester() } }
+    val anchorOffsets = remember { mutableStateMapOf<LandingAnchor, Int>() }
+    var viewportHeightPx by remember { mutableStateOf(0f) }
 
-    // Direct BringIntoViewRequester handles ("component tags")
-    val solusiRequester = remember { BringIntoViewRequester() }
-    val produkRequester = remember { BringIntoViewRequester() }
-    val kontakRequester = remember { BringIntoViewRequester() }
-
-    // MVI One-off Side Effect Processing (Single source of truth for scrolling to component tags)
-    LaunchedEffect(container.navigationCoordinator) {
-        container.navigationCoordinator.effects.collect { effect ->
+    LaunchedEffect(coordinator) {
+        coordinator.effects.collect { effect ->
             when (effect) {
-                is NavigationEffect.BringSectionIntoView -> {
-                    // Allow UI layout frame to bind and settle
-                    kotlinx.coroutines.delay(100)
-                    when (effect.section) {
-                        NavbarActiveSection.SOLUSI -> {
-                            try {
-                                solusiRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                landingScroll.animateScrollTo(solusiOffsetY.coerceAtLeast(0))
-                            }
-                        }
-                        NavbarActiveSection.PRODUK -> {
-                            try {
-                                produkRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val target = if (produkOffsetY > 0) produkOffsetY else 1100
-                                landingScroll.animateScrollTo(target)
-                            }
-                        }
-                        NavbarActiveSection.KONTAK -> {
-                            try {
-                                kontakRequester.bringIntoView()
-                            } catch (e: Exception) {
-                                val target = if (kontakOffsetY > 0) kontakOffsetY else landingScroll.maxValue
-                                landingScroll.animateScrollTo(target)
-                            }
-                        }
-                        NavbarActiveSection.NONE -> {}
-                    }
+                is NavigationEffect.ScrollToAnchor -> {
+                    delay(80) // let the landing page lay out after a page switch
+                    // A viewport-tall rect pins the section's top to the top of the screen.
+                    val pinned = Rect(0f, 0f, 1f, viewportHeightPx.coerceAtLeast(1f))
+                    runCatching { requesters.getValue(effect.anchor).bringIntoView(pinned) }
+                        .onFailure { anchorOffsets[effect.anchor]?.let { landingScroll.animateScrollTo(it) } }
                 }
+                NavigationEffect.ScrollToTop -> {
+                    pageScroll.scrollTo(0)
+                    landingScroll.animateScrollTo(0)
+                }
+                is NavigationEffect.OpenExternal -> runCatching { uriHandler.openUri(effect.url) }
+                    .onFailure { println("App: cannot open ${effect.url}: ${it.message}") }
             }
         }
     }
 
-    // Synchronize active nav pill based on scroll position while on LandingScreen
     LaunchedEffect(landingScroll.value, navState.currentScreen) {
         if (navState.currentScreen == Screen.Landing) {
-            container.navigationCoordinator.processIntent(
-                NavigationIntent.ScrollPositionChanged(
-                    scrollY = landingScroll.value,
-                    produkOffsetY = produkOffsetY,
-                    kontakOffsetY = kontakOffsetY
-                )
-            )
+            coordinator.processIntent(NavigationIntent.ScrollPositionChanged(landingScroll.value, anchorOffsets.toMap()))
         }
     }
 
-    LaunchedEffect(Unit) {
-        container.syncService.connect(coroutineScope)
-    }
-    
-    val currentLocale by com.sekota.localization.LocalizationManager.currentLocale.collectAsState()
+    LaunchedEffect(Unit) { container.syncService.connect(coroutineScope) }
 
-    androidx.compose.runtime.CompositionLocalProvider(
-        com.sekota.localization.LocalLocalization provides com.sekota.localization.LocalizationManager
-    ) {
-        androidx.compose.runtime.key(currentLocale) {
-            SekotaTheme {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFFFAFAFA))
-                ) {
-            val windowWidth = windowWidthOf(maxWidth)
-            // Screen Content Container
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = windowWidth.navbarHeight) // Offset for sticky navbar
-            ) {
-                when (navState.currentScreen) {
-                    Screen.Landing -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(landingScroll)
-                        ) {
-                            LandingScreen(
-                                onNavigate = { screen ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                                },
-                                onProductClick = { code ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
-                                },
-                                onBookClick = { bookId ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectBook(bookId))
-                                },
-                                onConsultationClick = {
-                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                                },
-                                onExplorationClick = {
-                                    container.navigationCoordinator.processIntent(
-                                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
-                                    )
-                                },
-                                onSolusiPositioned = { y -> solusiOffsetY = y },
-                                onProdukPositioned = { y -> produkOffsetY = y },
-                                onKontakPositioned = { y -> kontakOffsetY = y },
-                                solusiRequester = solusiRequester,
-                                produkRequester = produkRequester,
-                                kontakRequester = kontakRequester,
-                                selectedLanguage = navState.selectedLanguage,
-                                onLanguageChange = { lang ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                                }
+    CompositionLocalProvider(LocalLocalization provides LocalizationManager) {
+        SekotaTheme {
+            BrandTheme {
+                BoxWithConstraints(Modifier.fillMaxSize().background(BrandColors.Background)) {
+                    viewportHeightPx = with(LocalDensity.current) { maxHeight.toPx() }
+                    val navInset = navbarHeightFor(maxWidth)
+                    val onRoute: (String) -> Unit = { coordinator.processIntent(NavigationIntent.OpenRoute(it)) }
+                    val locale = navState.locale
+                    val loaded = profileState as? CompanyProfileUiState.Loaded
+
+                    when (val screen = navState.currentScreen) {
+                        Screen.Landing -> Column(Modifier.fillMaxSize().verticalScroll(landingScroll)) {
+                            CompanyProfileScreen(
+                                state = profileState,
+                                locale = locale,
+                                onIntent = profileViewModel::onIntent,
+                                onRoute = onRoute,
+                                navInset = navInset,
+                                anchorRequesters = requesters,
+                                onAnchorPositioned = { anchor, y -> anchorOffsets[anchor] = y }
                             )
                         }
-                    }
-                    Screen.Catalog -> {
-                        val catalogScroll = rememberScrollState()
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(catalogScroll)
-                        ) {
-                            CatalogScreen(
-                                onBookClick = { bookId ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectBook(bookId))
-                                },
-                                onNavigate = { screen ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                                },
-                                onConsultationClick = {
-                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                                },
-                                onProductClick = { code ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
-                                },
-                                selectedLanguage = navState.selectedLanguage,
-                                onLanguageChange = { lang ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                                }
-                            )
+                        is Screen.Product, is Screen.Books, is Screen.Contact -> Column(Modifier.fillMaxSize().verticalScroll(pageScroll)) {
+                            if (loaded == null) {
+                                CompanyProfileScreen(profileState, locale, profileViewModel::onIntent, onRoute, navInset = navInset)
+                            } else when (screen) {
+                                is Screen.Product -> ProductPreviewPage(screen.slug, loaded.content, locale, onRoute, navInset)
+                                is Screen.Books -> BooksPreviewPage(screen.bookSlug, loaded.content, loaded.booksLoading, locale, onRoute, navInset)
+                                is Screen.Contact -> ContactPage(loaded.content, locale, onRoute, navInset)
+                                else -> Unit
+                            }
                         }
+                        Screen.Admin -> AdminDashboardScreen()
                     }
-                    Screen.Details -> {
-                        val detailsScroll = rememberScrollState()
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(detailsScroll)
-                        ) {
-                            BookDetailsScreen(
-                                bookId = navState.selectedBookId,
-                                isLoggedIn = isLoggedIn,
-                                onRequestAuth = { onSuccess ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.OpenAuthGate(onSuccess))
-                                },
-                                onNavigate = { screen ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                                },
-                                onProductClick = { code ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
-                                },
-                                onKontakClick = {
-                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                                },
-                                selectedLanguage = navState.selectedLanguage,
-                                onLanguageChange = { lang ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                                }
-                            )
-                        }
-                    }
-                    is Screen.BookReader -> {
-                        val readerScreen = navState.currentScreen as Screen.BookReader
-                        BookReaderScreen(
-                            bookId = readerScreen.bookId,
-                            initialChapterIndex = readerScreen.chapterIndex,
-                            onNavigateBack = {
-                                container.navigationCoordinator.processIntent(
-                                    NavigationIntent.SelectBook(readerScreen.bookId)
-                                )
-                            },
-                            onNavigate = { screen ->
-                                container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                            },
-                            adminRepository = container.adminRepository,
-                            saveReadingProgressUseCase = container.saveReadingProgressUseCase,
-                            getReadingProgressUseCase = container.getReadingProgressUseCase,
-                            recordReadingTelemetryUseCase = container.recordReadingTelemetryUseCase
+
+                    if (navState.currentScreen != Screen.Admin) {
+                        Navbar(
+                            items = navItems,
+                            locale = locale,
+                            activeAnchor = navState.activeAnchor,
+                            solid = navState.currentScreen != Screen.Landing || landingScroll.value > 8,
+                            onRoute = onRoute,
+                            onLocaleChange = { coordinator.processIntent(NavigationIntent.SetLocale(it)) },
+                            onContactClick = { onRoute("/kontak") },
+                            modifier = Modifier.align(Alignment.TopCenter).zIndex(10f)
                         )
                     }
-                    Screen.ProductDetails -> {
-                        val productDetailsScroll = rememberScrollState()
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(productDetailsScroll)
-                        ) {
-                            com.sekota.screens.ProductDetailsScreen(
-                                productCode = navState.selectedProductCode,
-                                onNavigateBack = {
-                                    container.navigationCoordinator.processIntent(
-                                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
-                                    )
-                                },
-                                onConsultationClick = {
-                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                                },
-                                onNavigate = { screen ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                                },
-                                onProductClick = { code ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
-                                },
-                                selectedLanguage = navState.selectedLanguage,
-                                onLanguageChange = { lang ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                                }
-                            )
-                        }
-                    }
-                    Screen.Merchandise -> {
-                        val merchScroll = rememberScrollState()
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(merchScroll)
-                        ) {
-                            MerchandiseScreen(
-                                onNavigate = { screen ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                                },
-                                isLoggedIn = isLoggedIn,
-                                onRequestAuth = { onSuccess ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.OpenAuthGate(onSuccess))
-                                },
-                                onConsultationClick = {
-                                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                                },
-                                onProductClick = { code ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SelectProduct(code))
-                                },
-                                selectedLanguage = navState.selectedLanguage,
-                                onLanguageChange = { lang ->
-                                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                                }
-                            )
-                        }
-                    }
-                    Screen.Login -> LoginScreen(
-                        loginUseCase = loginUseCase,
-                        onLoginSuccess = { 
-                            isLoggedIn = true
-                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Catalog))
-                        },
-                        onNavigateToSignup = {
-                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Signup))
-                        }
-                    )
-                    Screen.Signup -> SignupScreen(
-                        signupUseCase = signupUseCase,
-                        updateProfileUseCase = updateProfileUseCase,
-                        onSignupSuccess = { 
-                            isLoggedIn = true
-                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Catalog))
-                        },
-                        onNavigateToLogin = {
-                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Login))
-                        }
-                    )
-                    Screen.Profile -> ProfileScreen(
-                        getProfileUseCase = getProfileUseCase,
-                        updateProfileUseCase = updateProfileUseCase,
-                        onLogout = {
-                            clearTokenUseCase()
-                            isLoggedIn = false
-                            container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(Screen.Landing))
-                        }
-                    )
-                    Screen.Admin -> {
-                        AdminDashboardScreen()
-                    }
                 }
-            }
-
-            // Sticky Navbar (Material Design 3 with integrated status pill)
-            Navbar(
-                items = navItems,
-                currentScreen = navState.currentScreen,
-                activeLandingSection = navState.activeLandingSection,
-                isLoggedIn = isLoggedIn,
-                syncState = syncState,
-                selectedLanguage = navState.selectedLanguage,
-                onLanguageChange = { lang ->
-                    container.navigationCoordinator.processIntent(NavigationIntent.SetLanguage(lang))
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)
-                    .zIndex(10f),
-                onNavigate = { screen ->
-                    container.navigationCoordinator.processIntent(NavigationIntent.NavigateTo(screen))
-                },
-                onSolusiClick = {
-                    container.navigationCoordinator.processIntent(
-                        NavigationIntent.TargetLandingSection(NavbarActiveSection.SOLUSI)
-                    )
-                },
-                onProdukClick = {
-                    container.navigationCoordinator.processIntent(
-                        NavigationIntent.TargetLandingSection(NavbarActiveSection.PRODUK)
-                    )
-                },
-                onKontakClick = {
-                    container.navigationCoordinator.processIntent(
-                        NavigationIntent.TargetLandingSection(NavbarActiveSection.KONTAK)
-                    )
-                },
-                onConsultationClick = {
-                    container.navigationCoordinator.processIntent(NavigationIntent.RequestConsultation())
-                }
-            )
-
-            // UC-GATE-01: Inline Auth-Gating Modal Dialog
-            if (navState.isAuthGateOpen) {
-                com.sekota.components.AuthGateDialog(
-                    loginUseCase = loginUseCase,
-                    signupUseCase = signupUseCase,
-                    onDismissRequest = {
-                        container.navigationCoordinator.processIntent(NavigationIntent.CloseAuthGate)
-                    },
-                    onAuthSuccess = {
-                        isLoggedIn = true
-                        val pending = navState.pendingAction
-                        container.navigationCoordinator.processIntent(NavigationIntent.CloseAuthGate)
-                        pending?.invoke()
-                    }
-                )
             }
         }
     }
-}
-}
 }
 
 @Preview(device = DESKTOP)
 @Composable
 fun AppPreview() {
-    SekotaTheme {
-        App()
-    }
+    App()
 }

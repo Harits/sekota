@@ -19,15 +19,6 @@ actual class AdminDataStorage actual constructor() {
         return if (data == null) null else data
     }
 
-    actual fun saveMerchJson(json: String) {
-        setStorageItem("admin_merch_json", json)
-    }
-
-    actual fun getMerchJson(): String? {
-        val data = getStorageItem("admin_merch_json")
-        return if (data == null) null else data
-    }
-
     actual fun saveMetricsJson(json: String) {
         setStorageItem("admin_metrics_json", json)
     }
@@ -97,15 +88,6 @@ actual class AdminDataStorage actual constructor() {
 
     actual fun getNavigationItemsJson(): String? {
         val data = getStorageItem("admin_navigation_items_json")
-        return if (data == null) null else data
-    }
-
-    actual fun saveReadingProgressJson(bookId: String, json: String) {
-        setStorageItem("admin_reading_progress_$bookId", json)
-    }
-
-    actual fun getReadingProgressJson(bookId: String): String? {
-        val data = getStorageItem("admin_reading_progress_$bookId")
         return if (data == null) null else data
     }
 

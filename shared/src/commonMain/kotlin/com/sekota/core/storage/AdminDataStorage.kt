@@ -7,9 +7,6 @@ expect class AdminDataStorage() {
     fun saveProductsJson(json: String)
     fun getProductsJson(): String?
 
-    fun saveMerchJson(json: String)
-    fun getMerchJson(): String?
-
     fun saveMetricsJson(json: String)
     fun getMetricsJson(): String?
 
@@ -33,9 +30,6 @@ expect class AdminDataStorage() {
 
     fun saveNavigationItemsJson(json: String)
     fun getNavigationItemsJson(): String?
-
-    fun saveReadingProgressJson(bookId: String, json: String)
-    fun getReadingProgressJson(bookId: String): String?
 
     /** Generic keyed JSON document (company profile entities, schema version). */
     fun saveJson(key: String, json: String)

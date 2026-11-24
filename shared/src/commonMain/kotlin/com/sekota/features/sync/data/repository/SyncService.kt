@@ -60,7 +60,6 @@ class SyncService(
                             lastSyncedVersion = payload.version
                             dataStorage.saveBooksJson(json.encodeToString(payload.books))
                             dataStorage.saveProductsJson(json.encodeToString(payload.products))
-                            dataStorage.saveMerchJson(json.encodeToString(payload.merch))
                             dataStorage.saveMetricsJson(json.encodeToString(payload.metrics))
                             dataStorage.saveInquiriesJson(json.encodeToString(payload.inquiries))
                             dataStorage.saveValueLoopJson(json.encodeToString(payload.valueLoop))

@@ -6,11 +6,6 @@ import com.sekota.features.auth.domain.repository.AuthRepository
 import com.sekota.features.auth.domain.usecase.ClearTokenUseCase
 import com.sekota.features.auth.domain.usecase.GetTokenUseCase
 import com.sekota.features.auth.domain.usecase.LoginUseCase
-import com.sekota.features.auth.domain.usecase.SignupUseCase
-import com.sekota.features.profile.data.repository.ProfileRepositoryImpl
-import com.sekota.features.profile.domain.repository.ProfileRepository
-import com.sekota.features.profile.domain.usecase.GetProfileUseCase
-import com.sekota.features.profile.domain.usecase.UpdateProfileUseCase
 import com.sekota.features.sync.data.repository.SyncService
 import com.sekota.navigation.NavigationCoordinator
 
@@ -24,14 +19,10 @@ class AppContainer(
     val syncService: SyncService = SyncService()
 ) {
     val authRepository: AuthRepository by lazy { AuthRepositoryImpl(tokenStorage) }
-    val profileRepository: ProfileRepository by lazy { ProfileRepositoryImpl(tokenStorage) }
 
     val loginUseCase: LoginUseCase by lazy { LoginUseCase(authRepository) }
-    val signupUseCase: SignupUseCase by lazy { SignupUseCase(authRepository) }
     val getTokenUseCase: GetTokenUseCase by lazy { GetTokenUseCase(authRepository) }
     val clearTokenUseCase: ClearTokenUseCase by lazy { ClearTokenUseCase(authRepository) }
-    val getProfileUseCase: GetProfileUseCase by lazy { GetProfileUseCase(profileRepository) }
-    val updateProfileUseCase: UpdateProfileUseCase by lazy { UpdateProfileUseCase(profileRepository) }
 
     val adminRepository: com.sekota.features.admin.domain.repository.AdminRepository by lazy {
         com.sekota.features.admin.data.repository.AdminRepositoryImpl()
@@ -83,14 +74,9 @@ class AppContainer(
     val getBookByIdUseCase: com.sekota.features.admin.domain.usecase.GetBookByIdUseCase by lazy {
         com.sekota.features.admin.domain.usecase.GetBookByIdUseCase(adminRepository)
     }
-    val saveReadingProgressUseCase: com.sekota.features.reader.domain.usecase.SaveReadingProgressUseCase by lazy {
-        com.sekota.features.reader.domain.usecase.SaveReadingProgressUseCase(adminRepository)
-    }
-    val getReadingProgressUseCase: com.sekota.features.reader.domain.usecase.GetReadingProgressUseCase by lazy {
-        com.sekota.features.reader.domain.usecase.GetReadingProgressUseCase(adminRepository)
-    }
-    val recordReadingTelemetryUseCase: com.sekota.features.reader.domain.usecase.RecordReadingTelemetryUseCase by lazy {
-        com.sekota.features.reader.domain.usecase.RecordReadingTelemetryUseCase(adminRepository)
+
+    val getCompanyProfileUseCase: com.sekota.features.companyprofile.domain.usecase.GetCompanyProfileUseCase by lazy {
+        com.sekota.features.companyprofile.domain.usecase.GetCompanyProfileUseCase(adminRepository)
     }
 
     val navigationCoordinator: NavigationCoordinator by lazy { NavigationCoordinator() }
