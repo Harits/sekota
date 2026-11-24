@@ -7,7 +7,7 @@ data class StrategicConversationConfig(
     val title: String = "Mulai Percakapan\nStrategis.",
     val subtitle: String = "Tim kami akan merespons dalam 1x24 jam kerja untuk mendiskusikan kebutuhan Anda.",
     val address: String = "Jl. H. Rasam No.96, Parigi Baru,\nPd. Aren, Tangerang Selatan 15228",
-    val email: String = "sales@sekota.id",
+    val email: String = "info@sekota.id",
     val website: String = "www.sekota.id",
     val nameLabel: String = "NAMA LENGKAP",
     val namePlaceholder: String = "Budi Santoso",
@@ -15,5 +15,20 @@ data class StrategicConversationConfig(
     val emailPlaceholder: String = "budi@instansi.go.id",
     val messageLabel: String = "PESAN / KEBUTUHAN STRATEGIS",
     val messagePlaceholder: String = "Ceritakan tantangan Anda...",
-    val submitButtonLabel: String = "Kirim & Mulai Konsultasi"
-)
+    val submitButtonLabel: String = "Kirim & Mulai Konsultasi",
+    /** Topics offered on the contact page (CORE-07-01-02 / #22657). */
+    val topics: List<LocalizedText> = defaultTopics
+) {
+    companion object {
+        val defaultTopics: List<LocalizedText> = listOf(
+            LocalizedText("Konsultasi umum", "General consultation"),
+            LocalizedText("Demo Clarivio – Analisis Strategis & Risiko", "Demo Clarivio – Strategic & Risk Intelligence"),
+            LocalizedText("Demo Ascendio – Kesiapan & Kompetensi SDM", "Demo Ascendio – Workforce Readiness & Competence"),
+            LocalizedText("Demo Sociara – Dampak Sosial & CSR", "Demo Sociara – Social Impact & CSR"),
+            LocalizedText("Demo Evidara – Kinerja ESG", "Demo Evidara – ESG Performance"),
+            LocalizedText("Program Mitra Awal", "Early Partner Program"),
+            LocalizedText("Wawasan & buku Sekota", "Insights & Sekota books"),
+            LocalizedText("Lainnya", "Other")
+        )
+    }
+}

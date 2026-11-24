@@ -30,8 +30,26 @@ data class AdminBook(
     val coverColorHex: String? = null,
     val whatsInside: List<AdminWhatsInsideItem> = emptyList(),
     val categoryEn: String? = null,
-    val descriptionEn: String? = null
+    val descriptionEn: String? = null,
+
+    // ---- Company profile revamp (CORE-07-01-02 / #22657) ----
+    /** Anchor on the books page: /buku#{slug}. */
+    val slug: String = "",
+    /** The question the book answers, e.g. "Apa yang sedang kita lewatkan?". */
+    val tagline: LocalizedText = LocalizedText(),
+    /** Transformation label, e.g. "sinyal → keputusan". */
+    val flowLabel: LocalizedText = LocalizedText(),
+    val blurb: LocalizedText = LocalizedText(),
+    /** "Untuk siapa" — the readers this book is written for. */
+    val audience: List<LocalizedText> = emptyList(),
+    /** Series id when the book belongs to one (e.g. the CSR/ESG/Leadership trilogy). */
+    val seriesId: String? = null,
+    /** Bundled cover asset key resolved by the UI; [coverImage] (URL/base64) wins when set. */
+    val coverAsset: String? = null,
+    val sortOrder: Int = 0
 ) {
+    val anchorSlug: String get() = slug.ifBlank { id }
+
     fun resolveForLocale(locale: com.sekota.localization.AppLocale): AdminBook {
         return if (locale == com.sekota.localization.AppLocale.EN) {
             this.copy(

@@ -5,6 +5,11 @@ import com.sekota.LOCAL_API_BASE_URL
 import com.sekota.NetworkClient
 import com.sekota.core.storage.AdminDataStorage
 import com.sekota.core.storage.TokenStorage
+import com.sekota.features.admin.data.seed.CompanyProfileSeed
+import com.sekota.features.admin.domain.model.AboutConfig
+import com.sekota.features.admin.domain.model.Faq
+import com.sekota.features.admin.domain.model.PartnerCtaConfig
+import com.sekota.features.admin.domain.model.ServiceOffering
 import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.admin.domain.model.AdminBook
 import com.sekota.features.admin.domain.model.AdminLiveMetrics
@@ -78,184 +83,9 @@ class AdminRepositoryImpl(
         prettyPrint = false
     }
 
-    private val defaultCanonicalBooks = listOf(
-        AdminBook(
-            id = "manifesto-ekuitas-lahan",
-            title = "Manifesto Ekuitas Lahan",
-            author = "Putu Aan J.",
-            isbn = "978-623-99999-0-0",
-            coverImage = null,
-            category = "SMART CITY",
-            description = "Strategi dan framework implementasi Smart City dan tata kelola ekuitas lahan perkotaan.",
-            rating = 4.9,
-            ratingCount = 890,
-            pdfUrl = "https://sekota.id/assets/docs/manifesto-ekuitas-lahan.pdf",
-            readingTime = "4H 15M",
-            pages = 280,
-            whatsInside = listOf(
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Urban Data & Sensorik Cerdas", "Membangun arsitektur data kota berbasis sensor dan telemetri terpadu.", "sparkle"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Tata Kelola Ekuitas Lahan", "Framework regulasi dan redistribusi spasial perkotaan yang berkeadilan.", "frame"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mobilitas & Integrasi Multimoda", "Sistem transportasi cerdas untuk optimasi aliran logistik warga.", "gear"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Ketahanan Iklim Perkotaan", "Mitigasi bencana ekologis perkotaan melalui pemodelan prediktif.", "leaf")
-            ),
-            categoryEn = "SMART CITY",
-            descriptionEn = "Smart City implementation strategy, urban data architecture, and equitable land governance frameworks."
-        ),
-        AdminBook(
-            id = "blind-spot-radar",
-            title = "Blind Spot Radar",
-            author = "Sekota Team",
-            isbn = "978-623-99999-3-1",
-            coverImage = null,
-            category = "INTELLIGENCE",
-            description = "Metodologi Open Source Intelligence untuk mendeteksi blind spot kebijakan publik dan fenomena keputusan strategis.",
-            rating = 4.8,
-            ratingCount = 1240,
-            pdfUrl = "https://sekota.id/assets/docs/blind-spot-radar.pdf",
-            readingTime = "3H 45M",
-            pages = 240,
-            whatsInside = listOf(
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("The Attention Economy", "Understanding the mechanics behind digital distractions.", "sparkle"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Deep Work Protocols", "Actionable steps to enter flow state on command.", "frame"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Mindful Tech Integration", "Setting boundaries that stick without the guilt.", "gear"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Cognitive Recovery", "Restoring your mental energy after intense digital usage.", "leaf")
-            ),
-            categoryEn = "INTELLIGENCE",
-            descriptionEn = "Open Source Intelligence methodologies to identify policy blind spots and navigate complex corporate strategic dilemmas."
-        ),
-        AdminBook(
-            id = "csr-berdampak",
-            title = "CSR Berdampak",
-            author = "Sekota Team",
-            isbn = "978-623-99999-1-7",
-            coverImage = null,
-            category = "ESG",
-            description = "Panduan penyusunan program tanggung jawab sosial perusahaan berbasis dampak nyata dan keberlanjutan.",
-            rating = 4.7,
-            ratingCount = 650,
-            pdfUrl = "https://sekota.id/assets/docs/csr-berdampak.pdf",
-            readingTime = "2H 30M",
-            pages = 180,
-            whatsInside = listOf(
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi.", "sparkle"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
-            ),
-            categoryEn = "ESG",
-            descriptionEn = "A comprehensive handbook on engineering high-impact corporate social responsibility programs and sustainable development frameworks."
-        ),
-        AdminBook(
-            id = "esg-strategic-integration",
-            title = "ESG Strategic Integration",
-            author = "Sekota Team",
-            isbn = "978-623-99999-2-4",
-            coverImage = null,
-            category = "ESG",
-            description = "Integrasi menyeluruh standar kepatuhan lingkungan, sosial, dan tata kelola korporasi modern.",
-            rating = 4.9,
-            ratingCount = 1020,
-            pdfUrl = "https://sekota.id/assets/docs/esg-strategic-integration.pdf",
-            readingTime = "5H 10M",
-            pages = 320,
-            whatsInside = listOf(
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Prinsip ESG & Tata Kelola", "Menelaah standar akuntabilitas kepatuhan lingkungan dan sosial korporasi.", "sparkle"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Integrasi Strategis Keberlanjutan", "Langkah operasionalisasi metrik ESG ke dalam model bisnis institusi.", "frame"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Audit Dampak & Pelaporan", "Metodologi evaluasi dampak sosial dan mitigasi risiko regulasi.", "gear"),
-                com.sekota.features.admin.domain.model.AdminWhatsInsideItem("Transformasi Ekosistem Hijau", "Peta jalan menuju ekosistem operasional rendah karbon dan berdaya tahan.", "leaf")
-            ),
-            categoryEn = "ESG",
-            descriptionEn = "End-to-end organizational integration of environmental, social, and corporate governance compliance standards."
-        )
-    )
-
-
-    private val defaultCanonicalProducts = listOf(
-        AdminProduct(
-            id = "p1",
-            code = "VRD",
-            name = "Veridia",
-            categoryEyebrow = "ESG & Carbon Intelligence",
-            description = "Platform analitik komprehensif untuk pemantauan jejak karbon Scope 1, 2, dan 3, kepatuhan regulasi lingkungan, dan pelaporan ESG otomatis sesuai standar global.",
-            features = listOf(
-                "Audit Jejak Karbon Scope 1, 2, & 3 Real-time",
-                "Pelaporan Keberlanjutan Otomatis (GRI, ISSB, IDX-ESG)",
-                "Pemodelan Skenario Dekarbonisasi Prediktif",
-                "Dashboard Tata Kelola Pemangku Kepentingan"
-            ),
-            categoryEyebrowEn = "ESG & Carbon Intelligence",
-            descriptionEn = "Comprehensive analytics platform for Scope 1, 2, and 3 carbon footprint tracking, environmental compliance, and automated ESG reporting aligned with global standards.",
-            featuresEn = listOf(
-                "Real-time Scope 1, 2, & 3 Carbon Footprint Audit",
-                "Automated Sustainability Reporting (GRI, ISSB, IDX-ESG)",
-                "Predictive Decarbonization Scenario Modeling",
-                "Stakeholder Governance Dashboard"
-            )
-        ),
-        AdminProduct(
-            id = "p2",
-            code = "ASC",
-            name = "Ascendio",
-            categoryEyebrow = "Strategic Corporate Intelligence",
-            description = "Sistem intelijen bisnis strategis untuk pemetaan kompetitif pasar, analisis sentimen kebijakan publik, dan mitigasi risiko reputasi berbasis big data AI.",
-            features = listOf(
-                "Pemantauan Sentimen Media & Kebijakan Publik 24/7",
-                "Pemetaan Risiko Reputasi & Mitigasi Krisis B2B/B2G",
-                "Analisis Lanskap Regulasi & Pemangku Kepentingan",
-                "Executive Briefing & AI Strategic Recommendations"
-            ),
-            categoryEyebrowEn = "Strategic Corporate Intelligence",
-            descriptionEn = "Strategic business intelligence system for competitive market mapping, public policy sentiment analysis, and AI-powered reputation risk mitigation.",
-            featuresEn = listOf(
-                "24/7 Media Sentiment & Public Policy Monitoring",
-                "Reputation Risk Mapping & B2B/B2G Crisis Mitigation",
-                "Regulatory & Stakeholder Landscape Analysis",
-                "Executive Briefing & AI Strategic Recommendations"
-            )
-        ),
-        AdminProduct(
-            id = "p3",
-            code = "SOC",
-            name = "Sociara",
-            categoryEyebrow = "Social Impact & Community Engagement",
-            description = "Platform manajemen dan evaluasi dampak sosial (Social Return on Investment / SROI), relasi masyarakat lingkar industri, dan program CSR korporasi berkelanjutan.",
-            features = listOf(
-                "Pengukuran SROI & Evaluasi Efektivitas Dampak CSR",
-                "Pemetaan Sosial & Dinamika Komunitas Lingkar Industri",
-                "Manajemen Keluhan & Relasi Pemangku Kepentingan Lokal",
-                "Pelaporan Keterlibatan Sosial Terverifikasi Audit"
-            ),
-            categoryEyebrowEn = "Social Impact & Community Engagement",
-            descriptionEn = "Social impact management and evaluation platform (Social Return on Investment / SROI), industrial community relations, and sustainable corporate CSR programs.",
-            featuresEn = listOf(
-                "SROI Measurement & CSR Impact Effectiveness Evaluation",
-                "Social Mapping & Community Dynamics Around Industrial Rings",
-                "Grievance Management & Local Stakeholder Relations",
-                "Audit-Verified Social Engagement Reporting"
-            )
-        ),
-        AdminProduct(
-            id = "p4",
-            code = "ECO",
-            name = "Ecoflow",
-            categoryEyebrow = "Resource & Ecological Intelligence",
-            description = "Solusi pemantauan aliran sumber daya energi, air, dan limbah sirkular untuk efisiensi operasional industri menuju target Net Zero Emission.",
-            features = listOf(
-                "Pemantauan Konsumsi Energi & Efisiensi Operasional",
-                "Manajemen Sirkularitas Limbah & Daur Ulang Industri",
-                "Pelacakan Konsumsi & Kualitas Neraca Air Industri",
-                "Integrasi Sertifikasi Green Building & ISO 14001"
-            ),
-            categoryEyebrowEn = "Resource & Ecological Intelligence",
-            descriptionEn = "Resource flow monitoring solution for energy, water, and circular waste to drive industrial operational efficiency toward Net Zero targets.",
-            featuresEn = listOf(
-                "Energy Consumption Monitoring & Operational Efficiency",
-                "Industrial Waste Circularity & Recycling Management",
-                "Industrial Water Balance Quality & Consumption Tracking",
-                "Green Building & ISO 14001 Certification Integration"
-            )
-        )
-    )
+    // Canonical content lives in the data-layer seed (CORE-07-01-03 / #22658).
+    private val defaultCanonicalBooks: List<AdminBook> get() = CompanyProfileSeed.books
+    private val defaultCanonicalProducts: List<AdminProduct> get() = CompanyProfileSeed.products
 
     private val defaultCanonicalMerch = listOf(
         AdminMerch("m1", "Sekota Hoodie", "Apparel", "Core", 45.0, 4.8),
@@ -263,7 +93,85 @@ class AdminRepositoryImpl(
         AdminMerch("m3", "Kotlin Multiplatform T-Shirt", "Apparel", "Dev", 25.0, 4.9)
     )
 
+    /**
+     * Web presentation fields are owned by the CMS, not by bookinteractiontool, so a
+     * remote refresh must carry them over from the local record (or the seed).
+     */
+    private fun AdminBook.withEnrichmentFrom(source: AdminBook?): AdminBook {
+        if (source == null) return this
+        return copy(
+            whatsInside = source.whatsInside,
+            coverColorHex = source.coverColorHex,
+            slug = source.slug,
+            tagline = source.tagline,
+            flowLabel = source.flowLabel,
+            blurb = source.blurb,
+            audience = source.audience,
+            seriesId = source.seriesId,
+            coverAsset = source.coverAsset,
+            sortOrder = source.sortOrder
+        )
+    }
+
+    // ---------------------------------------------------------------------------------
+    // One-time content migration to the company profile schema (CORE-07-01-03 / #22658)
+    // ---------------------------------------------------------------------------------
+    private var contentSchemaChecked = false
+
+    /**
+     * Brings locally stored content written by the previous design up to
+     * [CompanyProfileSeed.CONTENT_SCHEMA_VERSION]. Runs once per store:
+     *  - products: replaced by the new roster (Clarivio, Ascendio, Sociara, Evidara);
+     *  - books: new six-book catalogue; telemetry, covers and PDF links of books that
+     *    still exist are kept, retired seed books are dropped, unknown books are kept;
+     *  - Cara Kerja, main navigation and footer: reset to the new structure;
+     *  - contact email: moved to info@sekota.id only if it still holds the old default.
+     * Services, FAQ, About and Partner CTA are seeded lazily by their getters.
+     */
+    private fun ensureContentSchema() {
+        if (contentSchemaChecked) return
+        contentSchemaChecked = true
+        val stored = dataStorage.getJson(KEY_CONTENT_SCHEMA)?.trim()?.toIntOrNull() ?: 1
+        if (stored >= CompanyProfileSeed.CONTENT_SCHEMA_VERSION) return
+
+        persistProducts(CompanyProfileSeed.products)
+
+        val existingBooks = dataStorage.getBooksJson()?.let {
+            runCatching { json.decodeFromString<List<AdminBook>>(it) }.getOrNull()
+        }.orEmpty()
+        if (existingBooks.isNotEmpty()) {
+            val byId = existingBooks.associateBy { it.id }
+            val seeded = CompanyProfileSeed.books.map { seed ->
+                val old = byId[seed.id] ?: return@map seed
+                seed.copy(
+                    rating = old.rating,
+                    ratingCount = old.ratingCount,
+                    interactions = old.interactions,
+                    coverImage = old.coverImage ?: seed.coverImage,
+                    pdfUrl = old.pdfUrl ?: seed.pdfUrl,
+                    isbn = old.isbn.ifBlank { seed.isbn }
+                )
+            }
+            val seedIds = CompanyProfileSeed.books.map { it.id }.toSet()
+            val extra = existingBooks.filter { it.id !in seedIds && it.id !in CompanyProfileSeed.RETIRED_BOOK_IDS }
+            persistBooks(seeded + extra)
+        }
+
+        persistValueLoop(com.sekota.features.admin.domain.model.ValueLoopConfig())
+        persistNavigationItems(com.sekota.features.navigation.domain.model.NavigationItem.CANONICAL_ITEMS)
+        persistFooter(com.sekota.features.admin.domain.model.FooterConfig())
+
+        dataStorage.getContactConfigJson()?.let { raw ->
+            runCatching { json.decodeFromString<StrategicConversationConfig>(raw) }.getOrNull()
+        }?.takeIf { it.email == LEGACY_CONTACT_EMAIL }?.let {
+            persistStrategicConversation(it.copy(email = StrategicConversationConfig().email))
+        }
+
+        dataStorage.saveJson(KEY_CONTENT_SCHEMA, CompanyProfileSeed.CONTENT_SCHEMA_VERSION.toString())
+    }
+
     override suspend fun getBooks(): List<AdminBook> {
+        ensureContentSchema()
         // 1. Try fetching from live HTTP backend (supporting bookinteractiontool API at AUTH_BASE_URL or LOCAL_API_BASE_URL)
         val token = tokenStorage.getToken()
         val baseUrls = listOf(
@@ -364,7 +272,7 @@ class AdminRepositoryImpl(
                                 year = local?.year ?: "2025",
                                 categoryEn = local?.categoryEn,
                                 descriptionEn = local?.descriptionEn
-                            )
+                            ).withEnrichmentFrom(local ?: defaultCanonicalBooks.firstOrNull { it.id == remote.id })
                         }
                         persistBooks(mapped)
                         return mapped
@@ -516,6 +424,7 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getProducts(): List<AdminProduct> {
+        ensureContentSchema()
         val storedJson = dataStorage.getProductsJson()
         if (!storedJson.isNullOrBlank()) {
             try {
@@ -646,6 +555,7 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getValueLoop(): com.sekota.features.admin.domain.model.ValueLoopConfig {
+        ensureContentSchema()
         val storedJson = dataStorage.getValueLoopJson()
         if (!storedJson.isNullOrBlank()) {
             try {
@@ -730,6 +640,7 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getStrategicConversation(): StrategicConversationConfig {
+        ensureContentSchema()
         val storedJson = dataStorage.getContactConfigJson()
         if (!storedJson.isNullOrBlank()) {
             try {
@@ -751,6 +662,7 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getFooter(): com.sekota.features.admin.domain.model.FooterConfig {
+        ensureContentSchema()
         val storedJson = dataStorage.getFooterConfigJson()
         if (!storedJson.isNullOrBlank()) {
             try {
@@ -772,6 +684,7 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem> {
+        ensureContentSchema()
         val storedJson = dataStorage.getNavigationItemsJson()
         if (!storedJson.isNullOrBlank()) {
             try {
@@ -793,6 +706,87 @@ class AdminRepositoryImpl(
 
     private fun persistNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>) {
         dataStorage.saveNavigationItemsJson(json.encodeToString(items))
+    }
+
+    // ---------------------------------------------------------------------------------
+    // Company profile entities (CORE-07-01-03 / #22658)
+    // ---------------------------------------------------------------------------------
+    private inline fun <reified T> readDocument(key: String): T? =
+        dataStorage.getJson(key)?.takeIf { it.isNotBlank() }?.let {
+            runCatching { json.decodeFromString<T>(it) }.getOrNull()
+        }
+
+    private inline fun <reified T> writeDocument(key: String, value: T) {
+        dataStorage.saveJson(key, json.encodeToString(value))
+    }
+
+    override suspend fun getServices(): List<ServiceOffering> {
+        readDocument<List<ServiceOffering>>(KEY_SERVICES)?.let { return it.sortedBy { s -> s.sortOrder } }
+        writeDocument(KEY_SERVICES, CompanyProfileSeed.services)
+        return CompanyProfileSeed.services
+    }
+
+    override suspend fun saveService(service: ServiceOffering): Result<ServiceOffering> {
+        val current = getServices().filterNot { it.id == service.id } + service
+        writeDocument(KEY_SERVICES, current.sortedBy { it.sortOrder })
+        return Result.success(service)
+    }
+
+    override suspend fun deleteService(id: String): Result<Boolean> {
+        val current = getServices()
+        val remaining = current.filterNot { it.id == id }
+        if (remaining.size != current.size) writeDocument(KEY_SERVICES, remaining)
+        return Result.success(remaining.size != current.size)
+    }
+
+    override suspend fun getFaqs(): List<Faq> {
+        readDocument<List<Faq>>(KEY_FAQS)?.let { return it.sortedBy { f -> f.sortOrder } }
+        writeDocument(KEY_FAQS, CompanyProfileSeed.faqs)
+        return CompanyProfileSeed.faqs
+    }
+
+    override suspend fun saveFaq(faq: Faq): Result<Faq> {
+        val current = getFaqs().filterNot { it.id == faq.id } + faq
+        writeDocument(KEY_FAQS, current.sortedBy { it.sortOrder })
+        return Result.success(faq)
+    }
+
+    override suspend fun deleteFaq(id: String): Result<Boolean> {
+        val current = getFaqs()
+        val remaining = current.filterNot { it.id == id }
+        if (remaining.size != current.size) writeDocument(KEY_FAQS, remaining)
+        return Result.success(remaining.size != current.size)
+    }
+
+    override suspend fun getAbout(): AboutConfig {
+        readDocument<AboutConfig>(KEY_ABOUT)?.let { return it }
+        writeDocument(KEY_ABOUT, CompanyProfileSeed.about)
+        return CompanyProfileSeed.about
+    }
+
+    override suspend fun saveAbout(config: AboutConfig): Result<AboutConfig> {
+        writeDocument(KEY_ABOUT, config)
+        return Result.success(config)
+    }
+
+    override suspend fun getPartnerCta(): PartnerCtaConfig {
+        readDocument<PartnerCtaConfig>(KEY_PARTNER_CTA)?.let { return it }
+        writeDocument(KEY_PARTNER_CTA, CompanyProfileSeed.partnerCta)
+        return CompanyProfileSeed.partnerCta
+    }
+
+    override suspend fun savePartnerCta(config: PartnerCtaConfig): Result<PartnerCtaConfig> {
+        writeDocument(KEY_PARTNER_CTA, config)
+        return Result.success(config)
+    }
+
+    companion object {
+        const val KEY_CONTENT_SCHEMA = "content_schema_version"
+        const val KEY_SERVICES = "services"
+        const val KEY_FAQS = "faqs"
+        const val KEY_ABOUT = "about"
+        const val KEY_PARTNER_CTA = "partner_cta"
+        private const val LEGACY_CONTACT_EMAIL = "sales@sekota.id"
     }
 
     override suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit> {

@@ -3,6 +3,7 @@ package com.sekota.features.sync.data.repository
 import com.sekota.core.storage.AdminDataStorage
 import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.sync.domain.model.SyncDataPayload
+import com.sekota.features.sync.domain.model.applyCompanyProfileTo
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -70,6 +71,7 @@ class SyncService(
                             if (payload.navigationItems.isNotEmpty()) {
                                 dataStorage.saveNavigationItemsJson(json.encodeToString(payload.navigationItems))
                             }
+                            payload.applyCompanyProfileTo(dataStorage, json)
                             _syncEventFlow.tryEmit(Unit)
                         }
                         _syncState.value = "Connected"

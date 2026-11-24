@@ -36,5 +36,9 @@ expect class AdminDataStorage() {
 
     fun saveReadingProgressJson(bookId: String, json: String)
     fun getReadingProgressJson(bookId: String): String?
+
+    /** Generic keyed JSON document (company profile entities, schema version). */
+    fun saveJson(key: String, json: String)
+    fun getJson(key: String): String?
 }
 

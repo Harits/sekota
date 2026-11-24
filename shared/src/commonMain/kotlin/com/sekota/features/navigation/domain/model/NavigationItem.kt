@@ -9,45 +9,21 @@ data class NavigationItem(
     val route: String,
     val iconUrl: String? = null,
     val order: Int = 0,
-    val isVisible: Boolean = true
+    val isVisible: Boolean = true,
+    val labelEn: String? = null
 ) {
+    fun labelFor(locale: com.sekota.localization.AppLocale): String =
+        if (locale == com.sekota.localization.AppLocale.EN) labelEn?.takeIf { it.isNotBlank() } ?: label else label
+
     companion object {
+        /** Main navigation of the company profile (WEB-07-03 / #22655). */
         val CANONICAL_ITEMS = listOf(
-            NavigationItem(
-                id = "nav_solusi",
-                label = "Solusi",
-                route = "#solusi",
-                order = 1,
-                isVisible = true
-            ),
-            NavigationItem(
-                id = "nav_produk",
-                label = "Produk",
-                route = "#produk",
-                order = 2,
-                isVisible = true
-            ),
-            NavigationItem(
-                id = "nav_ebook",
-                label = "E-Book",
-                route = "/catalog",
-                order = 3,
-                isVisible = true
-            ),
-            NavigationItem(
-                id = "nav_merchandise",
-                label = "Merchandise",
-                route = "/merchandise",
-                order = 4,
-                isVisible = true
-            ),
-            NavigationItem(
-                id = "nav_kontak",
-                label = "Kontak",
-                route = "#kontak",
-                order = 5,
-                isVisible = true
-            )
+            NavigationItem(id = "nav_tentang", label = "Tentang", labelEn = "About", route = "#tentang", order = 1),
+            NavigationItem(id = "nav_layanan", label = "Layanan", labelEn = "Services", route = "#layanan", order = 2),
+            NavigationItem(id = "nav_cara_kerja", label = "Cara Kerja", labelEn = "How We Work", route = "#cara-kerja", order = 3),
+            NavigationItem(id = "nav_platform", label = "Platform", labelEn = "Platform", route = "#platform", order = 4),
+            NavigationItem(id = "nav_wawasan", label = "Wawasan", labelEn = "Insights", route = "#wawasan", order = 5),
+            NavigationItem(id = "nav_faq", label = "FAQ", labelEn = "FAQ", route = "#faq", order = 6)
         )
     }
 }

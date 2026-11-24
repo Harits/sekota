@@ -4,6 +4,7 @@ import com.sekota.core.storage.AdminDataStorage
 import com.sekota.features.admin.data.repository.AdminRepositoryImpl
 import com.sekota.features.admin.domain.model.ClientInquiry
 import com.sekota.features.sync.domain.model.SyncDataPayload
+import com.sekota.features.sync.domain.model.applyCompanyProfileTo
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kotlinx.coroutines.runBlocking
@@ -56,7 +57,12 @@ object CmsSyncServer {
                                 contactConfig = repository.getStrategicConversation(),
                                 footerConfig = repository.getFooter(),
                                 navigationItems = repository.getNavigationItems(),
-                                version = versionCounter.get()
+                                version = versionCounter.get(),
+                                services = repository.getServices(),
+                                faqs = repository.getFaqs(),
+                                about = repository.getAbout(),
+                                partnerCta = repository.getPartnerCta(),
+                                contentSchemaVersion = com.sekota.features.admin.data.seed.CompanyProfileSeed.CONTENT_SCHEMA_VERSION
                             )
                         }
                         val responseJson = json.encodeToString(payload)
@@ -81,6 +87,7 @@ object CmsSyncServer {
                             storage.saveContactConfigJson(json.encodeToString(payload.contactConfig))
                             storage.saveFooterConfigJson(json.encodeToString(payload.footerConfig))
                             storage.saveNavigationItemsJson(json.encodeToString(payload.navigationItems))
+                            payload.applyCompanyProfileTo(storage, json)
                             versionCounter.incrementAndGet()
                             exchange.sendResponseHeaders(200, -1)
                         } catch (e: Exception) {

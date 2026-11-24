@@ -3,7 +3,9 @@ package com.sekota.core.storage
 import java.io.File
 
 actual class AdminDataStorage actual constructor() {
-    private val storageDir = File(System.getProperty("user.home"), ".sekota").apply {
+    /** `sekota.storage.dir` lets tests point the store at a temporary directory. */
+    private val storageDir = (System.getProperty("sekota.storage.dir")?.let(::File)
+        ?: File(System.getProperty("user.home"), ".sekota")).apply {
         if (!exists()) mkdirs()
     }
 
@@ -128,5 +130,13 @@ actual class AdminDataStorage actual constructor() {
 
     actual fun getReadingProgressJson(bookId: String): String? {
         return read("reading_progress_$bookId")
+    }
+
+    actual fun saveJson(key: String, json: String) {
+        write("doc_$key", json)
+    }
+
+    actual fun getJson(key: String): String? {
+        return read("doc_$key")
     }
 }

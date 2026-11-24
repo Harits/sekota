@@ -249,3 +249,73 @@ class SaveAdminNavigationItemsUseCase(private val repository: AdminRepository) {
 }
 
 
+
+// ---------------------------------------------------------------------------------
+// Company profile content (CORE-07-01 / #22656)
+// ---------------------------------------------------------------------------------
+
+class GetServicesUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): List<com.sekota.features.admin.domain.model.ServiceOffering> =
+        repository.getServices().sortedBy { it.sortOrder }
+}
+
+class SaveServiceUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(service: com.sekota.features.admin.domain.model.ServiceOffering): Result<com.sekota.features.admin.domain.model.ServiceOffering> {
+        if (service.id.isBlank()) return Result.failure(IllegalArgumentException("ID layanan tidak valid"))
+        if (service.title.isBlank) return Result.failure(IllegalArgumentException("Judul layanan tidak boleh kosong"))
+        if (service.summary.isBlank) return Result.failure(IllegalArgumentException("Ringkasan layanan tidak boleh kosong"))
+        return repository.saveService(service)
+    }
+}
+
+class DeleteServiceUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(id: String): Result<Boolean> {
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("ID layanan tidak valid"))
+        return repository.deleteService(id)
+    }
+}
+
+class GetFaqsUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): List<com.sekota.features.admin.domain.model.Faq> =
+        repository.getFaqs().sortedBy { it.sortOrder }
+}
+
+class SaveFaqUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(faq: com.sekota.features.admin.domain.model.Faq): Result<com.sekota.features.admin.domain.model.Faq> {
+        if (faq.id.isBlank()) return Result.failure(IllegalArgumentException("ID FAQ tidak valid"))
+        if (faq.question.isBlank) return Result.failure(IllegalArgumentException("Pertanyaan FAQ tidak boleh kosong"))
+        if (faq.answer.isBlank) return Result.failure(IllegalArgumentException("Jawaban FAQ tidak boleh kosong"))
+        return repository.saveFaq(faq)
+    }
+}
+
+class DeleteFaqUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(id: String): Result<Boolean> {
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("ID FAQ tidak valid"))
+        return repository.deleteFaq(id)
+    }
+}
+
+class GetAboutUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): com.sekota.features.admin.domain.model.AboutConfig = repository.getAbout()
+}
+
+class SaveAboutUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: com.sekota.features.admin.domain.model.AboutConfig): Result<com.sekota.features.admin.domain.model.AboutConfig> {
+        if (config.title.isBlank) return Result.failure(IllegalArgumentException("Judul 'Tentang' tidak boleh kosong"))
+        if (config.pillars.any { it.title.isBlank }) return Result.failure(IllegalArgumentException("Judul setiap pilar tidak boleh kosong"))
+        return repository.saveAbout(config)
+    }
+}
+
+class GetPartnerCtaUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(): com.sekota.features.admin.domain.model.PartnerCtaConfig = repository.getPartnerCta()
+}
+
+class SavePartnerCtaUseCase(private val repository: AdminRepository) {
+    suspend operator fun invoke(config: com.sekota.features.admin.domain.model.PartnerCtaConfig): Result<com.sekota.features.admin.domain.model.PartnerCtaConfig> {
+        if (config.title.isBlank) return Result.failure(IllegalArgumentException("Judul ajakan mitra tidak boleh kosong"))
+        if (config.ctaLabel.isBlank) return Result.failure(IllegalArgumentException("Label tombol ajakan mitra tidak boleh kosong"))
+        return repository.savePartnerCta(config)
+    }
+}

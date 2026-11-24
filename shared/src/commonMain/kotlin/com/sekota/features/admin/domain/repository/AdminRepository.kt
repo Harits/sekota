@@ -49,6 +49,21 @@ interface AdminRepository {
     suspend fun getNavigationItems(): List<com.sekota.features.navigation.domain.model.NavigationItem>
     suspend fun saveNavigationItems(items: List<com.sekota.features.navigation.domain.model.NavigationItem>): Result<List<com.sekota.features.navigation.domain.model.NavigationItem>>
 
+    // ---- Company profile (CORE-07-01 / #22652) ----
+    suspend fun getServices(): List<com.sekota.features.admin.domain.model.ServiceOffering>
+    suspend fun saveService(service: com.sekota.features.admin.domain.model.ServiceOffering): Result<com.sekota.features.admin.domain.model.ServiceOffering>
+    suspend fun deleteService(id: String): Result<Boolean>
+
+    suspend fun getFaqs(): List<com.sekota.features.admin.domain.model.Faq>
+    suspend fun saveFaq(faq: com.sekota.features.admin.domain.model.Faq): Result<com.sekota.features.admin.domain.model.Faq>
+    suspend fun deleteFaq(id: String): Result<Boolean>
+
+    suspend fun getAbout(): com.sekota.features.admin.domain.model.AboutConfig
+    suspend fun saveAbout(config: com.sekota.features.admin.domain.model.AboutConfig): Result<com.sekota.features.admin.domain.model.AboutConfig>
+
+    suspend fun getPartnerCta(): com.sekota.features.admin.domain.model.PartnerCtaConfig
+    suspend fun savePartnerCta(config: com.sekota.features.admin.domain.model.PartnerCtaConfig): Result<com.sekota.features.admin.domain.model.PartnerCtaConfig>
+
     suspend fun saveReadingProgress(progress: com.sekota.features.reader.domain.model.BookReadingProgress): Result<Unit>
     suspend fun getReadingProgress(bookId: String): com.sekota.features.reader.domain.model.BookReadingProgress?
     suspend fun recordReadingTelemetry(bookId: String, chapterIndex: Int, chapterTitle: String): Result<Boolean>

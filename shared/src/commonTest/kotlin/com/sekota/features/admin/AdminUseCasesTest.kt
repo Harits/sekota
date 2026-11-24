@@ -119,6 +119,38 @@ class FakeAdminRepository : AdminRepository {
         return Result.success(items)
     }
 
+    val services = mutableListOf<com.sekota.features.admin.domain.model.ServiceOffering>()
+    override suspend fun getServices() = services.sortedBy { it.sortOrder }
+    override suspend fun saveService(service: com.sekota.features.admin.domain.model.ServiceOffering): Result<com.sekota.features.admin.domain.model.ServiceOffering> {
+        services.removeAll { it.id == service.id }
+        services.add(service)
+        return Result.success(service)
+    }
+    override suspend fun deleteService(id: String): Result<Boolean> = Result.success(services.removeAll { it.id == id })
+
+    val faqs = mutableListOf<com.sekota.features.admin.domain.model.Faq>()
+    override suspend fun getFaqs() = faqs.sortedBy { it.sortOrder }
+    override suspend fun saveFaq(faq: com.sekota.features.admin.domain.model.Faq): Result<com.sekota.features.admin.domain.model.Faq> {
+        faqs.removeAll { it.id == faq.id }
+        faqs.add(faq)
+        return Result.success(faq)
+    }
+    override suspend fun deleteFaq(id: String): Result<Boolean> = Result.success(faqs.removeAll { it.id == id })
+
+    var about = com.sekota.features.admin.domain.model.AboutConfig()
+    override suspend fun getAbout() = about
+    override suspend fun saveAbout(config: com.sekota.features.admin.domain.model.AboutConfig): Result<com.sekota.features.admin.domain.model.AboutConfig> {
+        about = config
+        return Result.success(config)
+    }
+
+    var partnerCta = com.sekota.features.admin.domain.model.PartnerCtaConfig()
+    override suspend fun getPartnerCta() = partnerCta
+    override suspend fun savePartnerCta(config: com.sekota.features.admin.domain.model.PartnerCtaConfig): Result<com.sekota.features.admin.domain.model.PartnerCtaConfig> {
+        partnerCta = config
+        return Result.success(config)
+    }
+
     val readingProgressMap = mutableMapOf<String, com.sekota.features.reader.domain.model.BookReadingProgress>()
     val recordedTelemetry = mutableListOf<Triple<String, Int, String>>()
 
@@ -238,8 +270,9 @@ class AdminUseCasesTest {
         val saveUseCase = SaveAdminValueLoopUseCase(repo)
 
         val initial = getUseCase()
-        assertEquals("Strategic Value Loop", initial.title)
-        assertEquals(5, initial.steps.size)
+        // Sprint 7 revamp: "Cara Kerja" has four stages (Diagnosis → Keberlanjutan).
+        assertEquals("Empat tahap, dari masalah sampai hasil yang bertahan.", initial.title)
+        assertEquals(listOf("Diagnosis", "Perancangan", "Penerapan", "Keberlanjutan"), initial.steps.map { it.title })
 
         val updated = initial.copy(
             title = "Updated Value Loop",
@@ -355,7 +388,7 @@ class AdminUseCasesTest {
         // 1. Initial default state
         val initial = getUseCase()
         assertEquals("Mulai Percakapan\nStrategis.", initial.title)
-        assertEquals("sales@sekota.id", initial.email)
+        assertEquals("info@sekota.id", initial.email)
         assertEquals("Kirim & Mulai Konsultasi", initial.submitButtonLabel)
 
         // 2. Save valid updated config
@@ -396,10 +429,10 @@ class AdminUseCasesTest {
 
         // 1. Initial default state
         val initial = getUseCase()
-        assertTrue(initial.tagline.contains("Trusted Intelligence"))
-        assertEquals("eBdesk Group Affiliation", initial.affiliationText)
+        assertTrue(initial.tagline.contains("Mitra analisis untuk keputusan yang berdampak"))
+        assertEquals("eBdesk Group", initial.affiliationText)
         assertEquals(4, initial.productColumn.items.size)
-        assertEquals(5, initial.companyColumn.items.size)
+        assertEquals(6, initial.companyColumn.items.size)
         assertEquals(2, initial.legalColumn.items.size)
 
         // 2. Save valid updated footer
@@ -433,9 +466,10 @@ class AdminUseCasesTest {
 
         // 1. Initial canonical items
         val initialItems = getUseCase()
-        assertEquals(5, initialItems.size)
-        assertEquals("Solusi", initialItems[0].label)
-        assertEquals("#solusi", initialItems[0].route)
+        assertEquals(6, initialItems.size)
+        assertEquals("Tentang", initialItems[0].label)
+        assertEquals("About", initialItems[0].labelEn)
+        assertEquals("#tentang", initialItems[0].route)
 
         // 2. Save updated navigation items
         val customItems = listOf(

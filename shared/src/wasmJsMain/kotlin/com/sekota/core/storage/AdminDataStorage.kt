@@ -108,5 +108,13 @@ actual class AdminDataStorage actual constructor() {
         val data = getStorageItem("admin_reading_progress_$bookId")
         return if (data == null) null else data
     }
+
+    actual fun saveJson(key: String, json: String) {
+        setStorageItem("admin_doc_$key", json)
+    }
+
+    actual fun getJson(key: String): String? {
+        return getStorageItem("admin_doc_$key")
+    }
 }
 
