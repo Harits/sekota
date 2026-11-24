@@ -200,6 +200,19 @@ This file contains the high-level roadmap, user stories, and architectural bound
 
 ---
 
+## 🏢 Phase 4: Company Profile Revamp - Foundation & Landing Page (Sprint 7 - Open, Version 853)
+> Desain Sprint 6 ditolak. Desain final baru: static company profile (ID/EN). Domain berubah, jadi situs publik di-revamp. Detail: [`sprint-7-plan.md`](../../sprint-7-plan.md).
+- [ ] **WP-049: [CORE-07-01] - Domain & Data Layer Revamp for New Company Profile** (OpenProject ID: 22652)
+  - *Child Tasks*: `#22656` Domain models baru, `#22657` Extend Product/Book/Inquiry/ValueLoop, `#22658` Repository, sync & seed migration, `#22659` Unit tests
+- [ ] **WP-050: [WEB-07-01] - New Design System: Typography, Tokens, Light/Dark Assets & Reveal Motion** (OpenProject ID: 22653)
+  - *Child Tasks*: `#22660` Typography & tokens, `#22661` Light/dark assets, `#22662` Reveal motion & shared components, `#22663` Previews
+- [ ] **WP-051: [WEB-07-02] - Landing Page Rebuild** (OpenProject ID: 22654)
+  - *Child Tasks*: `#22664` Hero/Tentang/Layanan, `#22665` Cara Kerja/Platform/Wawasan, `#22666` Mitra/FAQ/Footer, `#22667` Previews
+- [ ] **WP-052: [WEB-07-03] - New Navigation & Routing** (OpenProject ID: 22655)
+  - *Child Tasks*: `#22668` AppDestination & routes, `#22669` Navbar & ID/EN switch, `#22670` Remove Merchandise/Login/AuthGate/Profile/Reader, `#22671` Tests & previews
+
+---
+
 
 
 
