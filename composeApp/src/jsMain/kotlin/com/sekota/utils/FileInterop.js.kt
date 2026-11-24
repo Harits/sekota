@@ -17,7 +17,7 @@ actual fun decodeImageToBitmap(bytes: ByteArray): ImageBitmap? {
     }
 }
 
-actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
+actual fun selectAndReadImageFile(onFileRead: (String) -> Unit, onCancel: () -> Unit) {
     val fileInput = document.createElement("input") as HTMLInputElement
     fileInput.type = "file"
     fileInput.accept = "image/*"
@@ -31,8 +31,12 @@ actual fun selectAndReadImageFile(onFileRead: (String) -> Unit) {
                 onFileRead(base64)
             }
             reader.readAsDataURL(file)
+        } else {
+            onCancel()
         }
     })
+    // Browsers fire "cancel" when the picker is dismissed without a file.
+    fileInput.addEventListener("cancel", { _: Event -> onCancel() })
 
     fileInput.click()
 }
