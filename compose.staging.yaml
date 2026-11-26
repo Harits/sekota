@@ -1,0 +1,17 @@
+# Staging: no customer traffic. TLS via `--profile proxy` or an external
+# ingress in front of 127.0.0.1:8080.
+#   docker compose -f compose.yaml -f compose.staging.yaml \
+#     --env-file .env.staging --profile proxy up -d --build
+services:
+  sekota:
+    restart: unless-stopped
+    mem_limit: ${MEM_LIMIT:-1g}
+    cpus: ${CPU_LIMIT:-1.0}
+    stop_grace_period: 20s
+    # Loopback only, for an external ingress. With Caddy in the same stack this
+    # is optional but harmless.
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:${PORT:-8080}:8080"
+
+  caddy:
+    restart: unless-stopped

@@ -1,12 +1,84 @@
-version: '3.8'
+# Base stack shared by development, staging and production.
+#
+# Always combine with one override and an env file, for example:
+#   docker compose -f compose.yaml -f compose.production.yaml \
+#     --env-file .env.production --profile proxy up -d --build
+#
+# Podman: replace "docker compose" with "podman compose" (provider required).
+# No Docker-only extensions are used; harden options map to podman run flags.
+
+name: ${COMPOSE_PROJECT_NAME:-sekota}
 
 services:
-  sekota-web:
+  sekota:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
+    image: ${IMAGE_NAME:-sekota-web}:${IMAGE_TAG:-local}
+    container_name: ${CONTAINER_NAME:-sekota}
     restart: unless-stopped
+
+    # The app is only reachable on the Compose network by default (Caddy proxies
+    # it). Staging/production publish a loopback port for external ingress; the
+    # development override uses host networking instead.
+
+    environment:
+      PORT: "8080"
+      SEKOTA_WEB_DIR: /opt/sekota/web
+      # Same-origin deployments do not need CORS. Keep an explicit exact list
+      # only if the UI is served from a different origin.
+      SEKOTA_ALLOWED_ORIGINS: "${SEKOTA_ALLOWED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}"
+      SEKOTA_SMTP_HOST: "${SEKOTA_SMTP_HOST:-}"
+      SEKOTA_SMTP_PORT: "${SEKOTA_SMTP_PORT:-587}"
+      SEKOTA_SMTP_USER: "${SEKOTA_SMTP_USER:-}"
+      SEKOTA_SMTP_PASSWORD: "${SEKOTA_SMTP_PASSWORD:-}"
+      SEKOTA_SMTP_STARTTLS: "${SEKOTA_SMTP_STARTTLS:-true}"
+      SEKOTA_MAIL_FROM: "${SEKOTA_MAIL_FROM:-}"
+      SEKOTA_MAIL_TO: "${SEKOTA_MAIL_TO:-info@sekota.id}"
+      # FormSubmit is a test-only fallback; SMTP wins when host is set.
+      SEKOTA_FORMSUBMIT_TO: "${SEKOTA_FORMSUBMIT_TO:-}"
+      SEKOTA_FORMSUBMIT_ORIGIN: "${SEKOTA_FORMSUBMIT_ORIGIN:-}"
+      JAVA_OPTS: "${JAVA_OPTS:--XX:InitialRAMPercentage=20 -XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError -XX:+UseContainerSupport -XX:MaxMetaspaceSize=160m -Dfile.encoding=UTF-8 -Djava.io.tmpdir=/tmp}"
+
+    # The app writes nothing except JVM temporary files.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=128m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      # $$PORT is resolved inside the container, so the dev override can change it.
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:$${PORT}/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    stop_grace_period: 20s
+
+  # Optional TLS terminator. Enable with --profile proxy in staging/production.
+  # When the profile is off, an external ingress can proxy to BIND_ADDR:PORT.
+  caddy:
+    image: caddy:2.10.2-alpine
+    profiles: ["proxy"]
+    container_name: ${CONTAINER_NAME:-sekota}-caddy
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    environment:
+      DOMAIN: "${DOMAIN:-localhost}"
+      ACME_CA: "${ACME_CA:-https://acme-v02.api.letsencrypt.org/directory}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - sekota
+
+volumes:
+  caddy_data:
+  caddy_config:

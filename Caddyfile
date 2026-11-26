@@ -1,0 +1,28 @@
+# Caddy reverse proxy for Sekota.
+# DOMAIN is injected by compose.yaml from the active env file.
+# Public DNS names get automatic Let's Encrypt certificates; "localhost" gets
+# an internal CA (browser warning unless the CA is trusted).
+#
+# ACME_CA is injected by compose.yaml. Staging can point it at Let's Encrypt's
+# staging CA to avoid production rate limits (certificates are not trusted).
+{
+    # Optional: uncomment and use a literal address for expiry notices.
+    # email ops@example.com
+
+    acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+}
+
+{$DOMAIN} {
+    encode zstd gzip
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # The app is reached over the Compose network; its host port stays private.
+    reverse_proxy sekota:8080
+}

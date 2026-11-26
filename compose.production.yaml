@@ -1,0 +1,27 @@
+# Production: real traffic, SMTP required, stricter limits and log rotation.
+#   docker compose -f compose.yaml -f compose.production.yaml \
+#     --env-file .env.production --profile proxy up -d --build
+#
+# Log rotation options apply to Docker's default json-file driver. Podman
+# providers that ignore `logging` should use journald or podman log options.
+services:
+  sekota:
+    restart: always
+    mem_limit: ${MEM_LIMIT:-1536m}
+    cpus: ${CPU_LIMIT:-2.0}
+    stop_grace_period: 30s
+    # Loopback only, for an external ingress. With Caddy in the same stack this
+    # is optional but harmless.
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:${PORT:-8080}:8080"
+    logging:
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"
+
+  caddy:
+    restart: always
+    logging:
+      options:
+        max-size: "${LOG_MAX_SIZE:-10m}"
+        max-file: "${LOG_MAX_FILE:-5}"

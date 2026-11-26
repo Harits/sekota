@@ -1,39 +1,20 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
-    application
 }
 
-group = "com.sekota"
+group = "id.sekota"
 version = "1.0.0"
 application {
-    mainClass.set("com.sekota.ApplicationKt")
-    
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    mainClass = "id.sekota.ApplicationKt"
 }
 
 dependencies {
-    implementation(projects.shared)
+    api(project(":core"))
     implementation(libs.logback)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
-    implementation(libs.ktor.serverAuth)
-    implementation(libs.ktor.serverAuthJwt)
-    implementation(libs.ktor.serverContentNegotiation)
-    implementation(libs.ktor.serverCors)
-    implementation(libs.ktor.serverWebsockets)
-    implementation(libs.ktor.serverOpenapi)
-    implementation(libs.ktor.serverSwagger)
-    implementation(libs.ktor.serializationKotlinxJson)
-    
-    implementation(libs.exposed.core)
-    implementation(libs.exposed.jdbc)
-    implementation(libs.exposed.dao)
-    implementation("org.jetbrains.exposed:exposed-java-time:0.47.0")
-    implementation(libs.postgresql)
-    implementation(libs.hikaricp)
-    
+    implementation(libs.jakartaMail)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }
