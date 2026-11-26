@@ -1,0 +1,25 @@
+# Local development: http://localhost:8090, FormSubmit, no TLS.
+# Use together with .env.development:
+#   docker compose -f compose.yaml -f compose.development.yaml \
+#     --env-file .env.development up -d --build
+services:
+  sekota:
+    restart: "no"
+    mem_limit: ${MEM_LIMIT:-1g}
+    cpus: ${CPU_LIMIT:-1.0}
+    stop_grace_period: 5s
+
+    # Windows/WSL only: the WSL kernel lacks the nftables FIB expression that
+    # netavark needs, so published ports fail there. Host networking exposes the
+    # dev stack directly on PORT (8090) and keeps it reachable from Windows.
+    # On Linux you can drop these two keys and publish instead:
+    #   ports: ["${BIND_ADDR:-0.0.0.0}:${PORT:-8090}:8080"]
+    network_mode: host
+    environment:
+      PORT: "8090"
+
+    # Optional: serve a Wasm build made on the host instead of the image copy,
+    # so UI changes only need `./gradlew :app:webApp:wasmJsBrowserDistribution`
+    # instead of a full image rebuild. The path must already exist.
+    # volumes:
+    #   - ./app/webApp/build/dist/wasmJs/productionExecutable:/opt/sekota/web:ro

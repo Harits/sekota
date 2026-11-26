@@ -1,16 +1,43 @@
-.git
-.gradle
-.idea
-build
-.kotlin
-*.iml
-run-local-podman.sh
-test-in-podman.sh
-container-management.skill
-*.skill
-.kotlin-skills
-node_modules
+# Keep the Docker build context small. Sources, Gradle wrapper and the
+# Kotlin/Wasm lockfile are kept; outputs, local state, secrets and evidence
+# are not sent to the daemon.
 
-# Ignore all builds except the final web output we need
-**/build
-!composeApp/build/dist/wasmJs/productionExecutable/
+# VCS / IDE
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+*.iml
+.DS_Store
+
+# Gradle / Kotlin local state and build outputs
+.gradle/
+.kotlin/
+build/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Node / visual tooling (51 MB node_modules)
+**/node_modules/
+tools/
+
+# Documentation and visual evidence
+docs/
+*.md
+
+# Secrets and per-environment config
+.env
+.env.*
+
+# Deployment files not needed inside the image
+compose*.yaml
+Caddyfile
+Dockerfile
+.dockerignore
+
+# iOS application (not part of the web/server image)
+app/iosApp/

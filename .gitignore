@@ -17,11 +17,8 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
-**/.env
-yarn.lock
-web-dist/
-.artifacts
-
-# Local agent skills (keep repo-native sekota-workflow tracked)
-.agents/skills/*
-!.agents/skills/sekota-workflow/
+.env
+.env.development
+.env.staging
+.env.production
+!.env.*.example
